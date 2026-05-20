@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-valle-green: #2E5235;
+  --color-valle-green-dark: #19331e;
+  --color-valle-green-light: #44754d;
+  --color-valle-gold: #B49650;
+  --color-valle-gold-light: #d6b86f;
+  --color-valle-black: #191E17;
+  --color-valle-black-light: #2c3629;
+}
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
