@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Login from './Login';
 import AtletaDashboard from './AtletaDashboard';
+import EntrenadorDashboard from './EntrenadorDashboard';
 import RegistroEntrenamiento from './RegistroEntrenamiento';
 import Plantilla from './Plantilla';
 import Tactica from './Tactica';
@@ -16,7 +17,8 @@ import {
   BrainCircuit,
   Settings,
   User as UserIcon,
-  X
+  X,
+  BarChart2
 } from 'lucide-react';
 
 export default function App() {
@@ -104,8 +106,8 @@ export default function App() {
               </button>
               
               <button onClick={() => handleNavClick('dashboard')} className={navItemClass('dashboard')}>
-                <BrainCircuit size={18} className="mr-3" />
-                <span>Laboratorio I.A.</span>
+                <BarChart2 size={18} className="mr-3" />
+                <span>Dashboard</span>
               </button>
 
               <button onClick={() => handleNavClick('jugadores')} className={navItemClass('jugadores')}>
@@ -192,9 +194,10 @@ export default function App() {
             </h1>
           </div>
 
-          {menuActivo === 'dashboard' && <AtletaDashboard />}
+          {menuActivo === 'dashboard' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <EntrenadorDashboard />}
+          {menuActivo === 'dashboard' && rolUsuario === 'atleta' && <AtletaDashboard />}
           {menuActivo === 'jugadores' && <Plantilla />}
-          {menuActivo === 'tactica' && <Tactica />}
+          {menuActivo === 'tactica' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} />}
           {menuActivo === 'ia' && <RegistroEntrenamiento />}
           {menuActivo === 'configuracion' && <ConfiguracionClub />}
           {menuActivo === 'mi_perfil' && <FichaTecnica />}

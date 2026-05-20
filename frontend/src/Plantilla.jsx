@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
-import { Users, User, Shield, Target, Award, Search, Loader2 } from 'lucide-react';
+import { Users, User, Shield, Target, Award, Search, Loader2, Eye } from 'lucide-react';
+import FichaTecnica from './FichaTecnica';
 
 export default function Plantilla() {
     const [jugadores, setJugadores] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
+    const [selectedAtletaId, setSelectedAtletaId] = useState(null);
 
     useEffect(() => {
         const obtenerJugadores = async () => {
@@ -59,6 +61,10 @@ export default function Plantilla() {
         return `${inicialNombre}${inicialApellido}`;
     };
 
+    if (selectedAtletaId) {
+        return <FichaTecnica atletaId={selectedAtletaId} onBack={() => setSelectedAtletaId(null)} />;
+    }
+
     return (
         <div className="space-y-6 max-w-7xl mx-auto">
 
@@ -103,7 +109,8 @@ export default function Plantilla() {
                         return (
                             <div
                                 key={jugador.atleta_id || Math.random()}
-                                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-slate-300 transition duration-300 group flex flex-col justify-between"
+                                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-slate-300 transition duration-300 group flex flex-col justify-between cursor-pointer"
+                                onClick={() => setSelectedAtletaId(jugador.atleta_id)}
                             >
                                 <div className="p-5 flex flex-col items-center text-center relative">
                                     <span className="absolute top-4 right-4 text-2xl font-black text-slate-100 group-hover:text-slate-200 transition select-none">
@@ -125,9 +132,11 @@ export default function Plantilla() {
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50 px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-[11px] transition">
-                                    <span className="text-slate-500">Estado:</span>
-                                    <span className="font-bold text-valle-green">{jugador.estado_actual || 'Activo'}</span>
+                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-[11px] transition duration-200">
+                                    <span className="font-bold flex items-center">
+                                        <Eye size={12} className="mr-1" /> Ver Ficha
+                                    </span>
+                                    <span className="font-bold">{jugador.estado_actual || 'Activo'}</span>
                                 </div>
                             </div>
                         );

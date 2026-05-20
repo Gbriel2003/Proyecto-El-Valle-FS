@@ -40,6 +40,7 @@ class PerfilAtleta(Base):
     registros_nutricionales = relationship("RegistroNutricional", back_populates="atleta")
     registros_biometricos = relationship("RegistroBiometrico", back_populates="atleta")
     registros_ia = relationship("RegistroIA", foreign_keys='RegistroIA.atleta_id', back_populates="atleta")
+    lesiones = relationship("Lesion", back_populates="atleta")
 
 # ==========================================
 # MÓDULO DE ENTRENAMIENTOS
@@ -188,3 +189,30 @@ class RegistroBiometrico(Base):
     imc = Column(Float)
 
     atleta = relationship("PerfilAtleta", back_populates="registros_biometricos")
+
+class Lesion(Base):
+    __tablename__ = "lesiones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    atleta_id = Column(Integer, ForeignKey("perfil_atleta.atleta_id"), nullable=False)
+    tipo_lesion = Column(String(100), nullable=False)
+    gravedad = Column(String(20), nullable=False) # Leve, Media, Grave
+    fecha_inicio = Column(Date, nullable=False, server_default=func.current_date())
+    fecha_alta = Column(Date, nullable=True)
+    descripcion = Column(Text, nullable=True)
+    rehabilitacion = Column(Text, nullable=True)
+
+    atleta = relationship("PerfilAtleta", back_populates="lesiones")
+
+class JugadaGuardada(Base):
+    __tablename__ = "jugadas_guardadas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    titulo = Column(String(100), nullable=False)
+    descripcion = Column(Text, nullable=True)
+    tokens_json = Column(JSON, nullable=False)
+    trazos_png = Column(Text, nullable=True) # Guardará la imagen en base64 para poder recrear los trazos
+    fecha_creacion = Column(DateTime, server_default=func.now())
+
+    usuario = relationship("Usuario")

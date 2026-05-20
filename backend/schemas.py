@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, date
-from typing import Optional
+from typing import Optional, Any
 
 # ==========================================
 # ESQUEMAS DE USUARIO (REGISTRO)
@@ -94,6 +94,12 @@ class PartidoResponse(PartidoCreate):
     class Config:
         from_attributes = True
 
+class PartidoUpdate(BaseModel):
+    goles_local: int
+    goles_visitante: int
+    estado: str  # "Finalizado"
+    jugadores_ids: list[int]
+
 # Esquema para crear la sesión general
 class SesionEntrenamientoCreate(BaseModel):
     fecha: Optional[date] = None
@@ -162,6 +168,52 @@ class CargaAtletaResponse(BaseModel):
     rpe_esfuerzo: Optional[int]
     saltos_cm: Optional[float]
     tiempo_sprint_30m: Optional[float]
+
+    class Config:
+        from_attributes = True
+
+# ==========================================
+# ESQUEMAS DE LESIONES Y PIZARRAS GUARDADAS
+# ==========================================
+
+class LesionCreate(BaseModel):
+    tipo_lesion: str
+    gravedad: str
+    fecha_inicio: date
+    descripcion: Optional[str] = None
+    rehabilitacion: Optional[str] = None
+
+class LesionResponse(BaseModel):
+    id: int
+    atleta_id: int
+    tipo_lesion: str
+    gravedad: str
+    fecha_inicio: date
+    fecha_alta: Optional[date] = None
+    descripcion: Optional[str] = None
+    rehabilitacion: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class LesionUpdate(BaseModel):
+    fecha_alta: Optional[date] = None
+    rehabilitacion: Optional[str] = None
+
+class JugadaGuardadaCreate(BaseModel):
+    titulo: str
+    descripcion: Optional[str] = None
+    tokens_json: Any
+    trazos_png: Optional[str] = None
+
+class JugadaGuardadaResponse(BaseModel):
+    id: int
+    usuario_id: int
+    titulo: str
+    descripcion: Optional[str] = None
+    tokens_json: Any
+    trazos_png: Optional[str] = None
+    fecha_creacion: datetime
 
     class Config:
         from_attributes = True

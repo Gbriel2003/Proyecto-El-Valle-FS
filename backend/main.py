@@ -224,20 +224,36 @@ def actualizar_perfil_atleta(atleta_id: int, perfil_actualizado: schemas.PerfilA
     return perfil
 
 # Tarea en segundo plano para procesar PDF con IA
-def procesar_reporte_ia_background(file_path: str, partido_id: int, db: Session):
+def procesar_reporte_ia_background(file_path: str, partido_id: int):
+    """Crea su propia sesión de BD para no depender de la sesión del request (que ya se cerró)."""
+    db = SessionLocal()
     try:
         texto_extraido = utils.extraer_texto_pdf(file_path)
         analisis_ia = utils.analizar_estadisticas_con_ia(texto_extraido)
         
-        nuevo_reporte = models.ReportePartido(
-            partido_id=partido_id, 
-            ruta_archivo=file_path,
-            analisis_ia=analisis_ia
-        )
-        db.add(nuevo_reporte)
+        # Buscar si ya existe un reporte para este partido (re-subida)
+        reporte_existente = db.query(models.ReportePartido).filter(
+            models.ReportePartido.partido_id == partido_id
+        ).first()
+        
+        if reporte_existente:
+            reporte_existente.analisis_ia = analisis_ia
+            reporte_existente.ruta_archivo = file_path
+        else:
+            nuevo_reporte = models.ReportePartido(
+                partido_id=partido_id, 
+                ruta_archivo=file_path,
+                analisis_ia=analisis_ia
+            )
+            db.add(nuevo_reporte)
+        
         db.commit()
+        print(f"[IA] Reporte del partido {partido_id} procesado correctamente.")
     except Exception as e:
-        print(f"Error procesando reporte IA: {e}")
+        print(f"[IA ERROR] Error procesando reporte partido {partido_id}: {e}")
+        db.rollback()
+    finally:
+        db.close()
 
 # RUTA PARA SUBIR EL PDF DE ESTATS EL VALLE
 @app.post("/partidos/{partido_id}/subir-reporte")
@@ -278,14 +294,38 @@ async def subir_reporte_pdf(
     if not file_path:
         file_path = temp_file_path
 
-    # Enviar a background task
-    background_tasks.add_task(procesar_reporte_ia_background, temp_file_path, partido_id, db)
+    # Enviar a background task (sin pasar la sesión del request)
+    background_tasks.add_task(procesar_reporte_ia_background, temp_file_path, partido_id)
     
     return {
         "status": "Procesamiento iniciado en segundo plano",
         "partido_id": partido_id,
         "mensaje": "El reporte se está analizando con IA."
     }
+
+@app.delete("/partidos/{partido_id}")
+def eliminar_partido(
+    partido_id: int,
+    db: Session = Depends(get_db),
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    partido = db.query(models.Partido).filter(models.Partido.id == partido_id).first()
+    if not partido:
+        raise HTTPException(status_code=404, detail="Partido no encontrado")
+    
+    # Eliminar estadísticas tácticas relacionadas
+    db.query(models.EstadisticasTacticas).filter(
+        models.EstadisticasTacticas.partido_id == partido_id
+    ).delete()
+    
+    # Eliminar reportes relacionados
+    db.query(models.ReportePartido).filter(
+        models.ReportePartido.partido_id == partido_id
+    ).delete()
+    
+    db.delete(partido)
+    db.commit()
+    return {"mensaje": "Partido eliminado correctamente"}
 
 # ==========================================
 # RUTAS DE TORNEOS Y PARTIDOS
@@ -303,6 +343,10 @@ def crear_torneo(torneo: schemas.TorneoCreate, db: Session = Depends(get_db), ad
     db.commit()
     db.refresh(nuevo_torneo)
     return nuevo_torneo
+
+@app.get("/torneos/", response_model=list[schemas.TorneoResponse])
+def listar_torneos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return db.query(models.Torneo).offset(skip).limit(limit).all()
 
 @app.post("/partidos/", response_model=schemas.PartidoResponse)
 def crear_partido(partido: schemas.PartidoCreate, db: Session = Depends(get_db), admin: models.Usuario = Depends(verificar_admin)):
@@ -334,10 +378,58 @@ def obtener_partidos(skip: int = 0, limit: int = 100, db: Session = Depends(get_
             "fecha_hora": p.fecha_hora.isoformat() if p.fecha_hora else None,
             "estado": p.estado,
             "goles_local": p.goles_local,
-            "goles_visitante": p.goles_visitante
+            "goles_visitante": p.goles_visitante,
+            "torneo_nombre": p.torneo.nombre if p.torneo else "Torneo Desconocido",
+            "jugadores_ids": [est.atleta_id for est in p.estadisticas]
         }
         for p in partidos
     ]
+
+@app.put("/partidos/{partido_id}")
+def actualizar_partido(
+    partido_id: int,
+    partido_data: schemas.PartidoUpdate,
+    db: Session = Depends(get_db),
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    partido = db.query(models.Partido).filter(models.Partido.id == partido_id).first()
+    if not partido:
+        raise HTTPException(status_code=404, detail="Partido no encontrado")
+    
+    partido.goles_local = partido_data.goles_local
+    partido.goles_visitante = partido_data.goles_visitante
+    partido.estado = partido_data.estado
+    
+    # Eliminar estadísticas tácticas antiguas asociadas a este partido
+    db.query(models.EstadisticasTacticas).filter(models.EstadisticasTacticas.partido_id == partido_id).delete()
+    
+    # Guardar la nueva alineación en EstadisticasTacticas
+    for atleta_id in partido_data.jugadores_ids:
+        nueva_est = models.EstadisticasTacticas(
+            partido_id=partido_id,
+            atleta_id=atleta_id,
+            goles=0,
+            asistencias=0,
+            recuperaciones=0,
+            errores_posicionamiento=0,
+            minutos_jugados=0
+        )
+        db.add(nueva_est)
+    
+    db.commit()
+    db.refresh(partido)
+    return {
+        "mensaje": "Resultado e integrantes registrados exitosamente",
+        "partido": {
+            "id": partido.id,
+            "equipo_local": partido.equipo_local,
+            "equipo_visitante": partido.equipo_visitante,
+            "estado": partido.estado,
+            "goles_local": partido.goles_local,
+            "goles_visitante": partido.goles_visitante,
+            "jugadores_ids": partido_data.jugadores_ids
+        }
+    }
 
 @app.get("/partidos/{partido_id}/reporte")
 def obtener_reporte_partido(
@@ -628,3 +720,287 @@ def obtener_mi_dashboard(
 ):
     # Reutilizamos la lógica del dashboard, pero con el ID del usuario logueado
     return obtener_dashboard_atleta(atleta_id=usuario_actual.id, db=db, usuario_actual=usuario_actual)
+
+
+# ==========================================
+# REPARACIONES Y CIERRE DE BRECHAS
+# ==========================================
+
+@app.get("/atletas/{atleta_id}/habitos-nutricionales")
+def obtener_habitos_diarios(
+    atleta_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    # Verificamos que el atleta exista
+    atleta = db.query(models.PerfilAtleta).filter(models.PerfilAtleta.atleta_id == atleta_id).first()
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta no encontrado.")
+    
+    registros = db.query(models.RegistroNutricional).filter(
+        models.RegistroNutricional.atleta_id == atleta_id
+    ).order_by(models.RegistroNutricional.fecha.desc()).all()
+    
+    return registros
+
+# ==========================================
+# MÓDULO DE LESIONES
+# ==========================================
+
+@app.post("/atletas/{atleta_id}/lesiones", response_model=schemas.LesionResponse)
+def registrar_lesion(
+    atleta_id: int,
+    lesion: schemas.LesionCreate,
+    db: Session = Depends(get_db),
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    atleta = db.query(models.PerfilAtleta).filter(models.PerfilAtleta.atleta_id == atleta_id).first()
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta no encontrado.")
+
+    nueva_lesion = models.Lesion(
+        atleta_id=atleta_id,
+        tipo_lesion=lesion.tipo_lesion,
+        gravedad=lesion.gravedad,
+        fecha_inicio=lesion.fecha_inicio,
+        descripcion=lesion.descripcion,
+        rehabilitacion=lesion.rehabilitacion
+    )
+    db.add(nueva_lesion)
+    db.commit()
+    db.refresh(nueva_lesion)
+    return nueva_lesion
+
+@app.get("/atletas/{atleta_id}/lesiones", response_model=list[schemas.LesionResponse])
+def obtener_lesiones(
+    atleta_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    atleta = db.query(models.PerfilAtleta).filter(models.PerfilAtleta.atleta_id == atleta_id).first()
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta no encontrado.")
+
+    return db.query(models.Lesion).filter(models.Lesion.atleta_id == atleta_id).order_by(models.Lesion.fecha_inicio.desc()).all()
+
+@app.put("/lesiones/{lesion_id}/alta", response_model=schemas.LesionResponse)
+def dar_alta_lesion(
+    lesion_id: int,
+    alta_data: schemas.LesionUpdate,
+    db: Session = Depends(get_db),
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    lesion = db.query(models.Lesion).filter(models.Lesion.id == lesion_id).first()
+    if not lesion:
+        raise HTTPException(status_code=404, detail="Registro de lesión no encontrado.")
+
+    lesion.fecha_alta = alta_data.fecha_alta
+    if alta_data.rehabilitacion:
+        lesion.rehabilitacion = alta_data.rehabilitacion
+
+    db.commit()
+    db.refresh(lesion)
+    return lesion
+
+# ==========================================
+# MÓDULO DE PIZARRA TÁCTICA (PERSISTENCIA)
+# ==========================================
+
+@app.post("/jugadas", response_model=schemas.JugadaGuardadaResponse)
+def guardar_jugada_tactica(
+    jugada: schemas.JugadaGuardadaCreate,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    nueva_jugada = models.JugadaGuardada(
+        usuario_id=usuario_actual.id,
+        titulo=jugada.titulo,
+        descripcion=jugada.descripcion,
+        tokens_json=jugada.tokens_json,
+        trazos_png=jugada.trazos_png
+    )
+    db.add(nueva_jugada)
+    db.commit()
+    db.refresh(nueva_jugada)
+    return nueva_jugada
+
+@app.get("/jugadas", response_model=list[schemas.JugadaGuardadaResponse])
+def obtener_jugadas_tacticas(
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    return db.query(models.JugadaGuardada).filter(
+        models.JugadaGuardada.usuario_id == usuario_actual.id
+    ).order_by(models.JugadaGuardada.fecha_creacion.desc()).all()
+
+@app.delete("/jugadas/{jugada_id}")
+def eliminar_jugada_tactica(
+    jugada_id: int,
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    jugada = db.query(models.JugadaGuardada).filter(
+        models.JugadaGuardada.id == jugada_id,
+        models.JugadaGuardada.usuario_id == usuario_actual.id
+    ).first()
+    
+    if not jugada:
+        raise HTTPException(status_code=404, detail="Jugada no encontrada.")
+
+    db.delete(jugada)
+    db.commit()
+    return {"message": "Jugada eliminada exitosamente"}
+
+
+# ==========================================
+# DASHBOARD DEL ENTRENADOR (Vista Ejecutiva)
+# ==========================================
+
+@app.get("/dashboard-entrenador/")
+def obtener_dashboard_entrenador(
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    # 1. RESUMEN DE PLANTILLA
+    atletas_db = db.query(models.PerfilAtleta).all()
+    total_atletas = len(atletas_db)
+
+    resumen_atletas = []
+    atletas_con_lesion = 0
+
+    for atleta in atletas_db:
+        usuario = db.query(models.Usuario).filter(models.Usuario.id == atleta.atleta_id).first()
+
+        # Última carga (para RPE)
+        ultima_carga = db.query(models.CargaAtleta).filter(
+            models.CargaAtleta.atleta_id == atleta.atleta_id
+        ).order_by(models.CargaAtleta.id.desc()).first()
+
+        # Último hábito (para descanso/hidratación)
+        ultimo_habito = db.query(models.RegistroNutricional).filter(
+            models.RegistroNutricional.atleta_id == atleta.atleta_id
+        ).order_by(models.RegistroNutricional.id.desc()).first()
+
+        # Lesión activa (fecha_alta == None significa que sigue de baja)
+        lesion_activa = db.query(models.Lesion).filter(
+            models.Lesion.atleta_id == atleta.atleta_id,
+            models.Lesion.fecha_alta == None
+        ).first()
+
+        if lesion_activa:
+            atletas_con_lesion += 1
+
+        # Cálculo de nivel de riesgo simple (basado en datos, sin IA)
+        rpe = ultima_carga.rpe_esfuerzo if ultima_carga else None
+        descanso = ultimo_habito.calidad_descanso if ultimo_habito else None
+
+        if lesion_activa:
+            nivel_riesgo = "De Baja"
+            color_riesgo = "rojo"
+        elif rpe is not None and rpe >= 9:
+            nivel_riesgo = "Riesgo Alto"
+            color_riesgo = "rojo"
+        elif rpe is not None and rpe >= 7:
+            nivel_riesgo = "Riesgo Medio"
+            color_riesgo = "amarillo"
+        elif rpe is not None and descanso is not None and descanso <= 4:
+            nivel_riesgo = "Descanso Bajo"
+            color_riesgo = "amarillo"
+        else:
+            nivel_riesgo = "Óptimo"
+            color_riesgo = "verde"
+
+        # Partidos jugados en la temporada
+        partidos_jugados = db.query(models.EstadisticasTacticas).filter(
+            models.EstadisticasTacticas.atleta_id == atleta.atleta_id
+        ).count()
+
+        resumen_atletas.append({
+            "atleta_id": atleta.atleta_id,
+            "nombre": usuario.nombre if usuario else "Jugador",
+            "apellido": usuario.apellido if usuario else "",
+            "posicion": atleta.posicion_especifica or "N/A",
+            "ultimo_rpe": rpe,
+            "ultimo_descanso": descanso,
+            "lesion_activa": lesion_activa.tipo_lesion if lesion_activa else None,
+            "nivel_riesgo": nivel_riesgo,
+            "color_riesgo": color_riesgo,
+            "partidos_jugados": partidos_jugados
+        })
+
+    # 2. ESTADÍSTICAS DE PARTIDOS
+    todos_partidos = db.query(models.Partido).all()
+    finalizados = [p for p in todos_partidos if p.estado == "Finalizado"]
+
+    ganados = 0
+    perdidos = 0
+    empatados = 0
+
+    for p in finalizados:
+        es_local = "Valle" in p.equipo_local
+        if es_local:
+            goles_valle = p.goles_local
+            goles_rival = p.goles_visitante
+        else:
+            goles_valle = p.goles_visitante
+            goles_rival = p.goles_local
+
+        if goles_valle > goles_rival:
+            ganados += 1
+        elif goles_valle < goles_rival:
+            perdidos += 1
+        else:
+            empatados += 1
+
+    # 3. PRÓXIMOS PARTIDOS (Programados)
+    proximos = db.query(models.Partido).filter(
+        models.Partido.estado == "Programado"
+    ).order_by(models.Partido.fecha_hora.asc()).limit(3).all()
+
+    proximos_formateados = []
+    for p in proximos:
+        torneo_nombre = p.torneo.nombre if p.torneo else "Sin Torneo"
+        proximos_formateados.append({
+            "id": p.id,
+            "equipo_local": p.equipo_local,
+            "equipo_visitante": p.equipo_visitante,
+            "fecha_hora": p.fecha_hora.isoformat() if p.fecha_hora else None,
+            "torneo_nombre": torneo_nombre
+        })
+
+    # 4. CARGA PROMEDIO DEL EQUIPO (Últimas 5 sesiones)
+    ultimas_sesiones = db.query(models.SesionEntrenamiento).order_by(
+        models.SesionEntrenamiento.id.desc()
+    ).limit(5).all()
+
+    tendencia_carga = []
+    for sesion in reversed(ultimas_sesiones):
+        cargas_sesion = db.query(models.CargaAtleta).filter(
+            models.CargaAtleta.sesion_id == sesion.id
+        ).all()
+
+        if cargas_sesion:
+            rpe_promedio = sum(c.rpe_esfuerzo for c in cargas_sesion if c.rpe_esfuerzo) / len(cargas_sesion)
+            salto_promedio = sum(c.saltos_cm for c in cargas_sesion if c.saltos_cm) / len([c for c in cargas_sesion if c.saltos_cm]) if any(c.saltos_cm for c in cargas_sesion) else 0
+            tendencia_carga.append({
+                "sesion": f"Ses. #{sesion.id}",
+                "tipo": sesion.tipo_sesion or "Entrenamiento",
+                "rpe_promedio": round(rpe_promedio, 1),
+                "salto_promedio": round(salto_promedio, 1),
+                "participantes": len(cargas_sesion)
+            })
+
+    return {
+        "resumen_equipo": {
+            "total_atletas": total_atletas,
+            "atletas_con_lesion": atletas_con_lesion,
+            "atletas_disponibles": total_atletas - atletas_con_lesion,
+            "partidos_ganados": ganados,
+            "partidos_perdidos": perdidos,
+            "partidos_empatados": empatados,
+            "total_partidos_jugados": len(finalizados)
+        },
+        "plantilla_estado": resumen_atletas,
+        "proximos_partidos": proximos_formateados,
+        "tendencia_carga_equipo": tendencia_carga
+    }
