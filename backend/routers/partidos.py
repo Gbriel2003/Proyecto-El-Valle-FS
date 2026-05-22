@@ -69,6 +69,7 @@ def obtener_partidos(skip: int = 0, limit: int = 100, db: Session = Depends(get_
     return [
         {
             "id": p.id,
+            "torneo_id": p.torneo_id,
             "equipo_local": p.equipo_local,
             "equipo_visitante": p.equipo_visitante,
             "fecha_hora": p.fecha_hora.isoformat() if p.fecha_hora else None,

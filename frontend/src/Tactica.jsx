@@ -600,6 +600,7 @@ export default function Tactica({
             {subVista === 'calendario' && (
                 <MatchCalendar
                     partidos={partidos}
+                    torneos={torneos}
                     cargando={cargando}
                     esCuerpoTecnico={esCuerpoTecnico}
                     formatearFecha={formatearFecha}

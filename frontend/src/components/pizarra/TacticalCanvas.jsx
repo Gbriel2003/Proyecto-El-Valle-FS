@@ -179,7 +179,7 @@ export default function TacticalCanvas({
             <div className="space-y-4">
               <h3 className="font-bold text-slate-800 text-sm tracking-tight">Dibujo & Tiza</h3>
               <div>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Color de Tiza</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Color de Tiza</h4>
                 <div className="flex space-x-2">
                   {[
                     { hex: '#ffffff', name: 'Blanco' },
@@ -202,9 +202,9 @@ export default function TacticalCanvas({
               </div>
 
               <div>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex justify-between">
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex justify-between">
                   <span>Grosor de Línea</span>
-                  <span className="font-mono text-[10px] text-slate-400 font-bold">{grosor}px</span>
+                  <span className="font-mono text-xs text-slate-400 font-bold">{grosor}px</span>
                 </h4>
                 <input
                   type="range"
@@ -241,7 +241,7 @@ export default function TacticalCanvas({
               </div>
 
               <div>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación El Valle</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación El Valle</h4>
                 <select
                   onChange={(e) => aplicarFormacion('valle', e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-700 cursor-pointer"
@@ -255,7 +255,7 @@ export default function TacticalCanvas({
               </div>
 
               <div>
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación Rival</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación Rival</h4>
                 <select
                   onChange={(e) => aplicarFormacion('rival', e.target.value)}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-700 cursor-pointer"
@@ -279,7 +279,7 @@ export default function TacticalCanvas({
           </div>
 
           {/* Leyenda Táctica */}
-          <div className="pt-4 border-t border-slate-100 text-[10px] text-slate-400 font-bold space-y-1.5">
+          <div className="pt-4 border-t border-slate-100 text-xs text-slate-400 font-bold space-y-1.5">
             <div className="flex items-center">
               <span className="w-2.5 h-2.5 bg-valle-green border border-valle-gold rounded-full mr-2"></span> 
               <span>El Valle F.S. (Local)</span>
@@ -374,12 +374,12 @@ export default function TacticalCanvas({
               onPointerDown={(e) => handleTokenPointerDown(e, t.id)}
               onPointerMove={(e) => handleTokenPointerMove(e, t.id)}
               onPointerUp={(e) => handleTokenPointerUp(e, t.id)}
-              className={`absolute w-10 h-10 lg:w-[4.2%] lg:h-auto aspect-square rounded-full flex items-center justify-center text-xs lg:text-[9px] xl:text-xs font-black shadow-lg cursor-grab active:cursor-grabbing transform -translate-x-1/2 -translate-y-1/2 select-none z-20 transition-all ${
+              className={`absolute w-10 h-10 lg:w-[4.2%] lg:h-auto aspect-square rounded-full flex items-center justify-center text-xs font-black shadow-lg cursor-grab active:cursor-grabbing transform -translate-x-1/2 -translate-y-1/2 select-none z-20 transition-all ${
                 t.team === 'valle' 
                   ? 'bg-valle-green border-2 border-valle-gold text-valle-gold font-bold' 
                   : t.team === 'rival' 
                   ? 'bg-red-600 border-2 border-slate-900 text-white' 
-                  : 'bg-amber-400 border-2 border-slate-900 text-slate-950 text-xs sm:text-sm p-0.5'
+                  : 'bg-amber-400 border-2 border-slate-900 text-slate-950 text-xs p-0.5'
               }`}
               style={{ 
                 left: `${t.x}%`, 
@@ -401,7 +401,7 @@ export default function TacticalCanvas({
         <div className="bg-slate-900/80 border border-slate-800/40 backdrop-blur-md p-3.5 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-3 shrink-0 shadow-lg text-white landscape:flex-col landscape:w-auto landscape:h-full landscape:justify-start landscape:gap-4 landscape:py-4 landscape:px-2.5">
           {/* Formaciones Valle */}
           <div className="flex items-center gap-2 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">El Valle:</span>
+            <span className="text-xs font-bold text-slate-400 uppercase shrink-0">El Valle:</span>
             <select
               onChange={(e) => aplicarFormacion('valle', e.target.value)}
               className="flex-1 md:flex-initial px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green text-white cursor-pointer landscape:w-full"
@@ -416,7 +416,7 @@ export default function TacticalCanvas({
 
           {/* Formaciones Rival */}
           <div className="flex items-center gap-2 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">Rival:</span>
+            <span className="text-xs font-bold text-slate-400 uppercase shrink-0">Rival:</span>
             <select
               onChange={(e) => aplicarFormacion('rival', e.target.value)}
               className="flex-1 md:flex-initial px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green text-white cursor-pointer landscape:w-full"
@@ -431,7 +431,7 @@ export default function TacticalCanvas({
 
           {/* Grosor de Línea Compacto */}
           <div className="flex items-center gap-2.5 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1.5 landscape:w-full">
-            <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">Grosor:</span>
+            <span className="text-xs font-bold text-slate-400 uppercase shrink-0">Grosor:</span>
             <div className="flex items-center gap-2 w-full">
               <input
                 type="range"

@@ -169,7 +169,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                         <tr key={s.id} className="hover:bg-slate-50/50 transition">
                                             <td className="p-4 font-medium text-slate-700 whitespace-nowrap">{s.fecha}</td>
                                             <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap ${
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
                                                     s.tipo_sesion === 'Físico' ? 'bg-orange-100 text-orange-700' :
                                                     s.tipo_sesion === 'Táctico' ? 'bg-valle-green-light text-white' :
                                                     s.tipo_sesion === 'Recuperación' ? 'bg-blue-100 text-blue-700' :
@@ -341,7 +341,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                         value={cargaForm.rpe_esfuerzo}
                                         onChange={(e) => setCargaForm({ ...cargaForm, rpe_esfuerzo: e.target.value })}
                                     />
-                                    <div className="flex justify-between text-[10px] sm:text-xs text-slate-400 mt-2 uppercase font-bold tracking-wider">
+                                    <div className="flex justify-between text-xs text-slate-400 mt-2 uppercase font-bold tracking-wider">
                                         <span>1 - Suave</span>
                                         <span>10 - Extremo</span>
                                     </div>

@@ -33,8 +33,8 @@ export default function PlaybookManager({
           </div>
         ) : jugadas.length === 0 ? (
           <div className="text-center py-6 border border-dashed border-slate-100 rounded-xl">
-            <p className="text-[11px] text-slate-400 font-bold">No hay jugadas tácticas guardadas.</p>
-            <p className="text-[9px] text-slate-300 mt-0.5">Diseña una en la pizarra y presiona Guardar.</p>
+            <p className="text-xs text-slate-400 font-bold">No hay jugadas tácticas guardadas.</p>
+            <p className="text-xs text-slate-300 mt-0.5">Diseña una en la pizarra y presiona Guardar.</p>
           </div>
         ) : (
           jugadas.map((j) => (
@@ -50,7 +50,7 @@ export default function PlaybookManager({
               >
                 <p className="font-bold text-slate-800 text-xs line-clamp-1">{j.titulo}</p>
                 {j.descripcion && (
-                  <p className="text-[10px] text-slate-400 font-semibold line-clamp-1 mt-0.5">{j.descripcion}</p>
+                  <p className="text-xs text-slate-400 font-semibold line-clamp-1 mt-0.5">{j.descripcion}</p>
                 )}
               </button>
               

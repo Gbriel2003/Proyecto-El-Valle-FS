@@ -385,14 +385,14 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   <div key={l.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1.5">
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-slate-800">{l.tipo_lesion}</span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
                         l.gravedad === 'Leve' ? 'bg-blue-100 text-blue-700' :
                         l.gravedad === 'Media' ? 'bg-amber-100 text-amber-700' :
                         'bg-red-100 text-red-700'
                       }`}>{l.gravedad}</span>
                     </div>
                     {l.descripcion && <p className="text-slate-500 italic">"{l.descripcion}"</p>}
-                    <div className="text-[10px] text-slate-400 flex flex-col space-y-0.5">
+                    <div className="text-xs text-slate-400 flex flex-col space-y-0.5">
                       <span>Inicio: {l.fecha_inicio}</span>
                       {l.fecha_alta ? (
                         <span className="text-valle-green font-semibold">Alta: {l.fecha_alta}</span>
@@ -401,7 +401,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                       )}
                     </div>
                     {l.rehabilitacion && (
-                      <div className="mt-1 pt-1.5 border-t border-slate-200 text-[10px] text-slate-600">
+                      <div className="mt-1 pt-1.5 border-t border-slate-200 text-xs text-slate-600">
                         <strong className="text-slate-700">Rehabilitación:</strong> {l.rehabilitacion}
                       </div>
                     )}
@@ -453,7 +453,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                      <span className={`font-bold px-2 py-0.5 rounded text-xs ${
                         h.calidad_descanso >= 8 ? 'bg-valle-green-light/20 text-valle-green-dark' :
                         h.calidad_descanso >= 5 ? 'bg-amber-100 text-amber-700' :
                         'bg-red-100 text-red-700'
@@ -484,7 +484,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               
               {/* Comidas al día */}
               <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px]">
+                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Comidas al día
                 </label>
                 <select
@@ -500,7 +500,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
               {/* Hidratación */}
               <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px]">
+                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Hidratación (Litros de agua)
                 </label>
                 <input
@@ -512,12 +512,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   value={hidratacion}
                   onChange={(e) => setHidratacion(parseFloat(e.target.value) || 0)}
                 />
-                <p className="text-[10px] text-slate-400 mt-1 font-medium">Ejemplo: 2.5 o 3.0 litros al día.</p>
+                <p className="text-xs text-slate-400 mt-1 font-medium">Ejemplo: 2.5 o 3.0 litros al día.</p>
               </div>
 
               {/* Calidad del descanso */}
               <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px]">
+                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Calidad del Descanso (Escala 1 al 10)
                 </label>
                 <select
@@ -540,7 +540,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
               {/* Suplementación */}
               <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px]">
+                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Suplementación Diaria
                 </label>
                 <input

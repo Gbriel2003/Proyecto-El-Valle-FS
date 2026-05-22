@@ -208,9 +208,9 @@ export default function ControlNutricional({ crearNotificacion = null }) {
 
       if (imc < 18.5) {
         setImcEstado({ texto: 'Bajo Peso', color: 'text-sky-500 bg-sky-50 border-sky-100' });
-      } else if (imc >= 18.5 && imc <= 24.9) {
+      } else if (imc < 25) {
         setImcEstado({ texto: 'Normal', color: 'text-emerald-600 bg-emerald-50 border-emerald-100' });
-      } else if (imc >= 25.0 && imc <= 29.9) {
+      } else if (imc < 30) {
         setImcEstado({ texto: 'Sobrepeso', color: 'text-amber-600 bg-amber-50 border-amber-100' });
       } else {
         setImcEstado({ texto: 'Obesidad', color: 'text-rose-600 bg-rose-50 border-rose-100' });
@@ -323,7 +323,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
         <button
           type="button"
           onClick={() => setTabPrincipal('atletas')}
-          className={`pb-2 px-3 text-base font-bold transition-all relative flex items-center cursor-pointer ${
+          className={`pb-2 px-3 text-sm font-bold transition-all relative flex items-center cursor-pointer ${
             tabPrincipal === 'atletas'
               ? 'text-valle-green border-b-2 border-valle-green font-extrabold'
               : 'text-slate-500 hover:text-slate-700'
@@ -334,7 +334,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
         <button
           type="button"
           onClick={() => setTabPrincipal('dietas')}
-          className={`pb-2 px-3 text-base font-bold transition-all relative flex items-center cursor-pointer ${
+          className={`pb-2 px-3 text-sm font-bold transition-all relative flex items-center cursor-pointer ${
             tabPrincipal === 'dietas'
               ? 'text-valle-green border-b-2 border-valle-green font-extrabold'
               : 'text-slate-500 hover:text-slate-700'
@@ -350,15 +350,15 @@ export default function ControlNutricional({ crearNotificacion = null }) {
         {/* COLUMNA SELECCIONADOR DE JUGADORES (4 COLS) */}
         <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col max-h-[700px]">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-            <span className="text-base font-extrabold text-slate-850 tracking-tight font-display block mb-3">Lista de Jugadores</span>
+            <span className="text-sm font-bold text-slate-850 tracking-tight font-display block mb-3">Lista de Jugadores</span>
             <div className="relative">
-              <Search className="absolute left-3.5 top-3 text-slate-400" size={18} />
+              <Search className="absolute left-3.5 top-2.5 text-slate-400" size={16} />
               <input
                 type="text"
                 placeholder="Buscar jugador..."
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-base focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 transition-all duration-200 font-semibold"
+                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 transition-all duration-200 font-semibold"
               />
             </div>
           </div>
@@ -366,11 +366,11 @@ export default function ControlNutricional({ crearNotificacion = null }) {
           <div className="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1">
             {cargandoJugadores ? (
               <div className="p-12 text-center text-slate-400">
-                <Loader2 className="animate-spin mx-auto text-valle-green mb-2" size={24} />
-                <p className="text-base font-bold">Cargando plantilla...</p>
+                <Loader2 className="animate-spin mx-auto text-valle-green mb-2" size={20} />
+                <p className="text-sm font-semibold">Cargando plantilla...</p>
               </div>
             ) : jugadoresFiltrados.length === 0 ? (
-              <p className="text-base text-slate-500 text-center py-12 font-medium">No se encontraron jugadores.</p>
+              <p className="text-sm text-slate-500 text-center py-12 font-medium">No se encontraron jugadores.</p>
             ) : (
               jugadoresFiltrados.map((j) => {
                 const esActivo = atletaSeleccionado?.atleta_id === j.atleta_id;
@@ -385,7 +385,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     }`}
                   >
                     <div className="flex items-center space-x-3 min-w-0">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-extrabold font-display uppercase border shrink-0 ${
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold font-display uppercase border shrink-0 ${
                         esActivo 
                           ? 'bg-valle-green text-white border-valle-green' 
                           : 'bg-slate-100 text-slate-700 border-slate-200/80 group-hover:bg-valle-green group-hover:text-white group-hover:border-valle-green transition border-dashed'
@@ -393,12 +393,12 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                         {j.nombre.charAt(0)}{j.apellido.charAt(0)}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-base font-bold truncate text-slate-800">{j.nombre} {j.apellido}</p>
-                        <p className="text-base text-slate-450 font-semibold truncate capitalize mt-0.5">{j.posicion}</p>
+                        <p className="text-sm font-bold truncate text-slate-800">{j.nombre} {j.apellido}</p>
+                        <p className="text-xs text-slate-450 font-medium truncate capitalize mt-0.5">{j.posicion}</p>
                       </div>
                     </div>
                     {j.peso_actual && (
-                      <span className="text-base font-bold text-slate-600 bg-slate-100/90 px-3 py-1 rounded-full border border-slate-200/60 shrink-0">
+                      <span className="text-xs font-bold text-slate-650 bg-slate-100/90 px-2.5 py-0.5 rounded-full border border-slate-200/60 shrink-0">
                         {j.peso_actual} kg
                       </span>
                     )}
@@ -413,9 +413,9 @@ export default function ControlNutricional({ crearNotificacion = null }) {
         <div className="lg:col-span-8 space-y-6">
           {!atletaSeleccionado ? (
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-16 text-center text-slate-400 flex flex-col items-center justify-center min-h-[400px]">
-              <Apple size={56} className="text-slate-350 stroke-1 mb-4 animate-bounce" />
-              <p className="text-lg font-bold text-slate-650">Ningún jugador seleccionado</p>
-              <p className="text-base text-slate-500 mt-2 max-w-md leading-relaxed font-medium">Selecciona un atleta de la lista de la izquierda para comenzar a registrar su biometría o asignarle hábitos nutricionales.</p>
+              <Apple size={48} className="text-slate-350 stroke-1 mb-4 animate-bounce" />
+              <p className="text-base font-bold text-slate-650">Ningún jugador seleccionado</p>
+              <p className="text-sm text-slate-500 mt-2 max-w-md leading-relaxed font-medium">Selecciona un atleta de la lista de la izquierda para comenzar a registrar su biometría o asignarle hábitos nutricionales.</p>
             </div>
           ) : (
             <>
@@ -432,7 +432,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                   </div>
                   <div>
                     <h3 className="font-extrabold text-2xl tracking-tight font-display">{atletaSeleccionado.nombre} {atletaSeleccionado.apellido}</h3>
-                    <p className="text-base text-valle-gold font-bold tracking-wide uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
+                    <p className="text-xs text-valle-gold font-bold tracking-wider uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
                   </div>
                 </div>
 
@@ -459,44 +459,44 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                   <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
                     <Scale size={20} className="text-valle-green" />
-                    <span className="text-base font-bold text-slate-850 tracking-tight font-display">Biometría Semanal</span>
+                    <span className="text-sm font-bold text-slate-850 tracking-tight font-display">Biometría Semanal</span>
                   </div>
 
                   <form onSubmit={handleGuardarBiometria} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Peso (kg)</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Peso (kg)</label>
                         <input
                           type="number"
                           step="0.1"
                           placeholder="e.g. 74.5"
                           value={pesoKg}
                           onChange={(e) => setPesoKg(e.target.value)}
-                          className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                           required
                         />
                       </div>
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Altura (cm)</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Altura (cm)</label>
                         <input
                           type="number"
                           step="0.5"
                           placeholder="e.g. 178"
                           value={alturaCm}
                           onChange={(e) => setAlturaCm(e.target.value)}
-                          className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                           required
                         />
                       </div>
                     </div>
 
                     {/* IMC Calculado en vivo */}
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-lg font-medium">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-sm font-medium">
                       <div>
-                        <span className="text-base text-slate-500 block font-bold uppercase">IMC Estimado</span>
-                        <span className="text-xl font-black text-slate-800 mt-0.5 block">{imcCalculado ? imcCalculado : 'Ingresa datos'}</span>
+                        <span className="text-xs text-slate-500 block font-bold uppercase tracking-wider">IMC Estimado</span>
+                        <span className="text-base font-black text-slate-800 mt-0.5 block">{imcCalculado ? imcCalculado : 'Ingresa datos'}</span>
                       </div>
-                      <span className={`text-base font-extrabold px-3 py-1.5 rounded-lg border uppercase tracking-wider ${imcEstado.color}`}>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${imcEstado.color}`}>
                         {imcEstado.texto}
                       </span>
                     </div>
@@ -504,7 +504,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     <button
                       type="submit"
                       disabled={guardandoBiometria}
-                      className="w-full py-3 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-base rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
+                      className="w-full py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
                     >
                       {guardandoBiometria ? (
                         <>
@@ -525,17 +525,17 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
                   <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
                     <ClipboardList size={20} className="text-valle-green" />
-                    <span className="text-base font-bold text-slate-850 tracking-tight font-display">Hábitos y Plan Dietario</span>
+                    <span className="text-sm font-bold text-slate-850 tracking-tight font-display">Hábitos y Plan Dietario</span>
                   </div>
 
                   <form onSubmit={handleGuardarHabitos} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Descanso (1-10)</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descanso (1-10)</label>
                         <select
                           value={calidadDescanso}
                           onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
-                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                         >
                           {[...Array(10)].map((_, i) => (
                             <option key={i + 1} value={i + 1}>{i + 1} - {i + 1 <= 4 ? 'Malo' : i + 1 <= 7 ? 'Regular' : 'Excelente'}</option>
@@ -544,11 +544,11 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       </div>
                       
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Hidratación (Litros)</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Hidratación (Litros)</label>
                         <select
                           value={hidratacionLitros}
                           onChange={(e) => setHidratacionLitros(parseFloat(e.target.value))}
-                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                         >
                           <option value="1.0">1.0 Litro</option>
                           <option value="1.5">1.5 Litros</option>
@@ -565,23 +565,23 @@ export default function ControlNutricional({ crearNotificacion = null }) {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Comidas / Día</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Comidas / Día</label>
                         <input
                           type="number"
                           min="1"
                           max="8"
                           value={frecuenciaComidas}
                           onChange={(e) => setFrecuenciaComidas(e.target.value)}
-                          className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                           required
                         />
                       </div>
                       <div>
-                        <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Menú Asignado</label>
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Menú Asignado</label>
                         <select
                           value={planAlimentacion}
                           onChange={(e) => setPlanAlimentacion(e.target.value)}
-                          className="w-full px-3 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-extrabold text-slate-800"
+                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                         >
                           {dietas.map(d => (
                             <option key={d.id} value={d.nombre}>{d.nombre}</option>
@@ -600,20 +600,20 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
 
                     <div>
-                      <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Suplementación (Opcional)</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Suplementación (Opcional)</label>
                       <input
                         type="text"
                         placeholder="e.g. Creatina 5g, Suero de electrolitos"
                         value={suplementacion}
                         onChange={(e) => setSuplementacion(e.target.value)}
-                        className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-bold text-slate-800"
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
                       />
                     </div>
 
                     <button
                       type="submit"
                       disabled={guardandoHabitos}
-                      className="w-full py-3 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-base rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
+                      className="w-full py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
                     >
                       {guardandoHabitos ? (
                         <>
@@ -638,7 +638,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <div className="flex border-b border-slate-100 bg-slate-50/50 p-2.5 gap-2">
                   <button
                     onClick={() => setTabHistorial('biometria')}
-                    className={`px-4 py-2.5 rounded-xl text-base font-bold transition flex items-center cursor-pointer ${
+                    className={`px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center cursor-pointer ${
                       tabHistorial === 'biometria'
                         ? 'bg-white text-valle-green shadow-xs border border-slate-200/60 font-extrabold'
                         : 'text-slate-500 hover:text-slate-800'
@@ -649,7 +649,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                   
                   <button
                     onClick={() => setTabHistorial('habitos')}
-                    className={`px-4 py-2.5 rounded-xl text-base font-bold transition flex items-center cursor-pointer ${
+                    className={`px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center cursor-pointer ${
                       tabHistorial === 'habitos'
                         ? 'bg-white text-valle-green shadow-xs border border-slate-200/60 font-extrabold'
                         : 'text-slate-500 hover:text-slate-800'
@@ -670,9 +670,9 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     biometriaHistorial.length === 0 ? (
                       <p className="text-base text-slate-500 text-center py-8 font-medium">Sin historial de biometría registrado para este jugador.</p>
                     ) : (
-                      <table className="w-full text-left border-collapse text-base">
+                      <table className="w-full text-left border-collapse text-sm">
                         <thead>
-                          <tr className="border-b border-slate-100 text-slate-500 font-extrabold uppercase tracking-wider text-sm">
+                          <tr className="border-b border-slate-100 text-slate-500 font-extrabold uppercase tracking-wider text-xs">
                             <th className="pb-3">Fecha</th>
                             <th className="pb-3">Peso (kg)</th>
                             <th className="pb-3">Altura (cm)</th>
@@ -728,9 +728,9 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     habitosHistorial.length === 0 ? (
                       <p className="text-base text-slate-500 text-center py-8 font-medium">Sin historial de hábitos nutricionales registrado para este jugador.</p>
                     ) : (
-                      <table className="w-full text-left border-collapse text-base">
+                      <table className="w-full text-left border-collapse text-sm">
                         <thead>
-                          <tr className="border-b border-slate-100 text-slate-500 font-extrabold uppercase tracking-wider text-sm">
+                          <tr className="border-b border-slate-100 text-slate-500 font-extrabold uppercase tracking-wider text-xs">
                             <th className="pb-3">Fecha</th>
                             <th className="pb-3">Comidas</th>
                             <th className="pb-3">Descanso</th>
@@ -829,7 +829,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                           </span>
                         )}
                       </div>
-                      <p className="text-base text-slate-500 font-medium line-clamp-2 mt-1 leading-relaxed">
+                      <p className="text-sm text-slate-500 font-medium line-clamp-2 mt-1 leading-relaxed">
                         {d.descripcion}
                       </p>
                     </button>
@@ -843,7 +843,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
           <div className="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
             <div className="flex items-center space-x-2 border-b border-slate-150 pb-3">
               <Apple size={20} className="text-valle-green" />
-              <span className="text-base font-bold text-slate-850 tracking-tight font-display">
+              <span className="text-sm font-bold text-slate-850 tracking-tight font-display">
                 {dietaSeleccionada ? `Editando: ${dietaSeleccionada.nombre}` : 'Crear Propuesta de Dieta'}
               </span>
             </div>
@@ -851,36 +851,36 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             <form onSubmit={handleGuardarDieta} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Nombre de la Dieta</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Nombre de la Dieta</label>
                   <input
                     type="text"
                     placeholder="e.g. Dieta pre-partido"
                     value={nombreDieta}
                     onChange={(e) => setNombreDieta(e.target.value)}
-                    className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green transition-all font-bold text-slate-800"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green transition-all font-semibold text-slate-800"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Calorías Estimadas (kcal)</label>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Calorías Estimadas (kcal)</label>
                   <input
                     type="number"
                     placeholder="e.g. 750 (opcional)"
                     value={caloriasDieta}
                     onChange={(e) => setCaloriasDieta(e.target.value)}
-                    className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green transition-all font-bold text-slate-800"
+                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green transition-all font-semibold text-slate-800"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-base font-bold text-slate-600 block mb-1.5 uppercase">Directrices y Descripción de Comidas</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Directrices y Descripción de Comidas</label>
                 <textarea
                   rows="8"
                   placeholder="Describe a detalle las comidas, macronutrientes recomendados, ingredientes o sugerencias para este menú..."
                   value={descripcionDieta}
                   onChange={(e) => setDescripcionDieta(e.target.value)}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-lg focus:outline-none focus:bg-white focus:border-valle-green transition-all leading-relaxed text-slate-800 font-bold"
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green transition-all leading-relaxed text-slate-800 font-semibold"
                   required
                 />
               </div>
@@ -933,27 +933,27 @@ export default function ControlNutricional({ crearNotificacion = null }) {
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-scale-up">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
-                <Apple className="text-valle-green" size={22} />
-                <h3 className="font-extrabold text-slate-850 text-xl font-display">{dietaDetalleModal.nombre}</h3>
+                <Apple className="text-valle-green" size={20} />
+                <h3 className="font-extrabold text-slate-850 text-lg font-display">{dietaDetalleModal.nombre}</h3>
               </div>
               <button 
                 type="button"
                 onClick={() => setDietaDetalleModal(null)} 
-                className="text-slate-500 hover:text-slate-850 text-base font-bold px-3 py-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+                className="text-slate-500 hover:text-slate-850 text-sm font-bold px-3 py-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
               >
                 Cerrar
               </button>
             </div>
-            <div className="space-y-4 text-base text-slate-700">
+            <div className="space-y-4 text-sm text-slate-700">
               {dietaDetalleModal.calorias && (
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-slate-500 uppercase tracking-wider text-xs">Energía Estimada:</span>
-                  <span className="font-black text-valle-green text-base">{dietaDetalleModal.calorias} kcal</span>
+                  <span className="font-black text-valle-green text-sm">{dietaDetalleModal.calorias} kcal</span>
                 </div>
               )}
               <div>
                 <span className="font-bold text-slate-550 uppercase tracking-wider text-xs block mb-1.5">Directrices del Menú:</span>
-                <p className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 leading-relaxed italic whitespace-pre-line text-slate-800 text-base font-medium">
+                <p className="bg-slate-50 p-4 rounded-xl border border-slate-200/60 leading-relaxed italic whitespace-pre-line text-slate-800 text-sm font-medium">
                   {dietaDetalleModal.descripcion}
                 </p>
               </div>

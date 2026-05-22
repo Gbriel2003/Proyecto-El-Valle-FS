@@ -54,9 +54,9 @@ export default function EntrenadorDashboard({ onVerFicha }) {
     };
 
     const iconoRiesgo = (color) => {
-        if (color === 'rojo') return <AlertTriangle size={12} className="mr-1" />;
-        if (color === 'amarillo') return <Zap size={12} className="mr-1" />;
-        return <CheckCircle size={12} className="mr-1" />;
+        if (color === 'rojo') return <AlertTriangle size={14} className="mr-1" />;
+        if (color === 'amarillo') return <Zap size={14} className="mr-1" />;
+        return <CheckCircle size={14} className="mr-1" />;
     };
 
     if (cargando) {
@@ -158,8 +158,8 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                         </div>
                         <div>
                             <p className="text-2xl font-black text-slate-900 font-display">{kpi.value}</p>
-                            <p className="text-xs font-bold text-slate-700 leading-tight">{kpi.label}</p>
-                            <p className="text-[10px] text-slate-400 font-medium mt-0.5 leading-none">{kpi.sub}</p>
+                            <p className="text-sm font-bold text-slate-700 leading-tight">{kpi.label}</p>
+                            <p className="text-xs text-slate-400 font-medium mt-0.5 leading-none">{kpi.sub}</p>
                         </div>
                     </div>
                 ))}
@@ -174,7 +174,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                             <Shield size={16} className="text-valle-green mr-2" />
                             Estado de Plantilla
                         </h3>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
                             {plantilla_estado.length} atletas
                         </span>
                     </div>
@@ -185,15 +185,15 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-xs">
+                            <table className="w-full text-sm">
                                 <thead>
                                     <tr className="bg-slate-50 border-b border-slate-100">
-                                        <th className="text-left px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Atleta</th>
-                                        <th className="text-left px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Posición</th>
-                                        <th className="text-center px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">RPE</th>
-                                        <th className="text-center px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">Descanso</th>
-                                        <th className="text-center px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider hidden md:table-cell">Partidos</th>
-                                        <th className="text-center px-3 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Estado</th>
+                                        <th className="text-left px-5 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider">Atleta</th>
+                                        <th className="text-left px-3 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider hidden sm:table-cell">Posición</th>
+                                        <th className="text-center px-3 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider">RPE</th>
+                                        <th className="text-center px-3 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider hidden md:table-cell">Descanso</th>
+                                        <th className="text-center px-3 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider hidden md:table-cell">Partidos</th>
+                                        <th className="text-center px-3 py-3 text-xs font-bold text-slate-450 uppercase tracking-wider">Estado</th>
                                         {onVerFicha && <th className="px-3 py-3"></th>}
                                     </tr>
                                 </thead>
@@ -206,19 +206,19 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                                         >
                                             <td className="px-5 py-3">
                                                 <div className="flex items-center gap-2.5">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-slate-600 text-[10px] shrink-0">
+                                                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-slate-600 text-xs shrink-0">
                                                         {atleta.nombre.charAt(0)}{atleta.apellido.charAt(0)}
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-slate-800 leading-tight">{atleta.nombre} {atleta.apellido}</p>
                                                         {atleta.lesion_activa && (
-                                                            <p className="text-[9px] text-red-600 font-bold leading-none mt-0.5">⚠ {atleta.lesion_activa}</p>
+                                                            <p className="text-xs text-red-600 font-bold leading-none mt-1">⚠ {atleta.lesion_activa}</p>
                                                         )}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-3 py-3 hidden sm:table-cell">
-                                                <span className="px-2 py-0.5 bg-slate-100 rounded text-[10px] font-bold text-slate-600">
+                                                <span className="px-2 py-0.5 bg-slate-100 rounded text-xs font-bold text-slate-600">
                                                     {atleta.posicion}
                                                 </span>
                                             </td>
@@ -244,7 +244,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                                                 <span className="font-bold text-slate-700">{atleta.partidos_jugados}</span>
                                             </td>
                                             <td className="px-3 py-3 text-center">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-[10px] font-bold border ${colorRiesgo(atleta.color_riesgo)}`}>
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border ${colorRiesgo(atleta.color_riesgo)}`}>
                                                     {iconoRiesgo(atleta.color_riesgo)}
                                                     {atleta.nivel_riesgo}
                                                 </span>
@@ -275,7 +275,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                             <Calendar size={16} className="text-valle-green mr-2" />
                             Próximos Encuentros
                         </h3>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
                             Programados
                         </span>
                     </div>
@@ -293,7 +293,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                                     className="bg-slate-50 border border-slate-100 rounded-xl p-4 transition-all hover:border-valle-green/20 animate-fade-in-up"
                                     style={{ animationDelay: `${pIndex * 75 + 250}ms` }}
                                 >
-                                    <p className="text-[10px] font-bold text-valle-green uppercase tracking-wider mb-2">
+                                    <p className="text-xs font-bold text-valle-green uppercase tracking-wider mb-2">
                                         {partido.torneo_nombre}
                                     </p>
                                     <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -301,23 +301,23 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                                             <div className="w-8 h-8 rounded-full bg-white border border-valle-green/30 flex items-center justify-center mx-auto mb-1">
                                                 <Shield size={14} className="text-valle-green" />
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-700 leading-tight line-clamp-2">{partido.equipo_local}</p>
+                                            <p className="text-xs font-bold text-slate-700 leading-tight line-clamp-2">{partido.equipo_local}</p>
                                         </div>
-                                        <span className="text-xs font-black text-slate-400 shrink-0">VS</span>
+                                        <span className="text-sm font-extrabold text-slate-400 shrink-0">VS</span>
                                         <div className="text-center flex-1">
                                             <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center mx-auto mb-1">
                                                 <Shield size={14} className="text-slate-400" />
                                             </div>
-                                            <p className="text-[10px] font-bold text-slate-700 leading-tight line-clamp-2">{partido.equipo_visitante}</p>
+                                            <p className="text-xs font-bold text-slate-700 leading-tight line-clamp-2">{partido.equipo_visitante}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center text-[10px] text-slate-500 font-semibold gap-3">
+                                    <div className="flex items-center text-xs text-slate-500 font-semibold gap-3">
                                         <span className="flex items-center">
-                                            <Calendar size={10} className="mr-1 text-valle-gold" />
+                                            <Calendar size={12} className="mr-1 text-valle-gold" />
                                             {formatearFecha(partido.fecha_hora)}
                                         </span>
                                         <span className="flex items-center">
-                                            <Clock size={10} className="mr-1 text-valle-gold" />
+                                            <Clock size={12} className="mr-1 text-valle-gold" />
                                             {formatearHora(partido.fecha_hora)}
                                         </span>
                                     </div>
@@ -337,7 +337,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                                 <Activity size={16} className="text-valle-green mr-2" />
                                 Tendencia de Carga del Equipo
                             </h3>
-                            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Promedio grupal de RPE y salto vertical en las últimas sesiones</p>
+                            <p className="text-xs text-slate-450 font-medium mt-0.5">Promedio grupal de RPE y salto vertical en las últimas sesiones</p>
                         </div>
                     </div>
                     <div className="h-64">

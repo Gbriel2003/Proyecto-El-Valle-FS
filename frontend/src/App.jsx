@@ -296,7 +296,7 @@ export default function App() {
       : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
   }`;
 
-  const subNavItemClass = (menuName) => `w-full flex items-center py-2 rounded-xl transition-all duration-200 font-semibold text-xs mb-1 relative overflow-hidden group cursor-pointer focus:outline-none ${
+  const subNavItemClass = (menuName) => `w-full flex items-center py-2 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 relative overflow-hidden group cursor-pointer focus:outline-none ${
     menuActivo === menuName 
       ? 'bg-valle-green/8 text-valle-green font-bold border-l-2 border-valle-green pl-6' 
       : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-2 border-transparent pl-6'

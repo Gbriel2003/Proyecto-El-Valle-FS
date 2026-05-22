@@ -45,3 +45,5 @@ ValueError: I/O operation on closed file.
 [2026-05-21 19:39:13,763] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
 [2026-05-21 19:50:43,122] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
 [2026-05-22 08:37:39,035] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-22 13:35:07,711] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-22 13:35:59,021] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
