@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   Calendar, Clock, MapPin, Shield, FileText, 
   Trash2, Upload, Loader2, ChevronRight, Plus 

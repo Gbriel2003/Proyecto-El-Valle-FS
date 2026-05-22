@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
-import { Activity, Timer, Save, Users, PlusCircle, CheckCircle, ArrowLeft, Trash2, Edit2, ChevronRight } from 'lucide-react';
+import { Activity, Timer, Save, Users, PlusCircle, CheckCircle, ArrowLeft, Trash2, ChevronRight } from 'lucide-react';
 
-export default function RegistroEntrenamiento() {
+export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     const [vista, setVista] = useState('lista');
     
     const [sesiones, setSesiones] = useState([]);
@@ -17,6 +17,11 @@ export default function RegistroEntrenamiento() {
     const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
     const [cargando, setCargando] = useState(false);
 
+    const mostrarMensaje = (tipo, texto) => {
+        setMensaje({ tipo, texto });
+        setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
+    };
+
     const cargarDatos = async () => {
         try {
             const [resSesiones, resJugadores] = await Promise.all([
@@ -28,18 +33,17 @@ export default function RegistroEntrenamiento() {
             const jugOrd = resJugadores.data.sort((a, b) => a.nombre.localeCompare(b.nombre));
             setJugadores(jugOrd);
         } catch (error) {
+            console.error("Error al cargar datos:", error);
             mostrarMensaje('error', 'Error al cargar los datos del servidor.');
         }
     };
 
     useEffect(() => {
-        cargarDatos();
+        setTimeout(() => {
+            cargarDatos();
+        }, 0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const mostrarMensaje = (tipo, texto) => {
-        setMensaje({ tipo, texto });
-        setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
-    };
 
     const crearSesion = async (e) => {
         e.preventDefault();
@@ -47,11 +51,15 @@ export default function RegistroEntrenamiento() {
         try {
             const res = await api.post('/entrenamientos/', sesionForm);
             mostrarMensaje('exito', '¡Sesión creada exitosamente!');
+            if (crearNotificacion) {
+                crearNotificacion("Entrenamiento registrado", "Se ha creado una nueva sesión de entrenamiento.", "success");
+            }
             setSesionActiva(res.data);
             setAtletasEvaluados([]);
             setVista('detalle');
             cargarDatos();
         } catch (error) {
+            console.error("Error al crear sesión:", error);
             mostrarMensaje('error', 'Error al crear la sesión.');
         } finally {
             setCargando(false);
@@ -63,8 +71,12 @@ export default function RegistroEntrenamiento() {
         try {
             await api.delete(`/entrenamientos/${id}`);
             mostrarMensaje('exito', 'Sesión eliminada.');
+            if (crearNotificacion) {
+                crearNotificacion("Sesión eliminada", "Se eliminó la sesión de entrenamiento.", "info");
+            }
             cargarDatos();
         } catch (error) {
+            console.error("Error al eliminar sesión:", error);
             mostrarMensaje('error', 'Error al eliminar la sesión.');
         }
     };
@@ -77,6 +89,7 @@ export default function RegistroEntrenamiento() {
             setSesionActiva(sesion);
             setVista('detalle');
         } catch (error) {
+            console.error("Error al abrir detalle:", error);
             mostrarMensaje('error', 'Error al abrir la sesión.');
         } finally {
             setCargando(false);
@@ -94,10 +107,14 @@ export default function RegistroEntrenamiento() {
         try {
             await api.post(`/entrenamientos/${sesionActiva.id}/cargas/`, cargaForm);
             mostrarMensaje('exito', 'Carga registrada correctamente.');
+            if (crearNotificacion) {
+                crearNotificacion("Métrica de carga guardada", "Se registraron los datos de RPE del jugador.", "success");
+            }
             
             setAtletasEvaluados([...atletasEvaluados, parseInt(cargaForm.atleta_id)]);
             setCargaForm({ atleta_id: '', rpe_esfuerzo: 5, saltos_cm: '', tiempo_sprint_30m: '' });
         } catch (error) {
+            console.error("Error al registrar carga:", error);
             mostrarMensaje('error', 'Error al registrar la carga del atleta.');
         } finally {
             setCargando(false);

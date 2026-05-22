@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
 import {
     Users, Trophy, AlertTriangle, Calendar, TrendingUp,
@@ -15,10 +15,6 @@ export default function EntrenadorDashboard({ onVerFicha }) {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        cargarDashboard();
-    }, []);
-
     const cargarDashboard = async () => {
         setCargando(true);
         setError('');
@@ -32,6 +28,12 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             setCargando(false);
         }
     };
+
+    useEffect(() => {
+        setTimeout(() => {
+            cargarDashboard();
+        }, 0);
+    }, []);
 
     const formatearFecha = (iso) => {
         if (!iso) return 'Sin fecha';

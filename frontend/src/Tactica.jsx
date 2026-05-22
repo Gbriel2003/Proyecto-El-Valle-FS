@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from './api';
 import { 
   Calendar, 
-  Flag, 
   Pencil, 
-  PlusCircle,
-  X
+  PlusCircle
 } from 'lucide-react';
 
 import TacticalCanvas from './components/pizarra/TacticalCanvas';
@@ -36,8 +34,14 @@ const initialTokens = [
   { id: 'ball', label: '⚽', x: 50, y: 50, team: 'ball' }
 ];
 
-export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calendario' }) {
-    const [subVista, setSubVista] = useState(vistaInicial);
+export default function Tactica({ 
+    esCuerpoTecnico = false, 
+    vistaInicial = 'calendario',
+    partidosEnProceso = [],
+    registrarPartidoEnProceso = () => {},
+    agregarToast = () => {}
+}) {
+    const subVista = vistaInicial;
     const [partidos, setPartidos] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
@@ -47,23 +51,6 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
     const [subiendo, setSubiendo] = useState(null);
     const [progresoSubida, setProgresoSubida] = useState(0);
     const [mensajeSubida, setMensajeSubida] = useState({ partidoId: null, texto: '', tipo: '' });
-
-    // Estado para notificaciones en tiempo real y cola de consulta
-    const [toasts, setToasts] = useState([]);
-    const [partidosEnProceso, setPartidosEnProceso] = useState([]);
-
-    // Sincronizar subVista con la prop vistaInicial
-    useEffect(() => {
-        setSubVista(vistaInicial);
-    }, [vistaInicial]);
-
-    const agregarToast = (mensaje, subtexto = '', tipo = 'info') => {
-        const id = Date.now() + Math.random().toString(36).substr(2, 5);
-        setToasts(prev => [...prev, { id, mensaje, subtexto, tipo }]);
-        setTimeout(() => {
-            setToasts(prev => prev.filter(t => t.id !== id));
-        }, 7000);
-    };
 
     // Torneos, atletas de la plantilla
     const [torneos, setTorneos] = useState([]);
@@ -127,6 +114,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 setPartidos([]);
             }
         } catch (err) {
+            console.error("Error al cargar partidos:", err);
             setError('Endpoint de partidos no conectado.');
             setPartidos([
                 {
@@ -183,69 +171,50 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
     };
 
     useEffect(() => {
-        cargarPartidos();
-        cargarTorneos();
-        cargarPlantillaAtletas();
+        const timer = setTimeout(() => {
+            cargarPartidos();
+            cargarTorneos();
+            cargarPlantillaAtletas();
+        }, 0);
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // Polling en segundo plano para alertar cuando el reporte de la IA esté listo
+    // Recargar partidos cuando cambien los partidos en proceso de análisis global
     useEffect(() => {
-        if (partidosEnProceso.length === 0) return;
+        const timer = setTimeout(() => {
+            cargarPartidos();
+        }, 0);
+        return () => clearTimeout(timer);
+    }, [partidosEnProceso]);
 
-        const interval = setInterval(async () => {
-            for (const partidoId of partidosEnProceso) {
-                try {
-                    const res = await api.get(`/partidos/${partidoId}/reporte`);
-                    const data = res.data;
-                    const partidoObj = partidos.find(p => p.id === partidoId) || { equipo_visitante: 'Rival' };
-                    
-                    if (data.estado === 'completado') {
-                        agregarToast(
-                            "¡Análisis de IA Listo!",
-                            `El reporte táctico del partido contra ${partidoObj.equipo_visitante} ha sido generado con éxito.`,
-                            "success"
-                        );
-                        
-                        if (mostrarReporteModal && mostrarReporteModal.id === partidoId) {
-                            setReporteIA(data);
+    // Actualizar el reporte en el modal en tiempo real si el partido sale de la lista de procesamiento
+    useEffect(() => {
+        if (mostrarReporteModal) {
+            const partidoId = mostrarReporteModal.id;
+            const enProceso = partidosEnProceso.includes(partidoId);
+            const esReportePendiente = reporteIA && reporteIA.estado === 'pendiente_procesamiento';
+            const sinReporte = !reporteIA && !cargandoReporte;
+            
+            if (!enProceso && (esReportePendiente || sinReporte)) {
+                const refrescarReporte = async () => {
+                    try {
+                        const res = await api.get(`/partidos/${partidoId}/reporte`);
+                        setReporteIA(res.data);
+                        setErrorReporte('');
+                    } catch (err) {
+                        console.error("Error al refrescar reporte finalizado:", err);
+                        if (err.response && err.response.status === 404) {
+                            setErrorReporte('Aún no se ha subido ningún reporte PDF de estadísticas para este partido o la IA aún no termina de procesarlo.');
+                        } else {
+                            setErrorReporte('Error al cargar el análisis de IA de este partido.');
                         }
-                        
-                        setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
-                        setMensajeSubida(prev => prev.partidoId === partidoId ? { partidoId: null, texto: '', tipo: '' } : prev);
-                        cargarPartidos();
-                    } else if (data.analisis_ia?.error) {
-                        agregarToast(
-                            "Error de Análisis IA",
-                            `No se pudo generar el análisis del partido contra ${partidoObj.equipo_visitante}: ${data.analisis_ia.error}`,
-                            "error"
-                        );
-                        
-                        if (mostrarReporteModal && mostrarReporteModal.id === partidoId) {
-                            setReporteIA(data);
-                        }
-                        
-                        setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
-                        setMensajeSubida(prev => prev.partidoId === partidoId ? { partidoId: null, texto: '', tipo: '' } : prev);
-                        cargarPartidos();
                     }
-                } catch (err) {
-                    console.error("Error al consultar reporte en background:", err);
-                    if (err.response && err.response.status !== 404 && err.response.status !== 422) {
-                        const partidoObj = partidos.find(p => p.id === partidoId) || { equipo_visitante: 'Rival' };
-                        agregarToast(
-                            "Error de Conexión",
-                            `Problema al consultar el reporte del partido contra ${partidoObj.equipo_visitante}.`,
-                            "error"
-                        );
-                        setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
-                        setMensajeSubida(prev => prev.partidoId === partidoId ? { partidoId: null, texto: '', tipo: '' } : prev);
-                    }
-                }
+                };
+                refrescarReporte();
             }
-        }, 4000);
-
-        return () => clearInterval(interval);
-    }, [partidosEnProceso, partidos, mostrarReporteModal]);
+        }
+    }, [partidosEnProceso, mostrarReporteModal, reporteIA, cargandoReporte]);
 
     // RE-INICIALIZAR CANVAS CUANDO SE ENTRA A LA VISTA DE PIZARRA
     useEffect(() => {
@@ -274,7 +243,10 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
 
     useEffect(() => {
         if (subVista === 'pizarra') {
-            cargarJugadas();
+            const timer = setTimeout(() => {
+                cargarJugadas();
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [subVista]);
 
@@ -327,7 +299,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 setArchivoSeleccionado(null);
                 setSubiendo(null);
                 // Registrar para polling en segundo plano
-                setPartidosEnProceso(prev => [...prev, partidoId]);
+                registrarPartidoEnProceso(partidoId);
                 // Mostrar toast informativo
                 const partidoObj = partidos.find(p => p.id === partidoId) || { equipo_visitante: 'Rival' };
                 agregarToast(
@@ -357,7 +329,9 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
     const manejarEliminarPartido = async (partidoId) => {
         if (!window.confirm('¿Eliminar este partido del calendario?')) return;
         try {
+            const partidoEliminado = partidos.find(p => p.id === partidoId);
             await api.delete(`/partidos/${partidoId}`);
+            agregarToast("Partido eliminado", `El partido contra ${partidoEliminado?.equipo_visitante || 'Rival'} fue eliminado.`, "info");
             await cargarPartidos();
         } catch (err) {
             console.error('Error al eliminar partido:', err);
@@ -375,6 +349,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 fecha_inicio: fechaInicioTorneo,
                 fecha_fin: fechaFinTorneo
             });
+            agregarToast("Torneo creado", `Se registró el torneo: ${nombreTorneo}`, "success");
             setNombreTorneo('');
             setTemporadaTorneo('');
             setFechaInicioTorneo('');
@@ -399,6 +374,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 equipo_visitante: equipoVisitantePartido,
                 fecha_hora: new Date(fechaHoraPartido).toISOString()
             });
+            agregarToast("Partido programado", `Partido contra ${equipoVisitantePartido} agendado.`, "success");
             setTorneoIdPartido('');
             setEquipoLocalPartido('El Valle F.S.');
             setEquipoVisitantePartido('');
@@ -423,6 +399,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 estado: 'Finalizado',
                 jugadores_ids: jugadoresSeleccionados
             });
+            agregarToast("Partido finalizado", `Resultado guardado para el partido contra ${mostrarFinalizarPartido.equipo_visitante}.`, "success");
             setMostrarFinalizarPartido(null);
             setGolesLocalPartido(0);
             setGolesVisitantePartido(0);
@@ -476,6 +453,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 tokens_json: tokens,
                 trazos_png: trazosBase64
             });
+            agregarToast("Jugada guardada", `Se guardó la jugada táctica: ${nombreJugada}`, "success");
             setMostrarGuardarModal(false);
             setNombreJugada('');
             setDescJugada('');
@@ -507,6 +485,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
         if (!window.confirm("¿Seguro que deseas eliminar esta jugada?")) return;
         try {
             await api.delete(`/jugadas/${id}`);
+            agregarToast("Jugada eliminada", `La jugada táctica fue eliminada.`, "info");
             cargarJugadas();
         } catch (err) {
             console.error("Error al eliminar jugada:", err);
@@ -566,16 +545,26 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
         setTokens(initialTokens);
     };
 
+    const headerConfig = subVista === 'pizarra' ? {
+        title: "Pizarra Táctica",
+        desc: "Diseña, dibuja y gestiona jugadas y estrategias tácticas para el equipo.",
+        Icon: Pencil
+    } : {
+        title: "Partidos y Calendario",
+        desc: "Gestión de encuentros oficiales, programación de partidos y análisis estadístico con IA.",
+        Icon: Calendar
+    };
+
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
             {/* Cabecera y Tabs */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="text-left">
                     <h2 className="text-xl font-bold text-valle-black flex items-center">
-                        <Flag className="text-valle-green mr-2.5" size={24} />
-                        Pizarra Táctica y Calendario
+                        <headerConfig.Icon className="text-valle-green mr-2.5" size={24} />
+                        {headerConfig.title}
                     </h2>
-                    <p className="text-sm text-slate-500 mt-1">Gestión de encuentros, análisis post-partido y simulación táctica del club.</p>
+                    <p className="text-sm text-slate-500 mt-1">{headerConfig.desc}</p>
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
@@ -598,31 +587,6 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                           </button>
                         </div>
                     )}
-
-                    <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200 flex-1 lg:flex-initial">
-                        <button
-                            type="button"
-                            onClick={() => setSubVista('calendario')}
-                            className={`flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer ${
-                                subVista === 'calendario' 
-                                    ? 'bg-white text-valle-green shadow-xs' 
-                                    : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                        >
-                            <Calendar size={14} className="mr-1.5" /> Partidos
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setSubVista('pizarra')}
-                            className={`flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer ${
-                                subVista === 'pizarra' 
-                                    ? 'bg-white text-valle-green shadow-xs' 
-                                    : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                        >
-                            <Pencil size={14} className="mr-1.5" /> Pizarra Táctica
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -675,6 +639,7 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                             aplicarFormacion={aplicarFormacion}
                             isDrawing={isDrawing}
                             setIsDrawing={setIsDrawing}
+                            setMostrarGuardarModal={setMostrarGuardarModal}
                         />
                     </div>
                     <div className="lg:col-span-1">
@@ -759,33 +724,6 @@ export default function Tactica({ esCuerpoTecnico = false, vistaInicial = 'calen
                 errorReporte={errorReporte}
                 onRetry={() => abrirReporteIA(mostrarReporteModal)}
             />
-
-            {/* Contenedor de Alertas / Toast Notifications en tiempo real */}
-            <div className="fixed bottom-5 right-5 z-[9999] space-y-3 max-w-sm w-full pointer-events-none">
-                {toasts.map(toast => (
-                    <div 
-                        key={toast.id}
-                        className={`p-4 rounded-2xl shadow-xl border flex items-start gap-3 pointer-events-auto animate-fade-in-up transition-all duration-300 ${
-                            toast.tipo === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' :
-                            toast.tipo === 'error' ? 'bg-rose-50 border-rose-100 text-rose-800' :
-                            'bg-slate-50 border-slate-200 text-slate-800'
-                        }`}
-                        style={{ animationDuration: '300ms' }}
-                    >
-                        <div className="flex-1 text-left">
-                            <p className="text-xs font-bold">{toast.mensaje}</p>
-                            {toast.subtexto && <p className="text-[10px] opacity-90 mt-0.5 font-semibold leading-relaxed">{toast.subtexto}</p>}
-                        </div>
-                        <button 
-                            type="button"
-                            onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-                            className="text-slate-400 hover:text-slate-600 transition cursor-pointer"
-                        >
-                            <X size={14} />
-                        </button>
-                    </div>
-                ))}
-            </div>
         </div>
     );
 }

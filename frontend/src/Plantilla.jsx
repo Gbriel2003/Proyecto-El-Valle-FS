@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
 import { Users, User, Shield, Target, Award, Search, Loader2, Eye } from 'lucide-react';
 import FichaTecnica from './FichaTecnica';
 
-export default function Plantilla() {
+export default function Plantilla({ crearNotificacion = null }) {
     const [jugadores, setJugadores] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -24,6 +24,7 @@ export default function Plantilla() {
                     setJugadores([]);
                 }
             } catch (err) {
+                console.error("Error al obtener jugadores:", err);
                 setError('No se pudo conectar al endpoint de atletas de la API.');
                 setJugadores([
                     { atleta_id: 1, nombre: "Carlos", apellido: "Mendoza", posicion: "Cierre", numero_camisa: 4, detalles: "Fichaje 2025" },
@@ -62,7 +63,7 @@ export default function Plantilla() {
     };
 
     if (selectedAtletaId) {
-        return <FichaTecnica atletaId={selectedAtletaId} onBack={() => setSelectedAtletaId(null)} />;
+        return <FichaTecnica atletaId={selectedAtletaId} onBack={() => setSelectedAtletaId(null)} crearNotificacion={crearNotificacion} />;
     }
 
     return (
@@ -108,7 +109,7 @@ export default function Plantilla() {
 
                         return (
                             <div
-                                key={jugador.atleta_id || Math.random()}
+                                key={jugador.atleta_id || index}
                                 className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up"
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setSelectedAtletaId(jugador.atleta_id)}

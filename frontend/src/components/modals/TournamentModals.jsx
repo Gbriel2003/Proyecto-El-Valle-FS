@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { 
   X, Save, PlusCircle, Calendar, Award, Sparkles, 
   Loader2, AlertTriangle, ThumbsUp, List 

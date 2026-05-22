@@ -1,4 +1,3 @@
-import React from 'react';
 import { FolderOpen, Save, Trash2, Loader2 } from 'lucide-react';
 
 export default function PlaybookManager({

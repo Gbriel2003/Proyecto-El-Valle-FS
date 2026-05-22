@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
-import { Settings, Shield, UserPlus, Trash2, Mail, Lock } from 'lucide-react';
+import { Shield, UserPlus, Trash2, Mail, Lock } from 'lucide-react';
 
-export default function ConfiguracionClub() {
+export default function ConfiguracionClub({ crearNotificacion = null }) {
   const [usuarios, setUsuarios] = useState([]);
   const [formulario, setFormulario] = useState({
     nombre: '',
@@ -14,23 +14,27 @@ export default function ConfiguracionClub() {
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   const [cargando, setCargando] = useState(false);
 
+  const mostrarMensaje = (tipo, texto) => {
+    setMensaje({ tipo, texto });
+    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
+  };
+
   const cargarUsuarios = async () => {
     try {
       const res = await api.get('/usuarios/');
       setUsuarios(res.data);
     } catch (error) {
+      console.error("Error al cargar usuarios:", error);
       mostrarMensaje('error', 'Error al cargar usuarios.');
     }
   };
 
   useEffect(() => {
-    cargarUsuarios();
+    setTimeout(() => {
+      cargarUsuarios();
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const mostrarMensaje = (tipo, texto) => {
-    setMensaje({ tipo, texto });
-    setTimeout(() => setMensaje({ tipo: '', texto: '' }), 5000);
-  };
 
   const crearUsuario = async (e) => {
     e.preventDefault();
@@ -39,6 +43,9 @@ export default function ConfiguracionClub() {
       // Usar endpoint público para crear (por cómo está el backend ahora mismo)
       await api.post('/usuarios/', formulario);
       mostrarMensaje('exito', 'Usuario creado correctamente.');
+      if (crearNotificacion) {
+        crearNotificacion("Usuario creado", `Se agregó a ${formulario.nombre} ${formulario.apellido} como ${formulario.rol}`, "success");
+      }
       setFormulario({ nombre: '', apellido: '', correo: '', password: '', rol: 'atleta' });
       cargarUsuarios();
     } catch (error) {
@@ -53,8 +60,12 @@ export default function ConfiguracionClub() {
     try {
       await api.delete(`/usuarios/${id}`);
       mostrarMensaje('exito', 'Usuario eliminado correctamente.');
+      if (crearNotificacion) {
+        crearNotificacion("Usuario eliminado", "El usuario fue eliminado del sistema.", "info");
+      }
       cargarUsuarios();
     } catch (error) {
+      console.error("Error al eliminar usuario:", error);
       mostrarMensaje('error', 'Error al eliminar usuario.');
     }
   };

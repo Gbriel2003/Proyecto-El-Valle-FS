@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import api from './api';
 import { Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
@@ -34,6 +34,7 @@ export default function Login({ onLoginSuccess }) {
                 localStorage.setItem('token_valle', token);
                 // Ahora sí guardamos el rol real (admin, entrenador, atleta)
                 localStorage.setItem('rol_usuario', payloadDecodificado.rol);
+                sessionStorage.setItem('reciente_logueado', 'true');
                 onLoginSuccess();
             }
         } catch (err) {

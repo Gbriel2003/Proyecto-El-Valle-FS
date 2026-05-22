@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
 import { 
   User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, 
-  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Eye, EyeOff
+  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function FichaTecnica({ atletaId = null, onBack = null }) {
+export default function FichaTecnica({ atletaId = null, onBack = null, crearNotificacion = null }) {
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -86,7 +86,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null }) {
   };
 
   useEffect(() => {
-    cargarDatos();
+    setTimeout(() => {
+      cargarDatos();
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [atletaId]);
 
   // Guardar hábitos diarios
@@ -103,8 +106,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null }) {
         calidad_descanso: calidadDescanso
       });
       setMostrarHabitoModal(false);
+      if (crearNotificacion) {
+        crearNotificacion("Hábitos guardados", "Información nutricional actualizada.", "success");
+      }
       cargarDatos(); // Recargar gráficos e históricos
     } catch (err) {
+      console.error("Error al registrar hábitos:", err);
       alert('Error al registrar hábitos diarios.');
     } finally {
       setGuardandoHabito(false);
@@ -132,8 +139,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null }) {
       setGravedad('Leve');
       setDescripcion('');
       setRehabilitacion('');
+      if (crearNotificacion) {
+        crearNotificacion("Lesión registrada", "Nueva lesión agregada al historial médico.", "warning");
+      }
       cargarDatos();
     } catch (err) {
+      console.error("Error al registrar lesión:", err);
       alert('Error al registrar lesión.');
     } finally {
       setGuardandoLesion(false);
@@ -153,8 +164,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null }) {
       });
       setMostrarAltaModal(null);
       setRehabilitacionAlta('');
+      if (crearNotificacion) {
+        crearNotificacion("Alta médica otorgada", "El jugador ha recibido el alta médica.", "success");
+      }
       cargarDatos();
     } catch (err) {
+      console.error("Error al registrar alta:", err);
       alert('Error al registrar alta médica.');
     } finally {
       setGuardandoAlta(false);

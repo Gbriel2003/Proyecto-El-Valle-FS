@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import api from './api';
 import Login from './Login';
 import AtletaDashboard from './AtletaDashboard';
 import EntrenadorDashboard from './EntrenadorDashboard';
@@ -7,6 +8,7 @@ import Plantilla from './Plantilla';
 import Tactica from './Tactica';
 import ConfiguracionClub from './ConfiguracionClub';
 import FichaTecnica from './FichaTecnica';
+import PWAInstallModal from './components/modals/PWAInstallModal';
 import {
   Users,
   Activity,
@@ -14,15 +16,17 @@ import {
   LogOut,
   Menu,
   TrendingUp,
-  BrainCircuit,
   Settings,
   User as UserIcon,
   X,
   BarChart2,
   ChevronDown,
   Pencil,
-  Calendar
+  Calendar,
+  Download,
+  Bell
 } from 'lucide-react';
+
 
 const titulosPaginas = {
   ia: "Control de Entrenamiento",
@@ -41,9 +45,200 @@ export default function App() {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(true);
 
+  // Estados globales de alertas y carga de reportes
+  const [toasts, setToasts] = useState([]);
+  const [partidosEnProceso, setPartidosEnProceso] = useState([]);
+  const [partidosGlobal, setPartidosGlobal] = useState([]);
+
+  // Estados para instalación de PWA
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [mostrarInstaladorModal, setMostrarInstaladorModal] = useState(false);
+  const [esStandalone, setEsStandalone] = useState(false);
+
+  // Sistema de Notificaciones Internas
+  const [notificaciones, setNotificaciones] = useState(() => {
+    try {
+      const stored = localStorage.getItem('valle_notificaciones');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [notifDropdownAbierto, setNotifDropdownAbierto] = useState(false);
+
+  // Guardar notificaciones en localStorage
+  useEffect(() => {
+    localStorage.setItem('valle_notificaciones', JSON.stringify(notificaciones));
+  }, [notificaciones]);
+
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    if (!notifDropdownAbierto) return;
+    const handleDocumentClick = (e) => {
+      if (!e.target.closest('.notification-container')) {
+        setNotifDropdownAbierto(false);
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, [notifDropdownAbierto]);
+
+  const agregarToast = (mensaje, subtexto = '', tipo = 'info') => {
+    const id = Date.now() + Math.random().toString(36).substr(2, 5);
+    setToasts(prev => [...prev, { id, mensaje, subtexto, tipo }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 7000);
+  };
+
+  const crearNotificacion = (mensaje, subtexto = '', tipo = 'info') => {
+    const realTipo = ['success', 'error', 'info', 'warning'].includes(subtexto) ? subtexto : (tipo || 'info');
+    const realSubtexto = ['success', 'error', 'info', 'warning'].includes(subtexto) ? '' : subtexto;
+    
+    // 1. Mostrar el toast en pantalla
+    agregarToast(mensaje, realSubtexto, realTipo);
+
+    // 2. Registrar en el panel de notificaciones
+    const textoCompleto = realSubtexto ? `${mensaje}: ${realSubtexto}` : mensaje;
+    const nueva = {
+      id: Date.now() + Math.random().toString(36).substr(2, 5),
+      mensaje: textoCompleto,
+      tipo: realTipo,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      leido: false
+    };
+
+    setNotificaciones(prev => {
+      const filtradas = [nueva, ...prev];
+      return filtradas.slice(0, 15); // Limitar a las últimas 15
+    });
+  };
+
+  // Alerta de login exitoso diferido tras recarga
+  useEffect(() => {
+    if (autenticado) {
+      const recienteLogueado = sessionStorage.getItem('reciente_logueado');
+      if (recienteLogueado) {
+        sessionStorage.removeItem('reciente_logueado');
+        setTimeout(() => {
+          crearNotificacion("¡Bienvenido!", "Sesión iniciada correctamente en El Valle F.S.", "success");
+        }, 500);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autenticado]);
+
+  const unreadCount = notificaciones.filter(n => !n.leido).length;
+
+  const marcarTodasComoLeidas = () => {
+    setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
+  };
+
+  const eliminarNotificacion = (id) => {
+    setNotificaciones(prev => prev.filter(n => n.id !== id));
+  };
+
+  const limpiarNotificaciones = () => {
+    setNotificaciones([]);
+  };
+
+  const registrarPartidoEnProceso = (partidoId) => {
+    setPartidosEnProceso(prev => {
+      if (prev.includes(partidoId)) return prev;
+      return [...prev, partidoId];
+    });
+    cargarPartidosGlobal();
+  };
+
+  const cargarPartidosGlobal = async () => {
+    try {
+      const token = localStorage.getItem('token_valle');
+      if (!token) return;
+      const res = await api.get('/partidos/');
+      if (Array.isArray(res.data)) {
+        setPartidosGlobal(res.data);
+      }
+    } catch (err) {
+      console.error("Error al cargar partidos globalmente:", err);
+    }
+  };
+
+  useEffect(() => {
+    const checkStandalone = () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      setEsStandalone(!!isStandalone);
+    };
+    checkStandalone();
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (autenticado && (rolUsuario === 'admin' || rolUsuario === 'entrenador')) {
+      cargarPartidosGlobal();
+    }
+  }, [autenticado, rolUsuario]);
+
+  // Polling en segundo plano para alertar cuando el reporte de la IA esté listo
+  useEffect(() => {
+    if (partidosEnProceso.length === 0) return;
+
+    const interval = setInterval(async () => {
+      for (const partidoId of partidosEnProceso) {
+        try {
+          const res = await api.get(`/partidos/${partidoId}/reporte`);
+          const data = res.data;
+          const partidoObj = partidosGlobal.find(p => p.id === partidoId) || { equipo_visitante: 'Rival' };
+          
+          if (data.estado === 'completado' && !data.analisis_ia?.error) {
+            agregarToast(
+              "¡Análisis de IA Listo!",
+              `El reporte táctico del partido contra ${partidoObj.equipo_visitante} ha sido generado con éxito.`,
+              "success"
+            );
+            setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
+            cargarPartidosGlobal();
+          } else if (data.analisis_ia?.error) {
+            agregarToast(
+              "Error de Análisis IA",
+              `No se pudo generar el análisis del partido contra ${partidoObj.equipo_visitante}: ${data.analisis_ia.error}`,
+              "error"
+            );
+            setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
+            cargarPartidosGlobal();
+          }
+        } catch (err) {
+          console.error("Error al consultar reporte en background:", err);
+          if (err.response && err.response.status !== 404 && err.response.status !== 422) {
+            const partidoObj = partidosGlobal.find(p => p.id === partidoId) || { equipo_visitante: 'Rival' };
+            agregarToast(
+              "Error de Conexión",
+              `Problema al consultar el reporte del partido contra ${partidoObj.equipo_visitante}.`,
+              "error"
+            );
+            setPartidosEnProceso(prev => prev.filter(id => id !== partidoId));
+          }
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [partidosEnProceso, partidosGlobal]);
+
   useEffect(() => {
     if (menuActivo === 'pizarra_tactica' || menuActivo === 'partidos') {
-      setTacticaMenuAbierto(true);
+      setTimeout(() => {
+        setTacticaMenuAbierto(true);
+      }, 0);
     }
   }, [menuActivo]);
 
@@ -52,14 +247,16 @@ export default function App() {
     const rol = localStorage.getItem('rol_usuario') || 'atleta';
 
     if (token) {
-      setAutenticado(true);
-      setRolUsuario(rol.toLowerCase());
+      setTimeout(() => {
+        setAutenticado(true);
+        setRolUsuario(rol.toLowerCase());
 
-      if (rol.toLowerCase() === 'atleta') {
-        setMenuActivo('mi_perfil');
-      } else {
-        setMenuActivo('dashboard');
-      }
+        if (rol.toLowerCase() === 'atleta') {
+          setMenuActivo('mi_perfil');
+        } else {
+          setMenuActivo('dashboard');
+        }
+      }, 0);
     }
   }, []);
 
@@ -75,6 +272,8 @@ export default function App() {
   const cerrarSesion = () => {
     localStorage.removeItem('token_valle');
     localStorage.removeItem('rol_usuario');
+    localStorage.removeItem('valle_notificaciones');
+    setNotificaciones([]);
     setAutenticado(false);
   };
 
@@ -222,11 +421,21 @@ export default function App() {
           </div>
           <button
             onClick={cerrarSesion}
-            className="w-full flex items-center px-4 py-2.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center px-4 py-2.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
           >
             <LogOut size={18} className="mr-3" />
             <span className="text-sm font-medium">Cerrar Sesión</span>
           </button>
+          {!esStandalone && (
+            <button
+              type="button"
+              onClick={() => setMostrarInstaladorModal(true)}
+              className="w-full mt-2.5 flex items-center px-4 py-1.5 text-slate-400 hover:text-slate-650 transition-colors text-[11px] font-bold tracking-tight cursor-pointer"
+            >
+              <Download size={14} className="mr-3 shrink-0" />
+              <span>Descargar Aplicación</span>
+            </button>
+          )}
         </div>
       </aside>
 
@@ -247,8 +456,88 @@ export default function App() {
             </h1>
           </div>
           
-          <div className="flex items-center">
-            <span className="text-sm font-medium text-slate-700 mr-3 hidden sm:block capitalize">{rolUsuario}</span>
+          <div className="flex items-center gap-3">
+            {/* Campana de Notificaciones */}
+            <div className="relative notification-container">
+              <button
+                type="button"
+                onClick={() => setNotifDropdownAbierto(!notifDropdownAbierto)}
+                className="flex items-center justify-center p-2.5 text-slate-600 hover:bg-slate-105 hover:text-valle-green rounded-xl transition relative cursor-pointer"
+                title="Notificaciones e Historial"
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-valle-gold text-valle-green border border-white text-[9px] font-black rounded-full flex items-center justify-center shadow-xs">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Panel Dropdown */}
+              {notifDropdownAbierto && (
+                <div className="absolute right-0 mt-2.5 w-80 bg-white border border-slate-200/80 backdrop-blur-md rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in-up">
+                  <div className="p-3 bg-valle-green text-valle-gold flex justify-between items-center">
+                    <span className="text-[10px] font-bold tracking-wider uppercase font-display">Actividad del Club</span>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={marcarTodasComoLeidas}
+                        className="text-[10px] text-white hover:text-valle-gold font-bold transition cursor-pointer"
+                      >
+                        Marcar como leídas
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto divide-y divide-slate-105 min-h-24 flex flex-col justify-between">
+                    {notificaciones.length === 0 ? (
+                      <div className="p-6 text-center text-slate-400 text-xs font-semibold my-auto">
+                        No hay registros recientes
+                      </div>
+                    ) : (
+                      notificaciones.map(n => (
+                        <div 
+                          key={n.id} 
+                          className={`p-3 transition-colors flex items-start justify-between gap-3 hover:bg-slate-50/50 ${!n.leido ? 'bg-slate-50/30' : ''}`}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-slate-700 leading-normal break-words">
+                              {n.mensaje}
+                            </p>
+                            <span className="text-[9px] text-slate-450 font-bold block mt-1">
+                              {n.timestamp}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                            {!n.leido && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-valle-gold shrink-0" />
+                            )}
+                            <button
+                              onClick={() => eliminarNotificacion(n.id)}
+                              className="text-slate-350 hover:text-red-500 transition cursor-pointer"
+                              title="Eliminar"
+                            >
+                              <X size={11} />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {notificaciones.length > 0 && (
+                    <div className="p-2 bg-slate-50 border-t border-slate-100 text-center">
+                      <button
+                        onClick={limpiarNotificaciones}
+                        className="text-[10px] text-slate-400 hover:text-red-650 font-bold transition cursor-pointer"
+                      >
+                        Limpiar Historial
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <span className="text-sm font-medium text-slate-700 mr-1 hidden sm:block capitalize">{rolUsuario}</span>
             <div className="w-9 h-9 rounded-full bg-valle-green border-2 border-valle-gold shadow-sm flex items-center justify-center text-valle-gold font-bold text-sm uppercase">
               {rolUsuario.substring(0, 2)}
             </div>
@@ -267,15 +556,65 @@ export default function App() {
 
           {menuActivo === 'dashboard' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <EntrenadorDashboard />}
           {menuActivo === 'dashboard' && rolUsuario === 'atleta' && <AtletaDashboard />}
-          {menuActivo === 'jugadores' && <Plantilla />}
-          {menuActivo === 'pizarra_tactica' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} vistaInicial="pizarra" />}
-          {menuActivo === 'partidos' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} vistaInicial="calendario" />}
-          {menuActivo === 'ia' && <RegistroEntrenamiento />}
-          {menuActivo === 'configuracion' && <ConfiguracionClub />}
-          {menuActivo === 'mi_perfil' && <FichaTecnica />}
+          {menuActivo === 'jugadores' && <Plantilla crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'pizarra_tactica' && (
+            <Tactica 
+              esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} 
+              vistaInicial="pizarra" 
+              partidosEnProceso={partidosEnProceso}
+              registrarPartidoEnProceso={registrarPartidoEnProceso}
+              agregarToast={crearNotificacion}
+            />
+          )}
+          {menuActivo === 'partidos' && (
+            <Tactica 
+              esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} 
+              vistaInicial="calendario" 
+              partidosEnProceso={partidosEnProceso}
+              registrarPartidoEnProceso={registrarPartidoEnProceso}
+              agregarToast={crearNotificacion}
+            />
+          )}
+          {menuActivo === 'ia' && <RegistroEntrenamiento crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'configuracion' && <ConfiguracionClub crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'mi_perfil' && <FichaTecnica crearNotificacion={crearNotificacion} />}
 
         </div>
       </main>
+
+      <PWAInstallModal
+        isOpen={mostrarInstaladorModal}
+        onClose={() => setMostrarInstaladorModal(false)}
+        deferredPrompt={deferredPrompt}
+        setDeferredPrompt={setDeferredPrompt}
+      />
+
+      {/* Contenedor de Alertas / Toast Notifications en tiempo real */}
+      <div className="fixed bottom-5 right-5 z-[9999] space-y-3 max-w-sm w-full pointer-events-none">
+        {toasts.map(toast => (
+          <div 
+            key={toast.id}
+            className={`p-4 rounded-2xl shadow-xl border flex items-start gap-3 pointer-events-auto animate-fade-in-up transition-all duration-300 ${
+              toast.tipo === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' :
+              toast.tipo === 'error' ? 'bg-rose-50 border-rose-100 text-rose-800' :
+              'bg-slate-50 border-slate-200 text-slate-800'
+            }`}
+            style={{ animationDuration: '300ms' }}
+          >
+            <div className="flex-1 text-left">
+              <p className="text-xs font-bold">{toast.mensaje}</p>
+              {toast.subtexto && <p className="text-[10px] opacity-90 mt-0.5 font-semibold leading-relaxed">{toast.subtexto}</p>}
+            </div>
+            <button 
+              type="button"
+              onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+              className="text-slate-400 hover:text-slate-600 transition cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
