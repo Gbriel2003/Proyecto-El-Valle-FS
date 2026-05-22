@@ -18,14 +18,34 @@ import {
   Settings,
   User as UserIcon,
   X,
-  BarChart2
+  BarChart2,
+  ChevronDown,
+  Pencil,
+  Calendar
 } from 'lucide-react';
+
+const titulosPaginas = {
+  ia: "Control de Entrenamiento",
+  dashboard: "Panel de Control",
+  jugadores: "Plantilla Activa",
+  pizarra_tactica: "Pizarra Táctica",
+  partidos: "Partidos y Calendario",
+  configuracion: "Configuración del Club",
+  mi_perfil: "Mi Ficha Técnica"
+};
 
 export default function App() {
   const [autenticado, setAutenticado] = useState(false);
   const [rolUsuario, setRolUsuario] = useState('');
   const [menuActivo, setMenuActivo] = useState('');
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(true);
+
+  useEffect(() => {
+    if (menuActivo === 'pizarra_tactica' || menuActivo === 'partidos') {
+      setTacticaMenuAbierto(true);
+    }
+  }, [menuActivo]);
 
   useEffect(() => {
     const token = localStorage.getItem('token_valle');
@@ -43,6 +63,15 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    if (menuActivo) {
+      const subTitle = titulosPaginas[menuActivo] || menuActivo.replace('_', ' ');
+      document.title = `${subTitle} | El Valle F.S.`;
+    } else {
+      document.title = "El Valle F.S. | Plataforma de Gestión Deportiva";
+    }
+  }, [menuActivo]);
+
   const cerrarSesion = () => {
     localStorage.removeItem('token_valle');
     localStorage.removeItem('rol_usuario');
@@ -58,11 +87,17 @@ export default function App() {
     return <Login onLoginSuccess={() => window.location.reload()} />;
   }
 
-  // Clases CSS reutilizables para el menú con colores de marca
-  const navItemClass = (menuName) => `w-full flex items-center px-4 py-3 rounded-lg transition-colors font-medium text-sm mb-1 ${
+  // Clases CSS reutilizables para el menú con colores de marca y diseño premium
+  const navItemClass = (menuName) => `w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm mb-1 relative overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-valle-green/20 ${
     menuActivo === menuName 
-      ? 'bg-valle-green/10 text-valle-green font-bold' 
-      : 'text-slate-600 hover:bg-slate-50 hover:text-valle-green'
+      ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3' 
+      : 'text-slate-600 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
+  }`;
+
+  const subNavItemClass = (menuName) => `w-full flex items-center py-2.5 rounded-xl transition-all duration-200 font-medium text-xs mb-1 relative overflow-hidden group cursor-pointer focus:outline-none ${
+    menuActivo === menuName 
+      ? 'bg-valle-green/8 text-valle-green font-bold border-l-2 border-valle-green pl-6' 
+      : 'text-slate-550 hover:bg-slate-50 hover:text-valle-green border-l-2 border-transparent pl-6'
   }`;
 
   return (
@@ -115,10 +150,46 @@ export default function App() {
                 <span>Plantilla Activa</span>
               </button>
 
-              <button onClick={() => handleNavClick('tactica')} className={navItemClass('tactica')}>
-                <ClipboardList size={18} className="mr-3" />
-                <span>Pizarra Táctica</span>
-              </button>
+              {/* Grupo Colapsable: Táctica y Partidos */}
+              <div className="space-y-1">
+                <button 
+                  onClick={() => setTacticaMenuAbierto(!tacticaMenuAbierto)} 
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm mb-1 group cursor-pointer focus:outline-none ${
+                    menuActivo === 'pizarra_tactica' || menuActivo === 'partidos'
+                      ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3'
+                      : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
+                  }`}
+                >
+                  <div className="flex items-center">
+                    <ClipboardList size={18} className="mr-3" />
+                    <span>Táctica y Partidos</span>
+                  </div>
+                  <ChevronDown 
+                    size={15} 
+                    className={`transition-transform duration-200 ${tacticaMenuAbierto ? 'rotate-180' : ''}`} 
+                  />
+                </button>
+
+                {tacticaMenuAbierto && (
+                  <div className="pl-3 space-y-1 animate-fade-in-up">
+                    <button 
+                      onClick={() => handleNavClick('pizarra_tactica')} 
+                      className={subNavItemClass('pizarra_tactica')}
+                    >
+                      <Pencil size={13} className="mr-2" />
+                      <span>Pizarra Táctica</span>
+                    </button>
+
+                    <button 
+                      onClick={() => handleNavClick('partidos')} 
+                      className={subNavItemClass('partidos')}
+                    >
+                      <Calendar size={13} className="mr-2" />
+                      <span>Partidos</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           )}
 
@@ -171,8 +242,8 @@ export default function App() {
             >
               <Menu size={24} />
             </button>
-            <h1 className="text-xl font-bold text-valle-black capitalize hidden sm:block">
-              {menuActivo.replace('_', ' ')}
+            <h1 className="text-xl font-bold text-valle-black font-display hidden sm:block">
+              {titulosPaginas[menuActivo] || menuActivo.replace('_', ' ')}
             </h1>
           </div>
           
@@ -183,21 +254,22 @@ export default function App() {
             </div>
           </div>
         </header>
-
+ 
         {/* Área de Componentes (Scrollable) */}
         <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50/50">
           
           {/* Título en móvil (ya que lo ocultamos en el header) */}
           <div className="mb-6 sm:hidden">
-            <h1 className="text-2xl font-bold text-valle-black capitalize">
-              {menuActivo.replace('_', ' ')}
+            <h1 className="text-2xl font-bold text-valle-black font-display">
+              {titulosPaginas[menuActivo] || menuActivo.replace('_', ' ')}
             </h1>
           </div>
 
           {menuActivo === 'dashboard' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <EntrenadorDashboard />}
           {menuActivo === 'dashboard' && rolUsuario === 'atleta' && <AtletaDashboard />}
           {menuActivo === 'jugadores' && <Plantilla />}
-          {menuActivo === 'tactica' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} />}
+          {menuActivo === 'pizarra_tactica' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} vistaInicial="pizarra" />}
+          {menuActivo === 'partidos' && <Tactica esCuerpoTecnico={rolUsuario === 'admin' || rolUsuario === 'entrenador'} vistaInicial="calendario" />}
           {menuActivo === 'ia' && <RegistroEntrenamiento />}
           {menuActivo === 'configuracion' && <ConfiguracionClub />}
           {menuActivo === 'mi_perfil' && <FichaTecnica />}

@@ -13,14 +13,25 @@ def extraer_texto_pdf(ruta_archivo: str):
     try:
         with pdfplumber.open(ruta_archivo) as pdf:
             for pagina in pdf.pages:
-                texto_completo += pagina.extract_text() + "\n"
+                texto = pagina.extract_text()
+                if texto:
+                    texto_completo += texto + "\n"
+        
+        texto_completo = texto_completo.strip()
+        if not texto_completo:
+            return "Error al leer el PDF: El archivo PDF no contiene texto seleccionable/legible. Por favor, sube un PDF con texto digital (no escaneado como imagen)."
         return texto_completo
     except Exception as e:
         return f"Error al leer el PDF: {str(e)}"
 
 # --- JUGADOR 2: EL ANALISTA TÁCTICO CON IA ---
 def analizar_estadisticas_con_ia(texto_reporte: str):
+    if texto_reporte.startswith("Error al leer el PDF:"):
+        return {"error": "Error al leer el archivo PDF", "detalle_tecnico": texto_reporte}
+
     api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return {"error": "Error de configuración en el servidor", "detalle_tecnico": "Falta la variable de entorno GROQ_API_KEY."}
     
     url = "https://api.groq.com/openai/v1/chat/completions"
     prompt = f"""
@@ -66,9 +77,9 @@ def analizar_estadisticas_con_ia(texto_reporte: str):
             try:
                 return json.loads(texto_res.strip())
             except json.JSONDecodeError:
-                return {"error": "Formato inválido", "detalle_tecnico": "La IA no devolvió un JSON válido."}
+                return {"error": "Formato de respuesta inválido", "detalle_tecnico": "La IA no devolvió un JSON compatible con el formato requerido."}
         else:
-            return {"error": "Google rechazó la petición", "detalle_tecnico": response.text}
+            return {"error": "El servidor de IA rechazó la petición", "detalle_tecnico": response.text}
             
     # NUEVO: Captura específica si se acaba el tiempo de espera
     except requests.exceptions.Timeout:
@@ -79,6 +90,9 @@ def analizar_estadisticas_con_ia(texto_reporte: str):
 # --- JUGADOR 3: EL ANALISTA DE FATIGA CON IA ---
 def analizar_fatiga_con_ia(datos_cargas: str):
     api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return {"error": "Error de configuración en el servidor", "detalle": "Falta la variable de entorno GROQ_API_KEY."}
+
     url = "https://api.groq.com/openai/v1/chat/completions"
     
     prompt = f"""
@@ -125,6 +139,7 @@ def analizar_fatiga_con_ia(datos_cargas: str):
         else:
             return {"error": "Fallo en IA", "detalle": response.text}
             
+    # NUEVO: Captura específica si se acaba el tiempo de espera
     except requests.exceptions.Timeout:
         return {"error": "Timeout", "detalle": "La IA tardó demasiado en responder."}
     except Exception as e:

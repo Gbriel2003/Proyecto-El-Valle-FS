@@ -66,21 +66,21 @@ export default function Plantilla() {
     }
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto">
+        <div className="space-y-6 max-w-7xl mx-auto pb-8">
 
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
                 <div className="flex items-center space-x-3 text-valle-black">
-                    <div className="w-10 h-10 rounded-full bg-valle-green flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20">
                         <Users size={20} className="text-valle-gold" />
                     </div>
-                    <span className="font-bold text-sm">Fichas Técnicas de la Plantilla</span>
+                    <span className="font-bold text-sm font-display">Fichas Técnicas de la Plantilla</span>
                 </div>
                 <div className="relative w-full sm:w-72">
                     <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
                     <input
                         type="text"
                         placeholder="Buscar por nombre o posición..."
-                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green transition"
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 transition-all duration-200"
                         value={busqueda}
                         onChange={(e) => setBusqueda(e.target.value)}
                     />
@@ -88,19 +88,19 @@ export default function Plantilla() {
             </div>
 
             {error && (
-                <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded text-xs text-amber-800 font-medium">
-                    {error} Mostrando datos de demostración.
+                <div className="bg-amber-50/80 backdrop-blur-sm border-l-4 border-amber-500 p-3.5 rounded-lg text-xs text-amber-800 font-semibold animate-fade-in-up">
+                    ⚠ {error} Mostrando datos de demostración.
                 </div>
             )}
 
             {cargando ? (
                 <div className="h-64 flex flex-col items-center justify-center text-slate-400">
                     <Loader2 className="animate-spin mb-2 text-valle-green" size={32} />
-                    <p className="text-xs">Sincronizando plantilla...</p>
+                    <p className="text-xs font-semibold">Sincronizando plantilla...</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {jugadoresFiltrados.map((jugador) => {
+                    {jugadoresFiltrados.map((jugador, index) => {
                         const nombreReal = jugador.usuario?.nombre || jugador.nombre || 'Jugador';
                         const apellidoReal = jugador.usuario?.apellido || jugador.apellido || 'Desconocido';
                         const posicionReal = jugador.posicion_principal || jugador.posicion || 'Sin asignar';
@@ -109,19 +109,20 @@ export default function Plantilla() {
                         return (
                             <div
                                 key={jugador.atleta_id || Math.random()}
-                                className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-slate-300 transition duration-300 group flex flex-col justify-between cursor-pointer"
+                                className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setSelectedAtletaId(jugador.atleta_id)}
                             >
                                 <div className="p-5 flex flex-col items-center text-center relative">
-                                    <span className="absolute top-4 right-4 text-2xl font-black text-slate-100 group-hover:text-slate-200 transition select-none">
+                                    <span className="absolute top-4 right-4 text-2xl font-black text-slate-100 group-hover:text-slate-200 transition select-none font-display">
                                         #{jugador.numero_camisa || '?'}
                                     </span>
 
-                                    <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mb-3 border border-slate-100 text-slate-700 font-bold text-base group-hover:bg-valle-green group-hover:text-white transition duration-300 shadow-sm">
+                                    <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mb-3 border border-slate-100 text-slate-700 font-bold text-base group-hover:bg-valle-green group-hover:text-white transition duration-300 shadow-sm font-display">
                                         {iniciales}
                                     </div>
 
-                                    <h4 className="font-bold text-slate-800 text-sm tracking-tight capitalize">
+                                    <h4 className="font-bold text-slate-800 text-sm tracking-tight capitalize font-display">
                                         {nombreReal} {apellidoReal}
                                     </h4>
                                     <p className="text-[11px] text-slate-400 font-medium mt-0.5">ID del Atleta: {jugador.atleta_id}</p>
@@ -132,7 +133,7 @@ export default function Plantilla() {
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-[11px] transition duration-200">
+                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-[11px] transition-all duration-200">
                                     <span className="font-bold flex items-center">
                                         <Eye size={12} className="mr-1" /> Ver Ficha
                                     </span>
@@ -143,7 +144,7 @@ export default function Plantilla() {
                     })}
 
                     {jugadoresFiltrados.length === 0 && (
-                        <div className="col-span-full bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center text-slate-400 text-sm">
+                        <div className="col-span-full bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center text-slate-400 text-sm animate-fade-in-up">
                             No se encontraron atletas registrados en el club.
                         </div>
                     )}

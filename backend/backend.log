@@ -1,0 +1,47 @@
+[2026-05-21 15:21:31,679] INFO [el-valle-fs:36] Consulta al estado de salud del servidor realizada.
+[2026-05-21 15:27:25,951] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-21 19:38:04,769] ERROR [el-valle-fs:21] Error inesperado no controlado en POST /partidos/1/subir-reporte: I/O operation on closed file.
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\partidos.py", line 148, in subir_reporte_pdf
+    file.file.seek(0)
+  File "C:\Users\gabri\AppData\Local\Programs\Python\Python312\Lib\tempfile.py", line 828, in seek
+    return self._file.seek(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^
+ValueError: I/O operation on closed file.
+[2026-05-21 19:38:58,311] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-21 19:39:13,763] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-21 19:50:43,122] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-05-22 08:37:39,035] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
