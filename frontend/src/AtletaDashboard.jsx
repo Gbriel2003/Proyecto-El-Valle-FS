@@ -83,21 +83,21 @@ export default function AtletaDashboard() {
                             <h3 className="font-bold text-slate-800 flex items-center">
                                 <Scale size={18} className="mr-2 text-valle-green" /> Biometría
                             </h3>
-                            <span className="text-xs font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
+                            <span className="text-sm font-bold bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full">
                                 Atleta #{datos.perfil.atleta_id}
                             </span>
                         </div>
                         <div className="space-y-4 flex-1">
                             <div>
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Peso Fichaje vs Actual</p>
+                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 font-bold">Peso Fichaje vs Actual</p>
                                 <div className="flex items-end space-x-2">
                                     <span className="text-2xl font-black text-slate-800">{datos.estado_fisico.peso_actual} kg</span>
                                     <span className="text-sm text-slate-400 line-through mb-1">{datos.perfil.peso_fichaje} kg</span>
                                 </div>
                             </div>
                             <div className="pt-4 border-t border-slate-100">
-                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Índice de Masa Corporal</p>
-                                <span className="text-lg font-bold text-slate-700">{datos.estado_fisico.imc_actual}</span>
+                                <p className="text-xs text-slate-500 uppercase tracking-wider mb-1 font-bold">Índice de Masa Corporal</p>
+                                <span className="text-sm font-bold text-slate-700">{datos.estado_fisico.imc_actual}</span>
                             </div>
                         </div>
                     </div>
@@ -115,8 +115,8 @@ export default function AtletaDashboard() {
                                     <Moon size={18} className="text-slate-500" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase tracking-wider">Calidad de Descanso</p>
-                                    <p className="text-lg font-black text-slate-800">{datos.habitos_semanales.promedio_descanso} / 10</p>
+                                    <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">Calidad de Descanso</p>
+                                    <p className="text-base font-bold text-slate-800">{datos.habitos_semanales.promedio_descanso} / 10</p>
                                 </div>
                             </div>
                             <div className="flex items-center">
@@ -124,8 +124,8 @@ export default function AtletaDashboard() {
                                     <Droplet size={18} className="text-slate-500" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 uppercase tracking-wider">Hidratación Promedio</p>
-                                    <p className="text-lg font-black text-slate-800">{datos.habitos_semanales.promedio_hidratacion} Litros</p>
+                                    <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">Hidratación Promedio</p>
+                                    <p className="text-base font-bold text-slate-800">{datos.habitos_semanales.promedio_hidratacion} Litros</p>
                                 </div>
                             </div>
                         </div>
@@ -150,7 +150,7 @@ export default function AtletaDashboard() {
                                 ) : (
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                                            <span className="text-xs text-slate-500 uppercase font-semibold">Riesgo de Lesión</span>
+                                            <span className="text-xs text-slate-500 uppercase font-bold">Riesgo de Lesión</span>
                                             <span className={`text-xs font-bold px-3 py-1 rounded shadow-sm ${colorRiesgo(datos.alerta_ia.riesgo_lesion)}`}>
                                                 {datos.alerta_ia.riesgo_lesion}
                                             </span>

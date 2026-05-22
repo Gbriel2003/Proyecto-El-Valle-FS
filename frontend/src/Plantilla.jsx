@@ -3,7 +3,7 @@ import api from './api';
 import { Users, User, Shield, Target, Award, Search, Loader2, Eye } from 'lucide-react';
 import FichaTecnica from './FichaTecnica';
 
-export default function Plantilla({ crearNotificacion = null }) {
+export default function Plantilla({ crearNotificacion = null, rolUsuario = '' }) {
     const [jugadores, setJugadores] = useState([]);
     const [busqueda, setBusqueda] = useState('');
     const [cargando, setCargando] = useState(true);
@@ -74,7 +74,12 @@ export default function Plantilla({ crearNotificacion = null }) {
                     <div className="w-10 h-10 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20">
                         <Users size={20} className="text-valle-gold" />
                     </div>
-                    <span className="font-bold text-sm font-display">Fichas Técnicas de la Plantilla</span>
+                    <div>
+                        <span className="font-bold text-sm font-display block">Fichas Técnicas de la Plantilla</span>
+                        {rolUsuario === 'nutricionista' && (
+                            <span className="text-xs text-valle-green font-bold uppercase tracking-wider block">Vista de Control Biométrico</span>
+                        )}
+                    </div>
                 </div>
                 <div className="relative w-full sm:w-72">
                     <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
@@ -126,15 +131,40 @@ export default function Plantilla({ crearNotificacion = null }) {
                                     <h4 className="font-bold text-slate-800 text-sm tracking-tight capitalize font-display">
                                         {nombreReal} {apellidoReal}
                                     </h4>
-                                    <p className="text-[11px] text-slate-400 font-medium mt-0.5">ID del Atleta: {jugador.atleta_id}</p>
-
-                                    <div className="mt-4 flex items-center space-x-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100 group-hover:border-slate-200 transition">
-                                        {obtenerIconoPosicion(posicionReal)}
-                                        <span className="text-xs font-semibold text-slate-600 capitalize">{posicionReal}</span>
-                                    </div>
+                                    <p className="text-xs text-slate-400 font-medium mt-0.5">ID del Atleta: {jugador.atleta_id}</p>
+ 
+                                    {rolUsuario === 'nutricionista' ? (
+                                        <div className="mt-4 w-full bg-slate-50 rounded-xl p-3 border border-slate-100/60 text-left text-xs space-y-1.5">
+                                            <div className="flex justify-between text-slate-500 font-medium">
+                                                <span>Peso Fichaje:</span>
+                                                <span className="font-bold text-slate-700">{jugador.peso_base ? `${jugador.peso_base} kg` : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex justify-between text-slate-500 font-medium">
+                                                <span>Peso Actual:</span>
+                                                <span className="font-bold text-valle-green">{jugador.peso_actual ? `${jugador.peso_actual} kg` : 'Sin reg.'}</span>
+                                            </div>
+                                            <div className="flex justify-between text-slate-500 font-medium pt-1.5 border-t border-slate-200/60">
+                                                <span>IMC Actual:</span>
+                                                <span className={`font-bold ${
+                                                    jugador.imc_actual && jugador.imc_actual >= 18.5 && jugador.imc_actual <= 24.9 
+                                                        ? 'text-emerald-600' 
+                                                        : jugador.imc_actual 
+                                                            ? 'text-amber-600' 
+                                                            : 'text-slate-400'
+                                                }`}>
+                                                    {jugador.imc_actual ? `${jugador.imc_actual}` : 'N/A'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="mt-4 flex items-center space-x-1.5 px-3 py-1 bg-slate-50 rounded-full border border-slate-100 group-hover:border-slate-200 transition">
+                                            {obtenerIconoPosicion(posicionReal)}
+                                            <span className="text-xs font-semibold text-slate-600 capitalize">{posicionReal}</span>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-[11px] transition-all duration-200">
+                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-xs transition-all duration-200">
                                     <span className="font-bold flex items-center">
                                         <Eye size={12} className="mr-1" /> Ver Ficha
                                     </span>

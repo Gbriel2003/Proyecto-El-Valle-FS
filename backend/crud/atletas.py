@@ -58,7 +58,8 @@ def registrar_habitos_nutricionales(db: Session, atleta_id: int, registro: schem
         frecuencia_comidas=registro.frecuencia_comidas,
         suplementacion=registro.suplementacion,
         hidratacion_litros=registro.hidratacion_litros,
-        calidad_descanso=registro.calidad_descanso
+        calidad_descanso=registro.calidad_descanso,
+        plan_alimentacion=registro.plan_alimentacion
     )
     db.add(nuevo_registro)
     db.commit()

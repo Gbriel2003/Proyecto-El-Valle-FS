@@ -49,3 +49,9 @@ def verificar_cuerpo_tecnico(usuario_actual: models.Usuario = Depends(obtener_us
     if not usuario_actual.rol or usuario_actual.rol.lower() not in ["admin", "entrenador"]:
         raise HTTPException(status_code=403, detail="Acceso denegado: Se requiere rol de cuerpo técnico")
     return usuario_actual
+
+# Verificar rol cuerpo técnico o nutricionista (admin, entrenador o nutricionista)
+def verificar_cuerpo_o_nutricionista(usuario_actual: models.Usuario = Depends(obtener_usuario_actual)):
+    if not usuario_actual.rol or usuario_actual.rol.lower() not in ["admin", "entrenador", "nutricionista"]:
+        raise HTTPException(status_code=403, detail="Acceso denegado: Se requiere rol de cuerpo técnico o nutricionista")
+    return usuario_actual

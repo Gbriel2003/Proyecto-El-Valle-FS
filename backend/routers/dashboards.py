@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import models
 import utils
-from dependencies import get_db, obtener_usuario_actual, verificar_cuerpo_tecnico
+from dependencies import get_db, obtener_usuario_actual, verificar_cuerpo_tecnico, verificar_cuerpo_o_nutricionista
 
 router = APIRouter(tags=["Dashboards"])
 
@@ -30,7 +30,7 @@ def obtener_dashboard_atleta(
     promedio_descanso = sum(h.calidad_descanso for h in habitos) / len(habitos) if habitos else 0
     promedio_hidratacion = sum(h.hidratacion_litros for h in habitos) / len(habitos) if habitos else 0
 
-    # 4. Análisis de Fatiga por IA (Usando las últimas cargas físicas)
+    # 4. Análisis de Fatiga por IA (Usando las últimas cargas físicas cruzadas con nutrición)
     cargas = db.query(models.CargaAtleta).filter(
         models.CargaAtleta.atleta_id == atleta_id
     ).order_by(models.CargaAtleta.id.desc()).limit(5).all()
@@ -38,7 +38,28 @@ def obtener_dashboard_atleta(
     analisis_ia = None
     if cargas:
         texto_cargas = "\n".join([f"RPE: {c.rpe_esfuerzo}, Salto: {c.saltos_cm}" for c in cargas])
-        analisis_ia = utils.analizar_fatiga_con_ia(texto_cargas)
+        
+        texto_nutri = ""
+        if atleta:
+            texto_nutri += f"- Peso base (fichaje): {atleta.peso_base} kg\n"
+        if ultima_biometria:
+            texto_nutri += f"- Peso actual: {ultima_biometria.peso_kg} kg, IMC: {ultima_biometria.imc}\n"
+            if atleta and atleta.peso_base and ultima_biometria.peso_kg:
+                dif_peso = atleta.peso_base - ultima_biometria.peso_kg
+                if dif_peso != 0:
+                    texto_nutri += f"- Cambio de peso: {'perdió' if dif_peso > 0 else 'ganó'} {abs(dif_peso):.1f} kg\n"
+        
+        ultimo_habito = habitos[0] if habitos else None
+        if ultimo_habito:
+            texto_nutri += f"- Hidratación diaria: {ultimo_habito.hidratacion_litros} litros\n"
+            texto_nutri += f"- Calidad de descanso: {ultimo_habito.calidad_descanso}/10\n"
+            texto_nutri += f"- Frecuencia de comidas: {ultimo_habito.frecuencia_comidas} al día\n"
+            if ultimo_habito.suplementacion:
+                texto_nutri += f"- Suplementación: {ultimo_habito.suplementacion}\n"
+            if ultimo_habito.plan_alimentacion:
+                texto_nutri += f"- Menú asignado: {ultimo_habito.plan_alimentacion}\n"
+
+        analisis_ia = utils.analizar_fatiga_con_ia(texto_cargas, texto_nutri if texto_nutri else None)
 
     # 5. Respuesta Consolidada
     return {
@@ -69,7 +90,7 @@ def obtener_mi_dashboard(
 @router.get("/dashboard-entrenador/")
 def obtener_dashboard_entrenador(
     db: Session = Depends(get_db),
-    usuario_actual: models.Usuario = Depends(verificar_cuerpo_tecnico)
+    usuario_actual: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
 ):
     # 1. RESUMEN DE PLANTILLA
     atletas_db = db.query(models.PerfilAtleta).all()

@@ -120,6 +120,7 @@ class RegistroNutricional(Base):
     suplementacion = Column(String(255))
     hidratacion_litros = Column(Float)
     calidad_descanso = Column(Integer)
+    plan_alimentacion = Column(String(255), nullable=True)
 
     atleta = relationship("PerfilAtleta", back_populates="registros_nutricionales")
 
@@ -216,3 +217,12 @@ class JugadaGuardada(Base):
     fecha_creacion = Column(DateTime, server_default=func.now())
 
     usuario = relationship("Usuario")
+
+class PropuestaDieta(Base):
+    __tablename__ = "propuestas_dieta"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(100), unique=True, nullable=False)
+    descripcion = Column(Text, nullable=False)
+    calorias = Column(Integer, nullable=True)
+    fecha_actualizacion = Column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -140,6 +140,7 @@ class RegistroNutricionalCreate(BaseModel):
     suplementacion: Optional[str] = "Ninguna"
     hidratacion_litros: float
     calidad_descanso: int # Por ejemplo, del 1 al 10
+    plan_alimentacion: Optional[str] = "Ninguno"
 
 class RegistroBiometricoResponse(BaseModel):
     id: int
@@ -158,6 +159,7 @@ class RegistroNutricionalResponse(BaseModel):
     suplementacion: Optional[str] = None
     hidratacion_litros: float
     calidad_descanso: int
+    plan_alimentacion: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -214,6 +216,21 @@ class JugadaGuardadaResponse(BaseModel):
     tokens_json: Any
     trazos_png: Optional[str] = None
     fecha_creacion: datetime
+
+    class Config:
+        from_attributes = True
+
+class PropuestaDietaCreate(BaseModel):
+    nombre: str
+    descripcion: str
+    calorias: Optional[int] = None
+
+class PropuestaDietaResponse(BaseModel):
+    id: int
+    nombre: str
+    descripcion: str
+    calorias: Optional[int] = None
+    fecha_actualizacion: datetime
 
     class Config:
         from_attributes = True

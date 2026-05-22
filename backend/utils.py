@@ -88,7 +88,7 @@ def analizar_estadisticas_con_ia(texto_reporte: str):
         return {"error": "Fallo en la comunicación HTTP", "detalle_tecnico": str(e)}
 
 # --- JUGADOR 3: EL ANALISTA DE FATIGA CON IA ---
-def analizar_fatiga_con_ia(datos_cargas: str):
+def analizar_fatiga_con_ia(datos_cargas: str, datos_nutricionales: str = None):
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return {"error": "Error de configuración en el servidor", "detalle": "Falta la variable de entorno GROQ_API_KEY."}
@@ -96,20 +96,30 @@ def analizar_fatiga_con_ia(datos_cargas: str):
     url = "https://api.groq.com/openai/v1/chat/completions"
     
     prompt = f"""
-    Eres un fisioterapeuta y preparador físico de Futsal. Tu estilo es médico, directo y preventivo.
-    Evalúa el riesgo de lesión y la fatiga muscular basándote en este historial de cargas físicas del jugador.
+    Eres un fisioterapeuta, nutricionista deportivo y preparador físico de Futsal. Tu estilo es médico, directo y preventivo.
+    Evalúa el riesgo de lesión, fatiga muscular y deshidratación cruzando los datos físicos, hábitos nutricionales y variaciones de peso.
     
-    Historial (RPE es esfuerzo del 1 al 10):
+    Historial de Cargas Físicas (RPE es esfuerzo del 1 al 10):
     {datos_cargas}
+    """
     
+    if datos_nutricionales:
+        prompt += f"""
+    Datos Nutricionales y Biométricos Recientes:
+    {datos_nutricionales}
+    
+    IMPORTANTE: Si el esfuerzo físico es alto (RPE >= 8, sprints o saltos) y se reporta una hidratación baja (litros < 2) o una pérdida de peso relevante en la semana, cruza estos datos. La deshidratación combinada con esfuerzos explosivos multiplica el riesgo de calambres musculares y lesiones. Advierte sobre esto y recomienda suplementación con electrolitos de forma inmediata si se detectan estos factores.
+        """
+        
+    prompt += """
     REGLA ESTRICTA: Sé extremadamente conciso.
     El JSON debe tener esta estructura exacta:
-    {{
+    {
         "nivel_fatiga": "Bajo, Medio, Alto o Crítico",
         "riesgo_lesion": "Bajo, Medio o Alto",
-        "analisis": "1 sola oración explicando la tendencia de los datos.",
-        "recomendacion": "1 sola oración con la indicación física (ej. 'Descanso activo', 'Carga normal', 'Fisioterapia')."
-    }}
+        "analisis": "1 sola oración explicando la tendencia cruzada de los datos físicos, hidratación y peso.",
+        "recomendacion": "1 sola oración con la recomendación física y nutricional exacta (ej. 'Alto riesgo de calambres por deshidratación; se recomienda suplementación con electrolitos inmediatamente e hidratar 3L diarios')."
+    }
     Responde ÚNICAMENTE el objeto JSON puro.
     """
     

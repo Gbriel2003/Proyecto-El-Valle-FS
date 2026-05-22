@@ -153,6 +153,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
               >
                 <option value="atleta">Atleta (Solo vista de perfil)</option>
                 <option value="entrenador">Entrenador (Vista de cuerpo técnico)</option>
+                <option value="nutricionista">Nutricionista (Control Biométrico y Dietas)</option>
                 <option value="admin">Administrador (Control total)</option>
               </select>
             </div>
@@ -196,6 +197,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                         u.rol === 'admin' ? 'bg-red-100 text-red-700' :
                         u.rol === 'entrenador' ? 'bg-valle-green-light text-white' :
+                        u.rol === 'nutricionista' ? 'bg-amber-50 text-amber-800 border border-amber-250' :
                         'bg-slate-200 text-slate-700'
                       }`}>
                         {u.rol}
