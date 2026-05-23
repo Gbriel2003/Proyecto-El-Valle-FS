@@ -18,7 +18,7 @@ export default function PWAInstallModal({
   setDeferredPrompt
 }) {
   useEscapeKey(onClose);
-  
+
   // Detección automática del dispositivo para establecer la pestaña inicial
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === 'undefined') return 'android';
@@ -31,12 +31,12 @@ export default function PWAInstallModal({
       'iPad',
       'iPhone',
       'iPod'
-    ].includes(navigator.platform) || 
-    (navigator.userAgent.includes("Mac") && "ontouchend" in document);
-    
+    ].includes(navigator.platform) ||
+      (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+
     // Detectar móvil en general
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
+
     if (isIOS) return 'ios';
     if (isMobile) return 'android';
     return 'desktop';
@@ -46,7 +46,7 @@ export default function PWAInstallModal({
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-    
+
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`Resultado de instalación: ${outcome}`);
@@ -58,7 +58,7 @@ export default function PWAInstallModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -69,9 +69,9 @@ export default function PWAInstallModal({
           <h3 id="modal-pwa-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
             <Download className="mr-1.5 animate-bounce" size={14} /> Descargar Aplicación El Valle F.S.
           </h3>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/85 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
@@ -88,31 +88,28 @@ export default function PWAInstallModal({
           <div className="flex border-b border-slate-100 mb-6 p-1 bg-slate-50 rounded-xl">
             <button
               onClick={() => setActiveTab('android')}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'android' 
-                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50' 
+              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'android'
+                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               <Smartphone size={14} /> Android / Chrome
             </button>
             <button
               onClick={() => setActiveTab('ios')}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'ios' 
-                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50' 
+              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'ios'
+                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               <Smartphone size={14} className="rotate-180" /> iOS / Safari
             </button>
             <button
               onClick={() => setActiveTab('desktop')}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                activeTab === 'desktop' 
-                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50' 
+              className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${activeTab === 'desktop'
+                  ? 'bg-white text-valle-green shadow-sm border border-slate-200/50'
                   : 'text-slate-500 hover:text-slate-800'
-              }`}
+                }`}
             >
               <Monitor size={14} /> Computadora
             </button>
@@ -201,7 +198,7 @@ export default function PWAInstallModal({
                         Pulsa el botón "Compartir"
                       </p>
                       <p className="text-[10px] text-slate-500 font-semibold leading-relaxed mt-0.5 flex items-center flex-wrap gap-1">
-                        En la barra de navegación de Safari (abajo en iPhone, arriba en iPad), pulsa el icono de compartir: 
+                        En la barra de navegación de Safari (abajo en iPhone, arriba en iPad), pulsa el icono de compartir:
                         <span className="inline-flex items-center px-1.5 py-0.5 bg-slate-100 rounded text-slate-700 font-bold border border-slate-200">
                           <Share size={10} className="mr-0.5" /> Compartir
                         </span>.

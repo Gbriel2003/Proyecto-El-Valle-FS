@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { 
-  User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, 
+import {
+  User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle,
   Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -11,7 +11,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [datos, setDatos] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  
+
   // Roles de usuario
   const rol = localStorage.getItem('rol_usuario') || 'atleta';
   const esCuerpoTecnico = rol === 'admin' || rol === 'entrenador';
@@ -53,24 +53,24 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       setCargando(true);
       const urlDashboard = atletaId ? `/atletas/${atletaId}/dashboard` : '/mi-dashboard';
       const res = await api.get(urlDashboard);
-      
+
       let data = res.data;
       if (data && data.cargas_historicas) {
-          // Revertir a orden cronológico para el gráfico
-          data.cargas_historicas = [...data.cargas_historicas].reverse();
+        // Revertir a orden cronológico para el gráfico
+        data.cargas_historicas = [...data.cargas_historicas].reverse();
       }
       setDatos(data);
 
       const targetId = atletaId || data.perfil?.atleta_id;
       if (targetId) {
         setActualAtletaId(targetId);
-        
+
         // Cargar registros adicionales (Hábitos y Lesiones)
         const [resHabitos, resLesiones] = await Promise.all([
           api.get(`/atletas/${targetId}/habitos-nutricionales`).catch(() => ({ data: [] })),
           api.get(`/atletas/${targetId}/lesiones`).catch(() => ({ data: [] }))
         ]);
-        
+
         setHabitos(resHabitos.data || []);
         setLesiones(resLesiones.data || []);
       }
@@ -208,10 +208,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      
+
       {/* Botón Volver (solo si se visualiza desde el listado de plantilla) */}
       {onBack && (
-        <button 
+        <button
           onClick={onBack}
           className="flex items-center text-slate-600 hover:text-valle-green transition text-xs font-bold bg-white border border-slate-200 px-3.5 py-2 rounded-lg shadow-sm"
         >
@@ -242,11 +242,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           {!esCuerpoTecnico ? (
             <button
               onClick={() => setMostrarHabitoModal(true)}
-              className={`w-full md:w-auto px-4 py-2.5 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer ${
-                habitosDeHoyRegistrados 
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+              className={`w-full md:w-auto px-4 py-2.5 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer ${habitosDeHoyRegistrados
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   : 'bg-valle-green hover:bg-valle-green-dark text-valle-gold'
-              }`}
+                }`}
             >
               {habitosDeHoyRegistrados ? (
                 <>
@@ -276,7 +275,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           <div>
             <p className="font-bold text-sm">Hábitos de hoy: Completados ✅</p>
             <p className="text-slate-655 font-medium mt-0.5">
-              {!esCuerpoTecnico && !atletaId 
+              {!esCuerpoTecnico && !atletaId
                 ? "Ya has reportado tu descanso, alimentación e hidratación de hoy. Puedes actualizarlo si es necesario."
                 : "El atleta ya ha registrado sus hábitos e hidratación para el día de hoy."}
             </p>
@@ -288,7 +287,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           <div>
             <p className="font-bold text-sm">Hábitos de hoy: Pendientes de registrar ⚠️</p>
             <p className="text-slate-655 font-medium mt-0.5">
-              {!esCuerpoTecnico && !atletaId 
+              {!esCuerpoTecnico && !atletaId
                 ? "Por favor, registra tus hábitos diarios para hoy. Es indispensable para el seguimiento nutricional del club."
                 : "El atleta aún no ha registrado su reporte diario de hábitos de hoy."}
             </p>
@@ -326,7 +325,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
             </div>
           </div>
           {esCuerpoTecnico && (
-            <button 
+            <button
               onClick={() => setMostrarAltaModal(lesionesActivas[0])}
               className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white border border-red-700 rounded-lg font-bold transition shadow-sm"
             >
@@ -402,11 +401,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
             <div className="space-y-3 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
               <p className="flex justify-between items-center pb-2 border-b border-slate-800">
                 <span>Riesgo Estimado:</span>
-                <span className={`font-bold px-2 py-0.5 rounded text-xs ${
-                  datos.alerta_ia.riesgo_lesion === 'Alto' ? 'bg-red-500 text-white' :
-                  datos.alerta_ia.riesgo_lesion === 'Medio' ? 'bg-amber-500 text-white' :
-                  'bg-green-500 text-white'
-                }`}>{datos.alerta_ia.riesgo_lesion}</span>
+                <span className={`font-bold px-2 py-0.5 rounded text-xs ${datos.alerta_ia.riesgo_lesion === 'Alto' ? 'bg-red-500 text-white' :
+                    datos.alerta_ia.riesgo_lesion === 'Medio' ? 'bg-amber-500 text-white' :
+                      'bg-green-500 text-white'
+                  }`}>{datos.alerta_ia.riesgo_lesion}</span>
               </p>
               <p className="text-slate-300 italic">"{datos.alerta_ia.analisis}"</p>
               <p className="font-bold text-valle-gold">💡 {datos.alerta_ia.recomendacion}</p>
@@ -421,7 +419,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* Gráfico y Diarios */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Columna Gráfica de Rendimiento */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
           <h3 className="font-bold text-valle-black text-sm mb-4">Evolución de Cargas Físicas</h3>
@@ -433,7 +431,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   <XAxis dataKey="sesion" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis yAxisId="left" stroke="#B49650" fontSize={11} tickLine={false} axisLine={false} />
                   <YAxis yAxisId="right" orientation="right" stroke="#2E5235" fontSize={11} tickLine={false} axisLine={false} />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                   />
@@ -466,11 +464,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   <div key={l.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1.5">
                     <div className="flex justify-between items-center">
                       <span className="font-bold text-slate-800">{l.tipo_lesion}</span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                        l.gravedad === 'Leve' ? 'bg-blue-100 text-blue-700' :
-                        l.gravedad === 'Media' ? 'bg-amber-100 text-amber-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>{l.gravedad}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${l.gravedad === 'Leve' ? 'bg-blue-100 text-blue-700' :
+                          l.gravedad === 'Media' ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                        }`}>{l.gravedad}</span>
                     </div>
                     {l.descripcion && <p className="text-slate-500 italic">"{l.descripcion}"</p>}
                     <div className="text-xs text-slate-400 flex flex-col space-y-0.5">
@@ -526,19 +523,18 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                       <div className="flex items-center">
                         <span className="font-bold text-slate-700 mr-2">{h.hidratacion_litros} L</span>
                         <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                          <div 
-                            className="bg-valle-green h-full" 
+                          <div
+                            className="bg-valle-green h-full"
                             style={{ width: `${Math.min(100, (h.hidratacion_litros / 3.0) * 100)}%` }}
                           />
                         </div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`font-bold px-2 py-0.5 rounded text-xs ${
-                        h.calidad_descanso >= 8 ? 'bg-valle-green-light/20 text-valle-green-dark' :
-                        h.calidad_descanso >= 5 ? 'bg-amber-100 text-amber-700' :
-                        'bg-red-100 text-red-700'
-                      }`}>{h.calidad_descanso} / 10</span>
+                      <span className={`font-bold px-2 py-0.5 rounded text-xs ${h.calidad_descanso >= 8 ? 'bg-valle-green-light/20 text-valle-green-dark' :
+                          h.calidad_descanso >= 5 ? 'bg-amber-100 text-amber-700' :
+                            'bg-red-100 text-red-700'
+                        }`}>{h.calidad_descanso} / 10</span>
                     </td>
                     <td className="py-3 px-4 text-slate-500 font-medium">{h.suplementacion || 'Ninguna'}</td>
                   </tr>
@@ -562,7 +558,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               </button>
             </div>
             <form onSubmit={manejarGuardarHabito} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
-              
+
               {/* Dieta Asignada Informativa */}
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 flex justify-between items-center text-xs">
                 <span className="text-slate-500 font-bold uppercase tracking-wider">Dieta Asignada:</span>
@@ -616,12 +612,11 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
                   options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => ({
                     value: num,
-                    label: `${num} - ${
-                      num <= 4 ? 'Bajo (Fatiga Física)' :
-                      num <= 6 ? 'Regular (Descanso Incompleto)' :
-                      num <= 8 ? 'Bueno (Óptimo)' :
-                      'Excelente (Recuperación Completa)'
-                    }`
+                    label: `${num} - ${num <= 4 ? 'Bajo (Fatiga Física)' :
+                        num <= 6 ? 'Regular (Descanso Incompleto)' :
+                          num <= 8 ? 'Bueno (Óptimo)' :
+                            'Excelente (Recuperación Completa)'
+                      }`
                   }))}
                 />
               </div>
@@ -664,7 +659,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={manejarGuardarLesion} className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -743,12 +738,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 <X size={20} />
               </button>
             </div>
-            
+
             <form onSubmit={manejarAltaLesion} className="p-5 space-y-4">
               <p className="text-xs text-slate-500">
                 Registra el alta médica para la lesión de <strong className="text-slate-700">{mostrarAltaModal.tipo_lesion}</strong>.
               </p>
-              
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha de Alta</label>
                 <input

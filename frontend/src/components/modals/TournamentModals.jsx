@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { 
-  X, Save, PlusCircle, Calendar, Award, Sparkles, 
-  Loader2, AlertTriangle, ThumbsUp, List 
+import {
+  X, Save, PlusCircle, Calendar, Award, Sparkles,
+  Loader2, AlertTriangle, ThumbsUp, List
 } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 
@@ -31,7 +31,7 @@ export function GuardarJugadaModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -41,16 +41,16 @@ export function GuardarJugadaModal({
           <h3 id="modal-save-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
             <Save className="mr-1.5" size={14} /> Guardar Jugada Táctica
           </h3>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/80 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
-        
+
         <form onSubmit={onSubmit} className="p-5 space-y-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Título de la Jugada</label>
@@ -108,7 +108,7 @@ export function CrearTorneoModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -118,16 +118,16 @@ export function CrearTorneoModal({
           <h3 id="modal-tournament-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
             <PlusCircle className="mr-1.5" size={14} /> Registrar Nuevo Torneo
           </h3>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/80 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
-        
+
         <form onSubmit={onSubmit} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
           <div>
             <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre del Torneo</label>
@@ -214,7 +214,7 @@ export function ProgramarPartidoModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -224,21 +224,21 @@ export function ProgramarPartidoModal({
           <h3 id="modal-match-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
             <Calendar className="mr-1.5" size={14} /> Programar Nuevo Partido
           </h3>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/80 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
-        
+
         <form onSubmit={onSubmit} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
           {torneos.length === 0 ? (
             <div className="text-center py-6 px-4 bg-slate-50 border border-slate-200/50 rounded-xl space-y-3">
               <p className="text-slate-500 font-bold leading-normal">Debes registrar al menos un Torneo primero.</p>
-              <button 
+              <button
                 type="button"
                 onClick={onAbrirCrearTorneo}
                 className="px-4 py-2 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold rounded-lg text-xs transition cursor-pointer"
@@ -327,7 +327,7 @@ export function FinalizarPartidoModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
@@ -337,16 +337,16 @@ export function FinalizarPartidoModal({
           <h3 id="modal-finalize-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
             <Award className="mr-1.5" size={14} /> Registrar Marcador y Plantilla Convocada
           </h3>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/80 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
-        
+
         <form onSubmit={onSubmit} className="p-5 space-y-5 text-xs font-semibold text-slate-700">
           {/* Marcador */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
@@ -391,13 +391,12 @@ export function FinalizarPartidoModal({
                 {plantillaAtletas.map(atleta => {
                   const seleccionado = jugadoresSeleccionados.includes(atleta.atleta_id);
                   return (
-                    <label 
+                    <label
                       key={atleta.atleta_id}
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer select-none transition ${
-                        seleccionado 
-                          ? 'bg-valle-green/5 border-valle-green/30 text-valle-green-dark' 
+                      className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer select-none transition ${seleccionado
+                          ? 'bg-valle-green/5 border-valle-green/30 text-valle-green-dark'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"
@@ -450,7 +449,7 @@ export function ReporteIAModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
-      <div 
+      <div
         className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up flex flex-col max-h-[85vh]"
         role="dialog"
         aria-modal="true"
@@ -465,16 +464,16 @@ export function ReporteIAModal({
               <p className="text-[9px] text-valle-gold/75 mt-0.5 leading-none">Generado por Gemini a partir de El Valle Stats PDF</p>
             </div>
           </div>
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="text-valle-gold/80 hover:text-white transition cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X size={20} />
           </button>
         </div>
-        
+
         {/* Contenido */}
         <div className="p-6 overflow-y-auto flex-1 space-y-5">
           {cargandoReporte ? (
@@ -491,7 +490,7 @@ export function ReporteIAModal({
                 <p className="text-sm font-bold text-slate-700">La IA está procesando el reporte</p>
                 <p className="text-xs text-slate-500 leading-relaxed font-semibold">El PDF fue subido correctamente. El análisis se está generando en segundo plano. Espera unos momentos y vuelve a consultar.</p>
               </div>
-              
+
               {/* Barra de progreso visual sutil simulando procesamiento */}
               <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
                 <div className="h-1.5 bg-blue-500 rounded-full w-2/3 animate-pulse" />
@@ -521,7 +520,7 @@ export function ReporteIAModal({
                   </p>
                 )}
               </div>
-              <button 
+              <button
                 type="button"
                 onClick={onRetry}
                 className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition cursor-pointer"
@@ -550,7 +549,7 @@ export function ReporteIAModal({
                     {reporteIA.analisis_ia?.mvp ? reporteIA.analisis_ia.mvp.split(' - ')[0] : 'No asignado'}
                   </p>
                   <p className="text-xs text-slate-600 font-semibold mt-1">
-                    {reporteIA.analisis_ia?.mvp && reporteIA.analisis_ia.mvp.includes(' - ') 
+                    {reporteIA.analisis_ia?.mvp && reporteIA.analisis_ia.mvp.includes(' - ')
                       ? reporteIA.analisis_ia.mvp.split(' - ').slice(1).join(' - ')
                       : reporteIA.analisis_ia?.mvp || ''}
                   </p>
@@ -605,9 +604,9 @@ export function ReporteIAModal({
 
         {/* Pie */}
         <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-          <button 
+          <button
             type="button"
-            onClick={onClose} 
+            onClick={onClose}
             className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer"
           >
             Cerrar Reporte
