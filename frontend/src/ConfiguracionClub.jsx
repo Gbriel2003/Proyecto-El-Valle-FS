@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from './api';
 import { Shield, UserPlus, Trash2, Mail, Lock } from 'lucide-react';
+import CustomSelect from './components/ui/CustomSelect';
 
 export default function ConfiguracionClub({ crearNotificacion = null }) {
   const [usuarios, setUsuarios] = useState([]);
@@ -146,16 +147,16 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
 
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">Rol de Acceso</label>
-              <select
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green"
+              <CustomSelect
                 value={formulario.rol}
                 onChange={(e) => setFormulario({...formulario, rol: e.target.value})}
-              >
-                <option value="atleta">Atleta (Solo vista de perfil)</option>
-                <option value="entrenador">Entrenador (Vista de cuerpo técnico)</option>
-                <option value="nutricionista">Nutricionista (Control Biométrico y Dietas)</option>
-                <option value="admin">Administrador (Control total)</option>
-              </select>
+                options={[
+                  { value: "atleta", label: "Atleta (Solo vista de perfil)" },
+                  { value: "entrenador", label: "Entrenador (Vista de cuerpo técnico)" },
+                  { value: "nutricionista", label: "Nutricionista (Control Biométrico y Dietas)" },
+                  { value: "admin", label: "Administrador (Control total)" }
+                ]}
+              />
             </div>
 
             <button type="submit" disabled={cargando} className="w-full py-2.5 mt-2 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-sm font-bold transition shadow-sm">

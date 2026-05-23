@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import api from './api';
 import { 
   User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, 
-  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X
+  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import CustomSelect from './components/ui/CustomSelect';
 
 export default function FichaTecnica({ atletaId = null, onBack = null, crearNotificacion = null }) {
   const [datos, setDatos] = useState(null);
@@ -92,6 +93,24 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [atletaId]);
 
+  useEffect(() => {
+    if (mostrarHabitoModal) {
+      const hoyStr = new Date().toLocaleDateString('sv');
+      const tieneHoy = habitos.length > 0 && habitos[0].fecha === hoyStr;
+      if (tieneHoy) {
+        setFrecuenciaComidas(habitos[0].frecuencia_comidas);
+        setSuplementacion(habitos[0].suplementacion || 'Ninguna');
+        setHidratacion(habitos[0].hidratacion_litros);
+        setCalidadDescanso(habitos[0].calidad_descanso);
+      } else {
+        setFrecuenciaComidas(4);
+        setSuplementacion('Ninguna');
+        setHidratacion(2.0);
+        setCalidadDescanso(7);
+      }
+    }
+  }, [mostrarHabitoModal, habitos]);
+
   // Guardar hábitos diarios
   const manejarGuardarHabito = async (e) => {
     e.preventDefault();
@@ -103,7 +122,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
         frecuencia_comidas: frecuenciaComidas,
         suplementacion,
         hidratacion_litros: parseFloat(hidratacion),
-        calidad_descanso: calidadDescanso
+        calidad_descanso: calidadDescanso,
+        plan_alimentacion: datos.perfil?.dieta_asignada?.nombre || 'Ninguno'
       });
       setMostrarHabitoModal(false);
       if (crearNotificacion) {
@@ -183,6 +203,9 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   // Filtrar lesiones activas (en recuperación)
   const lesionesActivas = lesiones.filter(l => !l.fecha_alta);
 
+  const hoyStr = new Date().toLocaleDateString('sv');
+  const habitosDeHoyRegistrados = habitos.length > 0 && habitos[0].fecha === hoyStr;
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       
@@ -219,20 +242,78 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           {!esCuerpoTecnico ? (
             <button
               onClick={() => setMostrarHabitoModal(true)}
-              className="w-full md:w-auto px-4 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm"
+              className={`w-full md:w-auto px-4 py-2.5 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer ${
+                habitosDeHoyRegistrados 
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                  : 'bg-valle-green hover:bg-valle-green-dark text-valle-gold'
+              }`}
             >
-              <Plus size={14} className="mr-1.5" /> Registrar Hábitos Diarios
+              {habitosDeHoyRegistrados ? (
+                <>
+                  <Check size={14} className="mr-1.5" /> Actualizar Hábitos Diarios
+                </>
+              ) : (
+                <>
+                  <Plus size={14} className="mr-1.5" /> Registrar Hábitos Diarios
+                </>
+              )}
             </button>
           ) : (
             <button
               onClick={() => setMostrarLesionModal(true)}
-              className="w-full md:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm"
+              className="w-full md:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer"
             >
               <ShieldAlert size={14} className="mr-1.5" /> Reportar Lesión
             </button>
           )}
         </div>
       </div>
+
+      {/* Alerta de Hábitos Diarios */}
+      {habitosDeHoyRegistrados ? (
+        <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded-xl text-xs text-emerald-800 font-semibold flex items-center gap-2.5 shadow-sm border border-emerald-100">
+          <Check className="text-emerald-600 shrink-0" size={18} />
+          <div>
+            <p className="font-bold text-sm">Hábitos de hoy: Completados ✅</p>
+            <p className="text-slate-655 font-medium mt-0.5">
+              {!esCuerpoTecnico && !atletaId 
+                ? "Ya has reportado tu descanso, alimentación e hidratación de hoy. Puedes actualizarlo si es necesario."
+                : "El atleta ya ha registrado sus hábitos e hidratación para el día de hoy."}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl text-xs text-amber-800 font-semibold flex items-center gap-2.5 shadow-sm border border-amber-100">
+          <AlertTriangle className="text-amber-600 shrink-0 animate-pulse" size={18} />
+          <div>
+            <p className="font-bold text-sm">Hábitos de hoy: Pendientes de registrar ⚠️</p>
+            <p className="text-slate-655 font-medium mt-0.5">
+              {!esCuerpoTecnico && !atletaId 
+                ? "Por favor, registra tus hábitos diarios para hoy. Es indispensable para el seguimiento nutricional del club."
+                : "El atleta aún no ha registrado su reporte diario de hábitos de hoy."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Dieta Asignada */}
+      {datos.perfil?.dieta_asignada && (
+        <div className="bg-emerald-50 border-l-4 border-valle-green p-4 rounded-xl text-xs text-slate-700 font-semibold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm border border-emerald-100">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-full bg-valle-green/10 flex items-center justify-center shrink-0">
+              <Apple className="text-valle-green" size={18} />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-valle-green">Plan Alimenticio Asignado: {datos.perfil.dieta_asignada.nombre}</p>
+              <p className="text-slate-500 font-medium mt-0.5 leading-relaxed">{datos.perfil.dieta_asignada.descripcion}</p>
+            </div>
+          </div>
+          <div className="text-left sm:text-right shrink-0">
+            <span className="font-black text-base text-valle-green block">{datos.perfil.dieta_asignada.calorias} kcal</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Valor Energético</span>
+          </div>
+        </div>
+      )}
 
       {/* Alerta de Lesión Activa */}
       {lesionesActivas.length > 0 && (
@@ -482,20 +563,30 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
             </div>
             <form onSubmit={manejarGuardarHabito} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
               
+              {/* Dieta Asignada Informativa */}
+              <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 flex justify-between items-center text-xs">
+                <span className="text-slate-500 font-bold uppercase tracking-wider">Dieta Asignada:</span>
+                <span className="font-black text-valle-green">
+                  {datos.perfil?.dieta_asignada?.nombre || 'Ninguna'}
+                </span>
+              </div>
+
               {/* Comidas al día */}
               <div>
                 <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Comidas al día
                 </label>
-                <select
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium"
+                <CustomSelect
                   value={frecuenciaComidas}
                   onChange={(e) => setFrecuenciaComidas(parseInt(e.target.value))}
-                >
-                  {[2, 3, 4, 5, 6].map(num => (
-                    <option key={num} value={num}>{num} comidas</option>
-                  ))}
-                </select>
+                  options={[
+                    { value: 2, label: "2 comidas" },
+                    { value: 3, label: "3 comidas" },
+                    { value: 4, label: "4 comidas" },
+                    { value: 5, label: "5 comidas" },
+                    { value: 6, label: "6 comidas" }
+                  ]}
+                />
               </div>
 
               {/* Hidratación */}
@@ -520,22 +611,19 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
                   Calidad del Descanso (Escala 1 al 10)
                 </label>
-                <select
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium"
+                <CustomSelect
                   value={calidadDescanso}
                   onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                    <option key={num} value={num}>
-                      {num} - {
-                        num <= 4 ? 'Bajo (Fatiga Física)' :
-                        num <= 6 ? 'Regular (Descanso Incompleto)' :
-                        num <= 8 ? 'Bueno (Óptimo)' :
-                        'Excelente (Recuperación Completa)'
-                      }
-                    </option>
-                  ))}
-                </select>
+                  options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => ({
+                    value: num,
+                    label: `${num} - ${
+                      num <= 4 ? 'Bajo (Fatiga Física)' :
+                      num <= 6 ? 'Regular (Descanso Incompleto)' :
+                      num <= 8 ? 'Bueno (Óptimo)' :
+                      'Excelente (Recuperación Completa)'
+                    }`
+                  }))}
+                />
               </div>
 
               {/* Suplementación */}
@@ -581,15 +669,11 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Gravedad</label>
-                  <select
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none"
+                  <CustomSelect
                     value={gravedad}
                     onChange={(e) => setGravedad(e.target.value)}
-                  >
-                    <option value="Leve">Leve</option>
-                    <option value="Media">Media</option>
-                    <option value="Grave">Grave</option>
-                  </select>
+                    options={["Leve", "Media", "Grave"]}
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha de Lesión</label>

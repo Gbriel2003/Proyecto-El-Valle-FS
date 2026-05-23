@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from './api';
 import { Activity, Timer, Save, Users, PlusCircle, CheckCircle, ArrowLeft, Trash2, ChevronRight } from 'lucide-react';
+import CustomSelect from './components/ui/CustomSelect';
 
 export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     const [vista, setVista] = useState('lista');
@@ -217,16 +218,11 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                     <form onSubmit={crearSesion} className="space-y-5">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-1">Tipo de Sesión</label>
-                            <select
-                                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-valle-green focus:border-valle-green"
+                            <CustomSelect
                                 value={sesionForm.tipo_sesion}
                                 onChange={(e) => setSesionForm({ ...sesionForm, tipo_sesion: e.target.value })}
-                            >
-                                <option>Físico</option>
-                                <option>Táctico</option>
-                                <option>Recuperación</option>
-                                <option>Partido Amistoso</option>
-                            </select>
+                                options={["Físico", "Táctico", "Recuperación", "Partido Amistoso"]}
+                            />
                         </div>
 
                         <div>
@@ -312,22 +308,19 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                             <form onSubmit={registrarCarga} className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-700 mb-2">Seleccionar Jugador</label>
-                                    <select
-                                        required
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-valle-green focus:border-valle-green font-medium text-slate-700"
+                                    <CustomSelect
                                         value={cargaForm.atleta_id}
                                         onChange={(e) => setCargaForm({ ...cargaForm, atleta_id: e.target.value })}
-                                    >
-                                        <option value="">-- Elige un jugador de la plantilla --</option>
-                                        {jugadores.map(j => {
+                                        placeholder="-- Elige un jugador de la plantilla --"
+                                        options={jugadores.map(j => {
                                             const evaluado = atletasEvaluados.includes(j.atleta_id);
-                                            return (
-                                                <option key={j.atleta_id} value={j.atleta_id} disabled={evaluado}>
-                                                    {j.nombre} {j.apellido} {evaluado ? ' ✅ (Evaluado)' : ''}
-                                                </option>
-                                            );
+                                            return {
+                                                value: j.atleta_id,
+                                                label: `${j.nombre} ${j.apellido}${evaluado ? ' ✅ (Evaluado)' : ''}`,
+                                                disabled: evaluado
+                                            };
                                         })}
-                                    </select>
+                                    />
                                 </div>
 
                                 <div className="bg-slate-50 p-5 rounded-lg border border-slate-100">

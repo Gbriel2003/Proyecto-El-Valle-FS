@@ -26,7 +26,11 @@ import {
   Calendar,
   Download,
   Bell,
-  Apple
+  Apple,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  AlertTriangle
 } from 'lucide-react';
 
 
@@ -608,30 +612,53 @@ export default function App() {
       />
 
       {/* Contenedor de Alertas / Toast Notifications en tiempo real */}
-      <div className="fixed bottom-5 right-5 z-[9999] space-y-3 max-w-sm w-full pointer-events-none">
-        {toasts.map(toast => (
-          <div 
-            key={toast.id}
-            className={`p-4 rounded-2xl shadow-xl border flex items-start gap-3 pointer-events-auto animate-fade-in-up transition-all duration-300 ${
-              toast.tipo === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' :
-              toast.tipo === 'error' ? 'bg-rose-50 border-rose-100 text-rose-800' :
-              'bg-slate-50 border-slate-200 text-slate-800'
-            }`}
-            style={{ animationDuration: '300ms' }}
-          >
-            <div className="flex-1 text-left">
-              <p className="text-xs font-bold">{toast.mensaje}</p>
-              {toast.subtexto && <p className="text-[10px] opacity-90 mt-0.5 font-semibold leading-relaxed">{toast.subtexto}</p>}
-            </div>
-            <button 
-              type="button"
-              onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-              className="text-slate-400 hover:text-slate-600 transition cursor-pointer"
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] space-y-3 max-w-md w-full px-4 pointer-events-none flex flex-col items-center">
+        {toasts.map(toast => {
+          let bgClass = "bg-white border-slate-300 text-slate-800 border-l-sky-500 shadow-slate-900/10";
+          let iconColor = "text-sky-600";
+          let IconComponent = Info;
+
+          if (toast.tipo === 'success') {
+            bgClass = "bg-white border-slate-300 text-slate-800 border-l-emerald-500 shadow-emerald-950/10";
+            iconColor = "text-emerald-600";
+            IconComponent = CheckCircle;
+          } else if (toast.tipo === 'error') {
+            bgClass = "bg-white border-slate-300 text-slate-800 border-l-rose-500 shadow-rose-950/10";
+            iconColor = "text-rose-600";
+            IconComponent = AlertCircle;
+          } else if (toast.tipo === 'warning') {
+            bgClass = "bg-white border-slate-300 text-slate-800 border-l-amber-500 shadow-amber-950/10";
+            iconColor = "text-amber-600";
+            IconComponent = AlertTriangle;
+          }
+
+          return (
+            <div 
+              key={toast.id}
+              className={`p-4 rounded-xl shadow-xl border-t border-r border-b border-l-4 flex items-start gap-3.5 pointer-events-auto transition-all duration-300 animate-toast-in w-full max-w-md ${bgClass}`}
             >
-              <X size={14} />
-            </button>
-          </div>
-        ))}
+              <div className={`shrink-0 mt-0.5 ${iconColor}`}>
+                <IconComponent size={20} />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-extrabold text-slate-950 leading-snug">{toast.mensaje}</p>
+                {toast.subtexto && (
+                  <p className="text-xs text-slate-650 mt-1 font-semibold leading-relaxed">
+                    {toast.subtexto}
+                  </p>
+                )}
+              </div>
+              <button 
+                type="button"
+                onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
+                className="text-slate-500 hover:text-slate-800 transition cursor-pointer p-1 rounded-full hover:bg-slate-100 shrink-0 -mt-1 -mr-1"
+                title="Cerrar"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

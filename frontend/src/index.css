@@ -67,3 +67,107 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8; /* slate-400 */
 }
+
+/* Animaciones y estilos de las Notificaciones (Toasts) */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-toast-in {
+  animation: slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Estilo global de Dropdowns (Selects) estilo Shadcn */
+select {
+  appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.85rem center !important;
+  background-size: 0.85rem !important;
+  padding-right: 2.5rem !important; /* Reservar espacio para la flecha */
+  cursor: pointer !important;
+}
+
+/* Forzar estilos elegantes y uniformes en todos los selectores del sistema */
+select, 
+select.bg-slate-50, 
+select.border, 
+select.border-slate-200,
+select.rounded-lg,
+select.rounded-xl {
+  background-color: #ffffff !important; /* Fondo blanco estilo Shadcn */
+  border: 1px solid #cbd5e1 !important; /* Borde más definido y limpio */
+  border-radius: 0.75rem !important; /* rounded-xl premium */
+  color: #0f172a !important; /* slate-900 */
+  font-size: 0.875rem !important; /* text-sm */
+  font-weight: 600 !important; /* semi-bold */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  transition: all 180ms ease-in-out !important;
+}
+
+select:hover,
+select.bg-slate-50:hover {
+  border-color: #94a3b8 !important; /* slate-400 */
+  background-color: #f8fafc !important; /* sutil gris al pasar el mouse */
+}
+
+select:focus,
+select.bg-slate-50:focus {
+  background-color: #ffffff !important;
+  border-color: #2E5235 !important; /* Valle Green */
+  box-shadow: 0 0 0 3px rgba(46, 82, 53, 0.18) !important; /* anillo de enfoque verde elegante */
+  outline: none !important;
+}
+
+/* Soporte para dropdowns en contenedores oscuros o con gradiente (ej: Ficha del Atleta en ControlNutricional) */
+select.bg-slate-800,
+select.bg-slate-900,
+select.bg-white\/10,
+select.text-white,
+.bg-slate-900 select,
+.bg-gradient-to-br select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+select.bg-slate-800:hover,
+select.bg-slate-900:hover,
+select.bg-white\/10:hover,
+.bg-slate-900 select:hover,
+.bg-gradient-to-br select:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+select.bg-slate-800:focus,
+select.bg-slate-900:focus,
+select.bg-white\/10:focus,
+.bg-slate-900 select:focus,
+.bg-gradient-to-br select:focus {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: #B49650 !important; /* Valle Gold */
+  box-shadow: 0 0 0 3px rgba(180, 150, 80, 0.35) !important;
+}
+
+/* Asegurar que las opciones de dropdown sean legibles */
+select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+select.bg-slate-800 option,
+select.bg-slate-900 option,
+.bg-slate-900 select option {
+  background-color: #1e293b !important; /* slate-800 */
+  color: #ffffff !important;
+}

@@ -4,6 +4,7 @@ import {
   Apple, Scale, Droplet, Moon, Search, Activity, User, 
   Calendar, Award, Plus, Loader2, ClipboardList, Check, TrendingUp
 } from 'lucide-react';
+import CustomSelect from './components/ui/CustomSelect';
 
 export default function ControlNutricional({ crearNotificacion = null }) {
   const [jugadores, setJugadores] = useState([]);
@@ -37,6 +38,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   
   const [guardandoBiometria, setGuardandoBiometria] = useState(false);
   const [guardandoHabitos, setGuardandoHabitos] = useState(false);
+  const [asignandoDieta, setAsignandoDieta] = useState(false);
 
   // IMC Calculado en vivo
   const [imcCalculado, setImcCalculado] = useState(null);
@@ -184,11 +186,10 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     }
   };
 
-  // Efecto cuando se selecciona un atleta
+  // Efecto cuando se selecciona un atleta (Cargar historial y datos biométricos base)
   useEffect(() => {
     if (atletaSeleccionado) {
       cargarHistorial(atletaSeleccionado.atleta_id);
-      // Pre-cargar valores base
       setPesoKg(atletaSeleccionado.peso_actual || atletaSeleccionado.peso_base || '');
       setAlturaCm(atletaSeleccionado.altura_base || 175);
     } else {
@@ -196,6 +197,33 @@ export default function ControlNutricional({ crearNotificacion = null }) {
       setHabitosHistorial([]);
     }
   }, [atletaSeleccionado]);
+
+  // Pre-cargar valores de hábitos diarios cuando cambia el historial de hábitos
+  useEffect(() => {
+    if (atletaSeleccionado) {
+      const hoyStr = new Date().toLocaleDateString('sv');
+      const tieneHoy = habitosHistorial.length > 0 && habitosHistorial[0].fecha === hoyStr;
+      if (tieneHoy) {
+        setFrecuenciaComidas(habitosHistorial[0].frecuencia_comidas);
+        setSuplementacion(habitosHistorial[0].suplementacion || '');
+        setHidratacionLitros(habitosHistorial[0].hidratacion_litros);
+        setCalidadDescanso(habitosHistorial[0].calidad_descanso);
+        if (habitosHistorial[0].plan_alimentacion) {
+          setPlanAlimentacion(habitosHistorial[0].plan_alimentacion);
+        }
+      } else {
+        setFrecuenciaComidas(4);
+        setSuplementacion('');
+        setHidratacionLitros(2.5);
+        setCalidadDescanso(7);
+        if (atletaSeleccionado.dieta_asignada_nombre) {
+          setPlanAlimentacion(atletaSeleccionado.dieta_asignada_nombre);
+        } else if (dietas.length > 0) {
+          setPlanAlimentacion(dietas[0].nombre);
+        }
+      }
+    }
+  }, [habitosHistorial, atletaSeleccionado, dietas]);
 
   // Recalcular el IMC en vivo
   useEffect(() => {
@@ -223,6 +251,49 @@ export default function ControlNutricional({ crearNotificacion = null }) {
 
   const round = (value, decimals) => {
     return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+  };
+
+  const handleAsignarDieta = async (dietaIdVal) => {
+    if (!atletaSeleccionado) return;
+    try {
+      setAsignandoDieta(true);
+      const dietaId = dietaIdVal ? parseInt(dietaIdVal) : null;
+      
+      const params = {};
+      if (dietaId !== null) {
+        params.dieta_id = dietaId;
+      }
+      
+      const res = await api.put(`/atletas/${atletaSeleccionado.atleta_id}/dieta`, null, { params });
+      
+      const updatedAtleta = {
+        ...atletaSeleccionado,
+        dieta_asignada_id: res.data.dieta_asignada_id,
+        dieta_asignada_nombre: res.data.dieta_asignada_nombre
+      };
+      
+      setAtletaSeleccionado(updatedAtleta);
+      setJugadores(prev => prev.map(j => j.atleta_id === atletaSeleccionado.atleta_id ? updatedAtleta : j));
+      
+      if (res.data.dieta_asignada_nombre) {
+        setPlanAlimentacion(res.data.dieta_asignada_nombre);
+      }
+      
+      if (crearNotificacion) {
+        crearNotificacion(
+          "Dieta Asignada",
+          res.data.dieta_asignada_nombre 
+            ? `Se ha asignado la dieta "${res.data.dieta_asignada_nombre}" a ${atletaSeleccionado.nombre} ${atletaSeleccionado.apellido}.`
+            : `Se ha retirado la dieta asignada a ${atletaSeleccionado.nombre} ${atletaSeleccionado.apellido}.`,
+          "success"
+        );
+      }
+    } catch (err) {
+      console.error("Error al asignar dieta:", err);
+      alert("Error al asignar la dieta al jugador.");
+    } finally {
+      setAsignandoDieta(false);
+    }
   };
 
   // Filtrar lista de jugadores según buscador
@@ -433,6 +504,21 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                   <div>
                     <h3 className="font-extrabold text-2xl tracking-tight font-display">{atletaSeleccionado.nombre} {atletaSeleccionado.apellido}</h3>
                     <p className="text-xs text-valle-gold font-bold tracking-wider uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <span className="text-xs text-white/95 font-bold uppercase tracking-wider">Dieta:</span>
+                      <CustomSelect
+                        value={atletaSeleccionado.dieta_asignada_id || ''}
+                        disabled={asignandoDieta}
+                        onChange={(e) => handleAsignarDieta(e.target.value)}
+                        variant="dark"
+                        className="max-w-xs inline-block"
+                        placeholder="Sin dieta asignada"
+                        options={[
+                          { value: "", label: "Sin dieta asignada" },
+                          ...dietas.map(d => ({ value: d.id, label: `${d.nombre} (${d.calorias || 'N/A'} kcal)` }))
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -523,43 +609,64 @@ export default function ControlNutricional({ crearNotificacion = null }) {
 
                 {/* FORMULARIO 2: REGISTRO DE HÁBITOS Y MENÚ */}
                 <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
-                  <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
-                    <ClipboardList size={20} className="text-valle-green" />
-                    <span className="text-sm font-bold text-slate-850 tracking-tight font-display">Hábitos y Plan Dietario</span>
+                  <div className="flex flex-col gap-2.5 border-b border-slate-100 pb-3">
+                    <div className="flex items-center space-x-2">
+                      <ClipboardList size={20} className="text-valle-green" />
+                      <span className="text-sm font-bold text-slate-850 tracking-tight font-display">Hábitos y Plan Dietario</span>
+                    </div>
+                    {/* Indicador de hábitos de hoy */}
+                    {(() => {
+                      const hoyStr = new Date().toLocaleDateString('sv');
+                      const tieneHoy = habitosHistorial.length > 0 && habitosHistorial[0].fecha === hoyStr;
+                      if (tieneHoy) {
+                        return (
+                          <div className="py-1.5 px-3 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200/60 flex items-center gap-1.5 w-fit">
+                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Hábitos de hoy: Registrados ✅
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="py-1.5 px-3 bg-amber-50 text-amber-800 text-xs font-bold rounded-lg border border-amber-200/60 flex items-center gap-1.5 w-fit">
+                            <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            Hábitos de hoy: Pendientes ⚠️
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
 
                   <form onSubmit={handleGuardarHabitos} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descanso (1-10)</label>
-                        <select
+                        <CustomSelect
                           value={calidadDescanso}
                           onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
-                        >
-                          {[...Array(10)].map((_, i) => (
-                            <option key={i + 1} value={i + 1}>{i + 1} - {i + 1 <= 4 ? 'Malo' : i + 1 <= 7 ? 'Regular' : 'Excelente'}</option>
-                          ))}
-                        </select>
+                          options={[...Array(10)].map((_, i) => ({
+                            value: i + 1,
+                            label: `${i + 1} - ${i + 1 <= 4 ? 'Malo' : i + 1 <= 7 ? 'Regular' : 'Excelente'}`
+                          }))}
+                        />
                       </div>
                       
                       <div>
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Hidratación (Litros)</label>
-                        <select
+                        <CustomSelect
                           value={hidratacionLitros}
                           onChange={(e) => setHidratacionLitros(parseFloat(e.target.value))}
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
-                        >
-                          <option value="1.0">1.0 Litro</option>
-                          <option value="1.5">1.5 Litros</option>
-                          <option value="2.0">2.0 Litros</option>
-                          <option value="2.5">2.5 Litros</option>
-                          <option value="3.0">3.0 Litros</option>
-                          <option value="3.5">3.5 Litros</option>
-                          <option value="4.0">4.0 Litros</option>
-                          <option value="4.5">4.5 Litros</option>
-                          <option value="5.0">5.0 Litros (Max)</option>
-                        </select>
+                          options={[
+                            { value: 1.0, label: "1.0 Litro" },
+                            { value: 1.5, label: "1.5 Litros" },
+                            { value: 2.0, label: "2.0 Litros" },
+                            { value: 2.5, label: "2.5 Litros" },
+                            { value: 3.0, label: "3.0 Litros" },
+                            { value: 3.5, label: "3.5 Litros" },
+                            { value: 4.0, label: "4.0 Litros" },
+                            { value: 4.5, label: "4.5 Litros" },
+                            { value: 5.0, label: "5.0 Litros (Max)" }
+                          ]}
+                        />
                       </div>
                     </div>
 
@@ -578,24 +685,21 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       </div>
                       <div>
                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Menú Asignado</label>
-                        <select
+                        <CustomSelect
                           value={planAlimentacion}
                           onChange={(e) => setPlanAlimentacion(e.target.value)}
-                          className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
-                        >
-                          {dietas.map(d => (
-                            <option key={d.id} value={d.nombre}>{d.nombre}</option>
-                          ))}
-                          {dietas.length === 0 && (
-                            <>
-                              <option value="Menú pre-partido">Menú pre-partido</option>
-                              <option value="Menú post-partido">Menú post-partido</option>
-                              <option value="Menú de recuperación">Menú de recuperación</option>
-                              <option value="Plan de definición">Plan de definición</option>
-                              <option value="Plan de volumen">Plan de volumen</option>
-                            </>
-                          )}
-                        </select>
+                          options={
+                            dietas.length > 0
+                              ? dietas.map(d => ({ value: d.nombre, label: d.nombre }))
+                              : [
+                                  "Menú pre-partido",
+                                  "Menú post-partido",
+                                  "Menú de recuperación",
+                                  "Plan de definición",
+                                  "Plan de volumen"
+                                ]
+                          }
+                        />
                       </div>
                     </div>
 

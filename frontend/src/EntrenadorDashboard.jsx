@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-    ResponsiveContainer, Legend
+    ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
 
 export default function EntrenadorDashboard({ onVerFicha }) {
@@ -95,33 +95,49 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             label: 'Atletas Disponibles',
             value: r.atletas_disponibles,
             sub: `${r.total_atletas} total · ${r.atletas_con_lesion} de baja`,
-            icon: <Users size={20} />,
-            color: 'text-valle-green',
-            bg: 'bg-valle-green/8'
+            icon: <Users size={22} />,
+            color: 'text-emerald-700',
+            bg: 'bg-emerald-100',
+            cardBg: 'bg-gradient-to-br from-emerald-50/80 to-emerald-100/20 border-emerald-200/80 hover:border-emerald-300 hover:shadow-emerald-950/5',
+            textVal: 'text-emerald-950',
+            textLab: 'text-emerald-900',
+            textSub: 'text-emerald-700/80'
         },
         {
             label: 'Victorias (Temporada)',
             value: r.partidos_ganados,
             sub: `${r.total_partidos_jugados} partidos jugados`,
-            icon: <Trophy size={20} />,
-            color: 'text-amber-600',
-            bg: 'bg-amber-50'
+            icon: <Trophy size={22} />,
+            color: 'text-amber-700',
+            bg: 'bg-amber-100',
+            cardBg: 'bg-gradient-to-br from-amber-50/80 to-amber-100/20 border-amber-200/80 hover:border-amber-300 hover:shadow-amber-950/5',
+            textVal: 'text-amber-950',
+            textLab: 'text-amber-900',
+            textSub: 'text-amber-700/80'
         },
         {
             label: 'Derrotas',
             value: r.partidos_perdidos,
             sub: `${r.partidos_empatados} empate${r.partidos_empatados !== 1 ? 's' : ''}`,
-            icon: <Target size={20} />,
-            color: 'text-red-500',
-            bg: 'bg-red-50'
+            icon: <Target size={22} />,
+            color: 'text-sky-700',
+            bg: 'bg-sky-100',
+            cardBg: 'bg-gradient-to-br from-sky-50/80 to-sky-100/20 border-sky-200/80 hover:border-sky-300 hover:shadow-sky-950/5',
+            textVal: 'text-sky-950',
+            textLab: 'text-sky-900',
+            textSub: 'text-sky-700/80'
         },
         {
             label: 'Atletas en Alerta',
             value: plantilla_estado.filter(a => a.color_riesgo !== 'verde').length,
             sub: `RPE alto o descanso bajo`,
-            icon: <Heart size={20} />,
-            color: 'text-rose-600',
-            bg: 'bg-rose-50'
+            icon: <Heart size={22} />,
+            color: 'text-rose-700',
+            bg: 'bg-rose-100',
+            cardBg: 'bg-gradient-to-br from-rose-50/80 to-rose-100/20 border-rose-200/80 hover:border-rose-300 hover:shadow-rose-950/5',
+            textVal: 'text-rose-950',
+            textLab: 'text-rose-900',
+            textSub: 'text-rose-700/80'
         }
     ];
 
@@ -150,16 +166,16 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                 {kpis.map((kpi, i) => (
                     <div 
                         key={i} 
-                        className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex items-center gap-4 hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 animate-fade-in-up"
+                        className={`border rounded-2xl shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition-all duration-305 animate-fade-in-up ${kpi.cardBg}`}
                         style={{ animationDelay: `${i * 75}ms` }}
                     >
-                        <div className={`w-12 h-12 rounded-xl ${kpi.bg} flex items-center justify-center ${kpi.color} shrink-0`}>
+                        <div className={`w-12 h-12 rounded-xl ${kpi.bg} flex items-center justify-center ${kpi.color} shrink-0 shadow-sm`}>
                             {kpi.icon}
                         </div>
                         <div>
-                            <p className="text-2xl font-black text-slate-900 font-display">{kpi.value}</p>
-                            <p className="text-sm font-bold text-slate-700 leading-tight">{kpi.label}</p>
-                            <p className="text-xs text-slate-400 font-medium mt-0.5 leading-none">{kpi.sub}</p>
+                            <p className={`text-2xl font-black font-display ${kpi.textVal}`}>{kpi.value}</p>
+                            <p className={`text-sm font-bold leading-tight ${kpi.textLab}`}>{kpi.label}</p>
+                            <p className={`text-xs font-semibold mt-0.5 leading-none ${kpi.textSub}`}>{kpi.sub}</p>
                         </div>
                     </div>
                 ))}
@@ -417,6 +433,148 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                     </div>
                 </div>
             )}
+
+            {/* Fila de Gráficos Adicionales de Guía y Soporte */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up animate-delay-300">
+                
+                {/* Tarjeta de Gráfico 1: Balance y Efectividad de Partidos (Donut) */}
+                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-black text-slate-800 flex items-center text-sm font-display">
+                            <Trophy size={16} className="text-valle-green mr-2" />
+                            Balance de Partidos (Temporada)
+                        </h3>
+                        <p className="text-xs text-slate-450 font-medium mt-0.5">Efectividad y balance de resultados en competición</p>
+                    </div>
+                    
+                    {r.total_partidos_jugados === 0 ? (
+                        <div className="text-center py-10 text-slate-400 text-sm flex-1 flex flex-col items-center justify-center">
+                            <Target size={32} className="text-slate-300 mb-2" />
+                            <p>No hay partidos finalizados registrados.</p>
+                        </div>
+                    ) : (() => {
+                        const ganados = r.partidos_ganados || 0;
+                        const empatados = r.partidos_empatados || 0;
+                        const perdidos = r.partidos_perdidos || 0;
+                        const total = r.total_partidos_jugados || 1;
+                        const pctVictorias = Math.round((ganados / total) * 100);
+
+                        const datosPartidos = [
+                            { name: 'Victorias', value: ganados, color: '#10b981' }, // emerald-500
+                            { name: 'Empates', value: empatados, color: '#eab308' },  // amber-500
+                            { name: 'Derrotas', value: perdidos, color: '#ef4444' }   // red-500
+                        ].filter(d => d.value > 0);
+
+                        return (
+                            <div className="flex flex-col sm:flex-row items-center justify-around gap-4 mt-6 flex-1">
+                                <div className="relative w-40 h-40 flex items-center justify-center shrink-0">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={datosPartidos}
+                                                innerRadius={50}
+                                                outerRadius={68}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                            >
+                                                {datosPartidos.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value) => [`${value} partido(s)`, 'Cantidad']} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div className="absolute flex flex-col items-center">
+                                        <span className="text-2xl font-black text-slate-900 leading-none">{pctVictorias}%</span>
+                                        <span className="text-[10px] text-slate-400 font-extrabold uppercase mt-1">Éxito</span>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 flex-1 w-full max-w-[200px]">
+                                    <div className="flex items-center justify-between border-b border-slate-50 pb-1.5 text-xs">
+                                        <span className="flex items-center font-bold text-slate-655 text-slate-600">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-2" /> Victorias
+                                        </span>
+                                        <span className="font-extrabold text-slate-800">{ganados}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between border-b border-slate-50 pb-1.5 text-xs">
+                                        <span className="flex items-center font-bold text-slate-655 text-slate-600">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2" /> Empates
+                                        </span>
+                                        <span className="font-extrabold text-slate-800">{empatados}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between border-b border-slate-50 pb-1.5 text-xs">
+                                        <span className="flex items-center font-bold text-slate-655 text-slate-600">
+                                            <span className="w-2.5 h-2.5 rounded-full bg-red-500 mr-2" /> Derrotas
+                                        </span>
+                                        <span className="font-extrabold text-slate-800">{perdidos}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                {/* Tarjeta de Gráfico 2: Distribución de Estado Físico y Fatiga (Bar Chart) */}
+                <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 className="font-black text-slate-800 flex items-center text-sm font-display">
+                            <Activity size={16} className="text-valle-green mr-2" />
+                            Distribución de Carga y Fatiga
+                        </h3>
+                        <p className="text-xs text-slate-450 font-medium mt-0.5">Clasificación de riesgo en el plantel en base a RPE y descanso</p>
+                    </div>
+
+                    {plantilla_estado.length === 0 ? (
+                        <div className="text-center py-10 text-slate-400 text-sm flex-1 flex flex-col items-center justify-center">
+                            <Users size={32} className="text-slate-300 mb-2" />
+                            <p>No hay datos de plantilla disponibles.</p>
+                        </div>
+                    ) : (() => {
+                        const optimo = plantilla_estado.filter(a => a.color_riesgo === 'verde').length;
+                        const alerta = plantilla_estado.filter(a => a.color_riesgo === 'amarillo').length;
+                        const deBaja = plantilla_estado.filter(a => a.color_riesgo === 'rojo').length;
+
+                        const datosSalud = [
+                            { name: 'Óptimo', cantidad: optimo, color: '#10b981' },
+                            { name: 'Alerta', cantidad: alerta, color: '#f59e0b' },
+                            { name: 'De Baja / Alto', cantidad: deBaja, color: '#ef4444' }
+                        ];
+
+                        return (
+                            <div className="mt-6 flex-1 flex flex-col justify-end">
+                                <div className="h-40 w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={datosSalud} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                            <XAxis 
+                                                dataKey="name" 
+                                                tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }} 
+                                                axisLine={false} 
+                                                tickLine={false} 
+                                            />
+                                            <YAxis 
+                                                tick={{ fontSize: 11, fill: '#64748b' }} 
+                                                axisLine={false} 
+                                                tickLine={false} 
+                                                allowDecimals={false} 
+                                            />
+                                            <Tooltip cursor={{ fill: '#f8fafc' }} formatter={(value) => [`${value} atleta(s)`, 'Cantidad']} />
+                                            <Bar dataKey="cantidad" radius={[6, 6, 0, 0]} maxBarSize={48}>
+                                                {datosSalud.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                <p className="text-[10px] text-slate-400 font-bold text-center mt-2.5">
+                                    Total: {optimo + alerta + deBaja} atletas monitoreados
+                                </p>
+                            </div>
+                        );
+                    })()}
+                </div>
+            </div>
         </div>
     );
 }

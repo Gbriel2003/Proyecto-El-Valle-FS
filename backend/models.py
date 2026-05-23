@@ -32,6 +32,7 @@ class PerfilAtleta(Base):
     altura_cm = Column(Integer)
     posicion_especifica = Column(String(50))
     pierna_habil = Column(String(10))
+    dieta_asignada_id = Column(Integer, ForeignKey("propuestas_dieta.id"), nullable=True)
 
     # Relaciones hacia arriba (Usuario) y hacia abajo (Estadísticas, Nutrición, etc)
     usuario = relationship("Usuario", back_populates="perfil")
@@ -41,6 +42,7 @@ class PerfilAtleta(Base):
     registros_biometricos = relationship("RegistroBiometrico", back_populates="atleta")
     registros_ia = relationship("RegistroIA", foreign_keys='RegistroIA.atleta_id', back_populates="atleta")
     lesiones = relationship("Lesion", back_populates="atleta")
+    dieta_asignada = relationship("PropuestaDieta")
 
 # ==========================================
 # MÓDULO DE ENTRENAMIENTOS

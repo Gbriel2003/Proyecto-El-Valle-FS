@@ -37,6 +37,25 @@ class Token(BaseModel):
     token_type: str
 
 # ==========================================
+# ESQUEMAS DE DIETAS Y NUTRICIÓN
+# ==========================================
+
+class PropuestaDietaCreate(BaseModel):
+    nombre: str
+    descripcion: str
+    calorias: Optional[int] = None
+
+class PropuestaDietaResponse(BaseModel):
+    id: int
+    nombre: str
+    descripcion: str
+    calorias: Optional[int] = None
+    fecha_actualizacion: datetime
+
+    class Config:
+        from_attributes = True
+
+# ==========================================
 # ESQUEMAS DE PERFIL DE ATLETA (JUGADORES)
 # ==========================================
 
@@ -55,6 +74,8 @@ class PerfilAtletaResponse(BaseModel):
     altura_cm: int
     posicion_especifica: str
     pierna_habil: str
+    dieta_asignada_id: Optional[int] = None
+    dieta_asignada: Optional[PropuestaDietaResponse] = None
 
     class Config:
         from_attributes = True
@@ -216,21 +237,6 @@ class JugadaGuardadaResponse(BaseModel):
     tokens_json: Any
     trazos_png: Optional[str] = None
     fecha_creacion: datetime
-
-    class Config:
-        from_attributes = True
-
-class PropuestaDietaCreate(BaseModel):
-    nombre: str
-    descripcion: str
-    calorias: Optional[int] = None
-
-class PropuestaDietaResponse(BaseModel):
-    id: int
-    nombre: str
-    descripcion: str
-    calorias: Optional[int] = None
-    fecha_actualizacion: datetime
 
     class Config:
         from_attributes = True

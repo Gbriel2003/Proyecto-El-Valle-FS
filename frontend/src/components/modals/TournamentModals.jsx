@@ -3,6 +3,7 @@ import {
   X, Save, PlusCircle, Calendar, Award, Sparkles, 
   Loader2, AlertTriangle, ThumbsUp, List 
 } from 'lucide-react';
+import CustomSelect from '../ui/CustomSelect';
 
 // Hook para cerrar con tecla Escape
 function useEscapeKey(onClose) {
@@ -249,16 +250,11 @@ export function ProgramarPartidoModal({
             <>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Torneo Asociado</label>
-                <select
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850 cursor-pointer"
+                <CustomSelect
                   value={torneoIdPartido}
                   onChange={(e) => setTorneoIdPartido(e.target.value)}
-                  required
-                >
-                  {torneos.map(t => (
-                    <option key={t.id} value={t.id}>{t.nombre} ({t.temporada})</option>
-                  ))}
-                </select>
+                  options={torneos.map(t => ({ value: t.id, label: `${t.nombre} (${t.temporada})` }))}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">

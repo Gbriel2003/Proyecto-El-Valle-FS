@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Trash2, Eye, EyeOff, RefreshCw, Maximize2, Minimize2, Save } from 'lucide-react';
+import CustomSelect from '../ui/CustomSelect';
 
 export default function TacticalCanvas({
   boardRef,
@@ -21,6 +22,8 @@ export default function TacticalCanvas({
 }) {
   const [dragTokenId, setDragTokenId] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [formacionValle, setFormacionValle] = useState('');
+  const [formacionRival, setFormacionRival] = useState('');
 
   // --- FUNCIONES DE DIBUJO ---
   const startDrawing = (e) => {
@@ -242,30 +245,36 @@ export default function TacticalCanvas({
 
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación El Valle</h4>
-                <select
-                  onChange={(e) => aplicarFormacion('valle', e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-700 cursor-pointer"
-                  defaultValue=""
-                >
-                  <option value="" disabled>-- Selecciona esquema --</option>
-                  <option value="1-2-1">Diamante (1-2-1)</option>
-                  <option value="2-2">Cuadrado (2-2)</option>
-                  <option value="3-1">Defensiva (3-1)</option>
-                </select>
+                <CustomSelect
+                  value={formacionValle}
+                  onChange={(e) => {
+                    setFormacionValle(e.target.value);
+                    aplicarFormacion('valle', e.target.value);
+                  }}
+                  placeholder="-- Selecciona esquema --"
+                  options={[
+                    { value: "1-2-1", label: "Diamante (1-2-1)" },
+                    { value: "2-2", label: "Cuadrado (2-2)" },
+                    { value: "3-1", label: "Defensiva (3-1)" }
+                  ]}
+                />
               </div>
 
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Formación Rival</h4>
-                <select
-                  onChange={(e) => aplicarFormacion('rival', e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-700 cursor-pointer"
-                  defaultValue=""
-                >
-                  <option value="" disabled>-- Selecciona esquema --</option>
-                  <option value="1-2-1">Diamante (1-2-1)</option>
-                  <option value="2-2">Cuadrado (2-2)</option>
-                  <option value="3-1">Defensiva (3-1)</option>
-                </select>
+                <CustomSelect
+                  value={formacionRival}
+                  onChange={(e) => {
+                    setFormacionRival(e.target.value);
+                    aplicarFormacion('rival', e.target.value);
+                  }}
+                  placeholder="-- Selecciona esquema --"
+                  options={[
+                    { value: "1-2-1", label: "Diamante (1-2-1)" },
+                    { value: "2-2", label: "Cuadrado (2-2)" },
+                    { value: "3-1", label: "Defensiva (3-1)" }
+                  ]}
+                />
               </div>
 
               <button
@@ -402,31 +411,41 @@ export default function TacticalCanvas({
           {/* Formaciones Valle */}
           <div className="flex items-center gap-2 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase shrink-0">El Valle:</span>
-            <select
-              onChange={(e) => aplicarFormacion('valle', e.target.value)}
-              className="flex-1 md:flex-initial px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green text-white cursor-pointer landscape:w-full"
-              defaultValue=""
-            >
-              <option value="" disabled>-- Formación Valle --</option>
-              <option value="1-2-1">Diamante (1-2-1)</option>
-              <option value="2-2">Cuadrado (2-2)</option>
-              <option value="3-1">Defensiva (3-1)</option>
-            </select>
+            <CustomSelect
+              value={formacionValle}
+              onChange={(e) => {
+                setFormacionValle(e.target.value);
+                aplicarFormacion('valle', e.target.value);
+              }}
+              variant="dark"
+              className="flex-1 md:flex-initial landscape:w-full"
+              placeholder="-- Formación Valle --"
+              options={[
+                { value: "1-2-1", label: "Diamante (1-2-1)" },
+                { value: "2-2", label: "Cuadrado (2-2)" },
+                { value: "3-1", label: "Defensiva (3-1)" }
+              ]}
+            />
           </div>
 
           {/* Formaciones Rival */}
           <div className="flex items-center gap-2 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1">
             <span className="text-xs font-bold text-slate-400 uppercase shrink-0">Rival:</span>
-            <select
-              onChange={(e) => aplicarFormacion('rival', e.target.value)}
-              className="flex-1 md:flex-initial px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green text-white cursor-pointer landscape:w-full"
-              defaultValue=""
-            >
-              <option value="" disabled>-- Formación Rival --</option>
-              <option value="1-2-1">Diamante (1-2-1)</option>
-              <option value="2-2">Cuadrado (2-2)</option>
-              <option value="3-1">Defensiva (3-1)</option>
-            </select>
+            <CustomSelect
+              value={formacionRival}
+              onChange={(e) => {
+                setFormacionRival(e.target.value);
+                aplicarFormacion('rival', e.target.value);
+              }}
+              variant="dark"
+              className="flex-1 md:flex-initial landscape:w-full"
+              placeholder="-- Formación Rival --"
+              options={[
+                { value: "1-2-1", label: "Diamante (1-2-1)" },
+                { value: "2-2", label: "Cuadrado (2-2)" },
+                { value: "3-1", label: "Defensiva (3-1)" }
+              ]}
+            />
           </div>
 
           {/* Grosor de Línea Compacto */}

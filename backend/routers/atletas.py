@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from typing import Optional
 import schemas
 import models
 import utils
@@ -49,7 +50,9 @@ def obtener_plantilla_activa(skip: int = 0, limit: int = 100, db: Session = Depe
             "peso_base": atleta.peso_base,
             "altura_base": atleta.altura_cm,
             "peso_actual": ultima_biometria.peso_kg if ultima_biometria else None,
-            "imc_actual": ultima_biometria.imc if ultima_biometria else None
+            "imc_actual": ultima_biometria.imc if ultima_biometria else None,
+            "dieta_asignada_id": atleta.dieta_asignada_id,
+            "dieta_asignada_nombre": atleta.dieta_asignada.nombre if atleta.dieta_asignada else None
         })
         
     return lista_formateada
@@ -137,8 +140,12 @@ def registrar_habitos_diarios(
     atleta_id: int,
     registro: schemas.RegistroNutricionalCreate, 
     db: Session = Depends(get_db),
-    usuario_autorizado: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
+    usuario_autorizado: models.Usuario = Depends(obtener_usuario_actual)
 ):
+    rol_lower = usuario_autorizado.rol.lower() if usuario_autorizado.rol else ""
+    if rol_lower not in ["admin", "entrenador", "nutricionista"] and usuario_autorizado.id != atleta_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado: No tienes permisos para este atleta.")
+
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
@@ -148,8 +155,12 @@ def registrar_habitos_diarios(
 def obtener_habitos_diarios(
     atleta_id: int,
     db: Session = Depends(get_db),
-    usuario_autorizado: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
+    usuario_autorizado: models.Usuario = Depends(obtener_usuario_actual)
 ):
+    rol_lower = usuario_autorizado.rol.lower() if usuario_autorizado.rol else ""
+    if rol_lower not in ["admin", "entrenador", "nutricionista"] and usuario_autorizado.id != atleta_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado: No tienes permisos para este atleta.")
+
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
@@ -159,8 +170,12 @@ def obtener_habitos_diarios(
 def obtener_biometria_atleta(
     atleta_id: int,
     db: Session = Depends(get_db),
-    usuario_autorizado: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
+    usuario_autorizado: models.Usuario = Depends(obtener_usuario_actual)
 ):
+    rol_lower = usuario_autorizado.rol.lower() if usuario_autorizado.rol else ""
+    if rol_lower not in ["admin", "entrenador", "nutricionista"] and usuario_autorizado.id != atleta_id:
+        raise HTTPException(status_code=403, detail="Acceso denegado: No tienes permisos para este atleta.")
+
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
@@ -252,3 +267,30 @@ def eliminar_dieta(
     db.delete(db_dieta)
     db.commit()
     return {"mensaje": "Dieta eliminada correctamente."}
+
+@router.put("/atletas/{atleta_id}/dieta")
+def asignar_dieta_atleta(
+    atleta_id: int,
+    dieta_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    usuario_autorizado: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
+):
+    atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta no encontrado en el sistema.")
+    
+    if dieta_id is not None:
+        dieta = db.query(models.PropuestaDieta).filter(models.PropuestaDieta.id == dieta_id).first()
+        if not dieta:
+            raise HTTPException(status_code=404, detail="La propuesta de dieta seleccionada no existe.")
+        atleta.dieta_asignada_id = dieta_id
+    else:
+        atleta.dieta_asignada_id = None
+        
+    db.commit()
+    db.refresh(atleta)
+    return {
+        "atleta_id": atleta_id,
+        "dieta_asignada_id": atleta.dieta_asignada_id,
+        "dieta_asignada_nombre": atleta.dieta_asignada.nombre if atleta.dieta_asignada else None
+    }

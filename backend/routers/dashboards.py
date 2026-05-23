@@ -66,7 +66,13 @@ def obtener_dashboard_atleta(
         "perfil": {
             "atleta_id": atleta.atleta_id,
             "peso_fichaje": atleta.peso_base,
-            "altura_fichaje": atleta.altura_cm
+            "altura_fichaje": atleta.altura_cm,
+            "dieta_asignada": {
+                "id": atleta.dieta_asignada.id,
+                "nombre": atleta.dieta_asignada.nombre,
+                "descripcion": atleta.dieta_asignada.descripcion,
+                "calorias": atleta.dieta_asignada.calorias
+            } if atleta.dieta_asignada else None
         },
         "estado_fisico": {
             "peso_actual": ultima_biometria.peso_kg if ultima_biometria else atleta.peso_base,
