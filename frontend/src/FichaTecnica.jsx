@@ -270,7 +270,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* Alerta de Hábitos Diarios */}
       {habitosDeHoyRegistrados ? (
-        <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded-xl text-xs text-emerald-800 font-semibold flex items-center gap-2.5 shadow-sm border border-emerald-100">
+        <div className="bg-emerald-50 border border-emerald-100 border-l-4 border-l-emerald-600 p-4 rounded-xl text-xs text-emerald-800 font-semibold flex items-center gap-2.5 shadow-sm">
           <Check className="text-emerald-600 shrink-0" size={18} />
           <div>
             <p className="font-bold text-sm">Hábitos de hoy: Completados ✅</p>
@@ -282,7 +282,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           </div>
         </div>
       ) : (
-        <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-xl text-xs text-amber-800 font-semibold flex items-center gap-2.5 shadow-sm border border-amber-100">
+        <div className="bg-amber-50 border border-amber-100 border-l-4 border-l-amber-500 p-4 rounded-xl text-xs text-amber-800 font-semibold flex items-center gap-2.5 shadow-sm">
           <AlertTriangle className="text-amber-600 shrink-0 animate-pulse" size={18} />
           <div>
             <p className="font-bold text-sm">Hábitos de hoy: Pendientes de registrar ⚠️</p>
@@ -297,7 +297,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* Dieta Asignada */}
       {datos.perfil?.dieta_asignada && (
-        <div className="bg-emerald-50 border-l-4 border-valle-green p-4 rounded-xl text-xs text-slate-700 font-semibold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm border border-emerald-100">
+        <div className="bg-emerald-50 border border-emerald-100 border-l-4 border-l-valle-green p-4 rounded-xl text-xs text-slate-700 font-semibold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-full bg-valle-green/10 flex items-center justify-center shrink-0">
               <Apple className="text-valle-green" size={18} />

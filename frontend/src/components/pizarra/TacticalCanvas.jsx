@@ -101,7 +101,7 @@ export default function TacticalCanvas({
 
   return (
     <div className={isFullscreen 
-      ? "fixed inset-0 z-[100] bg-[#0c160e] p-3 flex flex-col justify-between overflow-hidden select-none gap-3 animate-fade-in-up landscape:flex-row landscape:p-2 landscape:gap-2" 
+      ? "fixed inset-0 z-100 bg-[#0c160e] p-3 flex flex-col justify-between overflow-hidden select-none gap-3 animate-fade-in-up landscape:flex-row landscape:p-2 landscape:gap-2" 
       : "grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in-up"
     }>      {/* Barra superior de controles en Pantalla Completa */}
       {isFullscreen && (
@@ -324,8 +324,8 @@ export default function TacticalCanvas({
           ref={boardRef}
           className={`${
             isFullscreen 
-              ? 'relative w-full max-h-[66vh] aspect-[5/3] bg-[#19331e] rounded-2xl overflow-hidden shadow-2xl border border-valle-green/30 select-none cursor-crosshair touch-none flex items-center justify-center landscape:w-auto landscape:h-full landscape:max-w-full landscape:max-h-full' 
-              : 'relative w-full aspect-[5/3] bg-[#19331e] rounded-2xl overflow-hidden shadow-lg border border-valle-green/20 select-none cursor-crosshair touch-none'
+              ? 'relative w-full max-h-[66vh] aspect-5/3 bg-valle-green-dark rounded-2xl overflow-hidden shadow-2xl border border-valle-green/30 select-none cursor-crosshair touch-none flex items-center justify-center landscape:w-auto landscape:h-full landscape:max-w-full landscape:max-h-full' 
+              : 'relative w-full aspect-5/3 bg-valle-green-dark rounded-2xl overflow-hidden shadow-lg border border-valle-green/20 select-none cursor-crosshair touch-none'
           }`}
           onPointerDown={startDrawing}
           onPointerMove={draw}

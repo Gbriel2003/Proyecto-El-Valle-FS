@@ -71,7 +71,7 @@ export default function CustomSelect({
 
       {abierto && (
         <div 
-          className="absolute z-[100] mt-1.5 w-full min-w-[200px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ring-1 ring-black/5 max-h-60 overflow-y-auto scrollbar-thin animate-fade-in origin-top"
+          className="absolute z-100 mt-1.5 w-full min-w-[200px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ring-1 ring-black/5 max-h-60 overflow-y-auto scrollbar-thin animate-fade-in origin-top"
           style={{
             animation: 'slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards'
           }}

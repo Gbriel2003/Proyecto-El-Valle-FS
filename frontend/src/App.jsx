@@ -377,7 +377,7 @@ export default function App() {
                 onClick={() => setTacticaMenuAbierto(!tacticaMenuAbierto)} 
                 className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 group cursor-pointer focus:outline-none ${
                   menuActivo === 'pizarra_tactica' || menuActivo === 'partidos'
-                    ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3'
+                    ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3'
                     : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
                 }`}
               >
@@ -521,7 +521,7 @@ export default function App() {
                           className={`p-3 transition-colors flex items-start justify-between gap-3 hover:bg-slate-50/50 ${!n.leido ? 'bg-slate-50/30' : ''}`}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-700 leading-normal break-words">
+                            <p className="text-xs font-bold text-slate-700 leading-normal wrap-break-word">
                               {n.mensaje}
                             </p>
                             <span className="text-[9px] text-slate-450 font-bold block mt-1">
@@ -612,7 +612,7 @@ export default function App() {
       />
 
       {/* Contenedor de Alertas / Toast Notifications en tiempo real */}
-      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] space-y-3 max-w-md w-full px-4 pointer-events-none flex flex-col items-center">
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-9999 space-y-3 max-w-md w-full px-4 pointer-events-none flex flex-col items-center">
         {toasts.map(toast => {
           let bgClass = "bg-white border-slate-300 text-slate-800 border-l-sky-500 shadow-slate-900/10";
           let iconColor = "text-sky-600";

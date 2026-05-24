@@ -377,7 +377,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     <div className="max-w-7xl mx-auto pb-12 space-y-6 animate-fade-in-up">
 
       {/* CABECERA */}
-      <div className="bg-gradient-to-r from-white via-slate-50/50 to-white p-6 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-white via-slate-50/50 to-white p-6 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
           <div className="w-12 h-12 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20 shrink-0">
             <Apple size={24} className="text-valle-gold" />
@@ -390,7 +390,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
       </div>
 
       {/* TABS PRINCIPALES */}
-      <div className="flex border-b border-slate-200/80 bg-white p-4 rounded-xl border border-slate-200/60 shadow-xs gap-6">
+      <div className="flex bg-white p-4 rounded-xl border border-slate-200/60 shadow-xs gap-6">
         <button
           type="button"
           onClick={() => setTabPrincipal('atletas')}
@@ -448,7 +448,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       key={j.atleta_id}
                       onClick={() => setAtletaSeleccionado(j)}
                       className={`w-full text-left p-3.5 rounded-xl transition flex items-center justify-between group ${esActivo
-                          ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 border-l-4 border-valle-green text-valle-green font-bold pl-2.5'
+                          ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 border-l-4 border-valle-green text-valle-green font-bold pl-2.5'
                           : 'hover:bg-slate-50 text-slate-700 font-medium pl-3'
                         }`}
                     >
@@ -487,7 +487,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             ) : (
               <>
                 {/* FICHA RESUMEN DE JUGADOR */}
-                <div className="bg-gradient-to-br from-valle-green to-[#0f3016] text-white p-6 rounded-2xl shadow-md border border-valle-gold/10 relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-6 rounded-2xl shadow-md border border-valle-gold/10 relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   {/* Decoración de fondo */}
                   <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none select-none translate-x-1/4 translate-y-1/4">
                     <Apple size={180} className="text-white" />
@@ -913,7 +913,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       type="button"
                       onClick={() => seleccionarDietaParaEditar(d)}
                       className={`w-full text-left p-3.5 rounded-xl transition flex flex-col items-start group ${esActivo
-                          ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 border-l-4 border-valle-green pl-2.5 text-valle-green font-bold'
+                          ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 border-l-4 border-valle-green pl-2.5 text-valle-green font-bold'
                           : 'hover:bg-slate-50 text-slate-700 font-medium pl-3'
                         }`}
                     >

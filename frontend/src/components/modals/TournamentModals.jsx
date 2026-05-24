@@ -565,7 +565,7 @@ export function ReporteIAModal({
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
                     {Array.isArray(reporteIA.analisis_ia?.puntos_fuertes) && reporteIA.analisis_ia.puntos_fuertes.map((pf, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
                         <span>{pf}</span>
                       </li>
                     ))}
@@ -579,7 +579,7 @@ export function ReporteIAModal({
                   <ul className="space-y-2 text-xs font-semibold text-slate-600">
                     {Array.isArray(reporteIA.analisis_ia?.puntos_a_mejorar) && reporteIA.analisis_ia.puntos_a_mejorar.map((pam, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
                         <span>{pam}</span>
                       </li>
                     ))}
