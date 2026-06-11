@@ -374,23 +374,23 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto pb-12 space-y-6 animate-fade-in-up">
+    <div className="w-full mx-auto pb-12 space-y-6 animate-fade-in-up px-2 sm:px-4 lg:px-6">
 
       {/* CABECERA */}
-      <div className="bg-linear-to-r from-white via-slate-50/50 to-white p-6 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-white via-slate-50/50 to-white p-5 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20 shrink-0">
-            <Apple size={24} className="text-valle-gold" />
+          <div className="w-10 h-10 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20 shrink-0">
+            <Apple size={20} className="text-valle-gold" />
           </div>
           <div>
-            <h2 className="font-extrabold text-slate-800 text-2xl font-display leading-tight">Control Nutricional & Biometría</h2>
-            <p className="text-sm md:text-base text-slate-500 font-bold tracking-wide uppercase mt-0.5">Asignación de Dietas, Control de Hábitos y Seguimiento de Peso</p>
+            <h2 className="font-bold text-slate-800 text-lg font-display leading-tight">Control Nutricional & Biometría</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Asignación de Dietas, Control de Hábitos y Seguimiento de Peso</p>
           </div>
         </div>
       </div>
 
       {/* TABS PRINCIPALES */}
-      <div className="flex bg-white p-4 rounded-xl border border-slate-200/60 shadow-xs gap-6">
+      <div className="flex flex-wrap bg-white p-4 rounded-xl border border-slate-200/60 shadow-xs gap-4 sm:gap-6">
         <button
           type="button"
           onClick={() => setTabPrincipal('atletas')}
@@ -481,16 +481,19 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             {!atletaSeleccionado ? (
               <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-16 text-center text-slate-400 flex flex-col items-center justify-center min-h-[400px]">
                 <Apple size={48} className="text-slate-350 stroke-1 mb-4 animate-bounce" />
-                <p className="text-base font-bold text-slate-650">Ningún jugador seleccionado</p>
-                <p className="text-sm text-slate-500 mt-2 max-w-md leading-relaxed font-medium">Selecciona un atleta de la lista de la izquierda para comenzar a registrar su biometría o asignarle hábitos nutricionales.</p>
+                <p className="text-sm font-bold text-slate-650">Ningún jugador seleccionado</p>
+                <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed font-medium">Selecciona un atleta de la lista de la izquierda para comenzar a registrar su biometría o asignarle hábitos nutricionales.</p>
               </div>
             ) : (
               <>
                 {/* FICHA RESUMEN DE JUGADOR */}
-                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-6 rounded-2xl shadow-md border border-valle-gold/10 relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  {/* Decoración de fondo */}
-                  <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none select-none translate-x-1/4 translate-y-1/4">
-                    <Apple size={180} className="text-white" />
+                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-6 rounded-2xl shadow-md border border-valle-gold/10 relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  {/* Contenedor de desbordamiento para el fondo */}
+                  <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+                    {/* Decoración de fondo */}
+                    <div className="absolute right-0 bottom-0 opacity-10 select-none translate-x-1/4 translate-y-1/4">
+                      <Apple size={180} className="text-white" />
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-4 z-10">
@@ -520,16 +523,16 @@ export default function ControlNutricional({ crearNotificacion = null }) {
 
                   <div className="flex flex-wrap gap-4 z-10 text-base">
                     <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-sm text-white/80 block font-bold uppercase">Peso Fichaje</span>
-                      <span className="font-black text-lg text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>
+                      <span className="text-xs text-white/80 block font-bold uppercase">Peso Fichaje</span>
+                      <span className="font-black text-base text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>
                     </div>
                     <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-sm text-white/80 block font-bold uppercase">Peso Actual</span>
-                      <span className="font-black text-lg text-white mt-0.5 block">{atletaSeleccionado.peso_actual ? `${atletaSeleccionado.peso_actual} kg` : 'N/A'}</span>
+                      <span className="text-xs text-white/80 block font-bold uppercase">Peso Actual</span>
+                      <span className="font-black text-base text-white mt-0.5 block">{atletaSeleccionado.peso_actual ? `${atletaSeleccionado.peso_actual} kg` : 'N/A'}</span>
                     </div>
                     <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-sm text-white/80 block font-bold uppercase">Altura Base</span>
-                      <span className="font-black text-lg text-white mt-0.5 block">{atletaSeleccionado.altura_base ? `${atletaSeleccionado.altura_base} cm` : 'N/A'}</span>
+                      <span className="text-xs text-white/80 block font-bold uppercase">Altura Base</span>
+                      <span className="font-black text-base text-white mt-0.5 block">{atletaSeleccionado.altura_base ? `${atletaSeleccionado.altura_base} cm` : 'N/A'}</span>
                     </div>
                   </div>
                 </div>
@@ -735,7 +738,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
 
                   {/* Selector de Tabs */}
-                  <div className="flex border-b border-slate-100 bg-slate-50/50 p-2.5 gap-2">
+                  <div className="flex flex-wrap border-b border-slate-100 bg-slate-50/50 p-2.5 gap-2">
                     <button
                       onClick={() => setTabHistorial('biometria')}
                       className={`px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center cursor-pointer ${tabHistorial === 'biometria'
@@ -981,11 +984,11 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 />
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                 <button
                   type="submit"
                   disabled={guardandoDieta}
-                  className="flex-1 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
+                  className="w-full sm:w-auto flex-1 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
                 >
                   {guardandoDieta ? (
                     <>
@@ -1004,7 +1007,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                   <button
                     type="button"
                     onClick={() => handleEliminarDieta(dietaSeleccionada.id)}
-                    className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-sm rounded-xl transition flex items-center justify-center cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-bold text-sm rounded-xl transition flex items-center justify-center cursor-pointer"
                   >
                     Eliminar de Biblioteca
                   </button>
@@ -1013,7 +1016,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <button
                   type="button"
                   onClick={prepararNuevaDieta}
-                  className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition flex items-center justify-center cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition flex items-center justify-center cursor-pointer"
                 >
                   Limpiar / Cancelar
                 </button>

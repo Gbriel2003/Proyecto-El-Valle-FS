@@ -16,4 +16,27 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Interceptor para manejar la caducidad de la sesión
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            const isLoginRequest = error.config && error.config.url && error.config.url.includes('/login');
+            if (!isLoginRequest) {
+                // Borrar datos de autenticación
+                localStorage.removeItem('token_valle');
+                localStorage.removeItem('rol_usuario');
+                localStorage.removeItem('valle_notificaciones');
+                
+                // Almacenar el mensaje de error para mostrar en el Login
+                sessionStorage.setItem('valle_session_error', 'Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
+                
+                // Recargar la página para forzar el enrutamiento al Login
+                window.location.reload();
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;

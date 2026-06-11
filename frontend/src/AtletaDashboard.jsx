@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from './api';
 import { Search, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, CheckCircle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -9,6 +9,43 @@ export default function AtletaDashboard() {
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState('');
 
+    const [temporalidad, setTemporalidad] = useState('diario');
+    const [analisisIa, setAnalisisIa] = useState({
+        diario: null,
+        semanal: null,
+        mensual: null,
+        anual: null
+    });
+    const [cargandoIa, setCargandoIa] = useState(false);
+    const [errorIa, setErrorIa] = useState('');
+
+    const cargarAnalisisIa = async (idAtleta, temp) => {
+        if (!idAtleta) return;
+        // Si ya está en caché local para esta sesión, no re-consultar
+        if (analisisIa[temp]) return;
+        
+        setCargandoIa(true);
+        setErrorIa('');
+        try {
+            const res = await api.get(`/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}`);
+            setAnalisisIa(prev => ({
+                ...prev,
+                [temp]: res.data
+            }));
+        } catch (err) {
+            console.error(err);
+            setErrorIa('Error al cargar el análisis de la IA.');
+        } finally {
+            setCargandoIa(false);
+        }
+    };
+
+    useEffect(() => {
+        if (datos && atletaId) {
+            cargarAnalisisIa(atletaId, temporalidad);
+        }
+    }, [temporalidad, atletaId]);
+
     const buscarJugador = async (e) => {
         e.preventDefault();
         if (!atletaId) return;
@@ -16,10 +53,22 @@ export default function AtletaDashboard() {
         setCargando(true);
         setError('');
         setDatos(null);
+        setAnalisisIa({ diario: null, semanal: null, mensual: null, anual: null });
+        setTemporalidad('diario');
 
         try {
             const respuesta = await api.get(`/atletas/${atletaId}/dashboard`);
             setDatos(respuesta.data);
+            
+            // Si el backend trajo el análisis de hoy en la respuesta principal, lo guardamos en la caché local
+            if (respuesta.data.alerta_ia && !respuesta.data.alerta_ia.error) {
+                setAnalisisIa(prev => ({
+                    ...prev,
+                    diario: respuesta.data.alerta_ia
+                }));
+            } else {
+                await cargarAnalisisIa(atletaId, 'diario');
+            }
         } catch (err) {
             if (err.response && err.response.status === 404) {
                 setError('Jugador no encontrado. Verifica el número de ficha.');
@@ -36,11 +85,11 @@ export default function AtletaDashboard() {
         const nivel = riesgo.toLowerCase();
         if (nivel.includes('alto') || nivel.includes('crítico')) return 'bg-red-100 text-red-800 border-red-200';
         if (nivel.includes('medio')) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        return 'bg-valle-green-light text-white border-valle-green-dark';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     };
 
     return (
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6 w-full mx-auto px-2 sm:px-4 lg:px-6">
             {/* Buscador */}
             <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center space-x-3 text-valle-black w-full sm:w-auto">
@@ -133,43 +182,72 @@ export default function AtletaDashboard() {
 
                     {/* Tarjeta 3: Inteligencia Artificial (Gemini) */}
                     <div className="md:col-span-2 lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col relative overflow-hidden">
-                        <div className="flex items-center mb-4 relative z-10">
+                        <div className="flex items-center mb-3 relative z-10">
                             <h3 className="font-bold text-slate-800 flex items-center">
                                 <Brain size={18} className="mr-2 text-valle-green" /> Análisis IAMédico
                             </h3>
                         </div>
 
-                        <div className="flex-1 relative z-10">
-                            {datos.alerta_ia ? (
-                                datos.alerta_ia.error ? (
+                        {/* Selector Segmentado de Temporalidad */}
+                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg mb-4 text-[10px] font-bold relative z-10">
+                            {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
+                                <button
+                                    key={temp}
+                                    type="button"
+                                    onClick={() => setTemporalidad(temp)}
+                                    className={`flex-1 py-1 rounded-md text-center capitalize transition cursor-pointer ${
+                                        temporalidad === temp
+                                            ? 'bg-valle-green text-valle-gold shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-700'
+                                    }`}
+                                >
+                                    {temp}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="flex-1 relative z-10 flex flex-col justify-center">
+                            {cargandoIa ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center py-6">
+                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-valle-green mb-2"></div>
+                                    <p className="text-xs text-slate-500 font-bold">Generando análisis con IA...</p>
+                                </div>
+                            ) : errorIa ? (
+                                <div className="h-full flex flex-col items-center justify-center text-center py-6">
+                                    <AlertTriangle size={24} className="text-red-500 mb-2" />
+                                    <p className="text-sm text-red-700 font-bold">Error de Conexión IA</p>
+                                    <p className="text-xs text-red-600 mt-1">{errorIa}</p>
+                                </div>
+                            ) : analisisIa[temporalidad] ? (
+                                analisisIa[temporalidad].error ? (
                                     <div className="h-full flex flex-col items-center justify-center text-center">
                                         <AlertTriangle size={24} className="text-red-500 mb-2" />
-                                        <p className="text-sm text-red-700 font-bold">Error de Conexión IA</p>
-                                        <p className="text-xs text-red-600 mt-1">{datos.alerta_ia.error}: {datos.alerta_ia.detalle || "Sin detalles"}</p>
+                                        <p className="text-sm text-red-700 font-bold">Error de la IA</p>
+                                        <p className="text-xs text-red-600 mt-1">{analisisIa[temporalidad].error}</p>
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
                                             <span className="text-xs text-slate-500 uppercase font-bold">Riesgo de Lesión</span>
-                                            <span className={`text-xs font-bold px-3 py-1 rounded shadow-sm ${colorRiesgo(datos.alerta_ia.riesgo_lesion)}`}>
-                                                {datos.alerta_ia.riesgo_lesion}
+                                            <span className={`text-xs font-bold px-3 py-1 rounded shadow-sm ${colorRiesgo(analisisIa[temporalidad].riesgo_lesion)}`}>
+                                                {analisisIa[temporalidad].riesgo_lesion}
                                             </span>
                                         </div>
                                         <div>
-                                            <p className="text-sm text-slate-700 italic leading-relaxed">"{datos.alerta_ia.analisis}"</p>
+                                            <p className="text-sm text-slate-700 italic leading-relaxed font-medium">"{analisisIa[temporalidad].analisis}"</p>
                                         </div>
                                         <div className="pt-4 border-t border-slate-100">
                                             <p className="text-xs font-bold text-valle-green uppercase tracking-wider mb-1 flex items-center">
                                                 <CheckCircle size={14} className="mr-1" /> Recomendación
                                             </p>
-                                            <p className="text-sm text-slate-800 font-medium">{datos.alerta_ia.recomendacion}</p>
+                                            <p className="text-sm text-slate-800 font-medium">{analisisIa[temporalidad].recomendacion}</p>
                                         </div>
                                     </div>
                                 )
                             ) : (
-                                <div className="h-full flex flex-col items-center justify-center text-center">
+                                <div className="h-full flex flex-col items-center justify-center text-center py-6">
                                     <AlertTriangle size={24} className="text-slate-400 mb-2" />
-                                    <p className="text-sm text-slate-500">No hay datos suficientes de cargas físicas.</p>
+                                    <p className="text-sm text-slate-500">No hay datos suficientes para generar este reporte.</p>
                                 </div>
                             )}
                         </div>

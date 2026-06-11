@@ -142,7 +142,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
     ];
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto pb-8">
+        <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
 
             {/* Cabecera */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in-up">

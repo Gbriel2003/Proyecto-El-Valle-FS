@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 import models
 import utils
 from dependencies import get_db, obtener_usuario_actual, verificar_cuerpo_tecnico, verificar_cuerpo_o_nutricionista
+import datetime
+import json
 
 router = APIRouter(tags=["Dashboards"])
 
@@ -30,38 +32,27 @@ def obtener_dashboard_atleta(
     promedio_descanso = sum(h.calidad_descanso for h in habitos) / len(habitos) if habitos else 0
     promedio_hidratacion = sum(h.hidratacion_litros for h in habitos) / len(habitos) if habitos else 0
 
-    # 4. Análisis de Fatiga por IA (Usando las últimas cargas físicas cruzadas con nutrición)
+    # 4. Análisis de Fatiga por IA Cacheado (Hoy)
+    # Recuperamos de caché si existe un análisis diario de hoy para no retrasar la carga del dashboard
+    hoy = datetime.date.today()
+    registro_cache = db.query(models.RegistroIA).filter(
+        models.RegistroIA.atleta_id == atleta_id,
+        models.RegistroIA.modulo == "fatiga_diaria"
+    ).order_by(models.RegistroIA.fecha_registro.desc()).first()
+    
+    analisis_ia = None
+    if registro_cache and registro_cache.fecha_registro.date() == hoy:
+        try:
+            analisis_ia = json.loads(registro_cache.respuesta)
+        except Exception:
+            pass
+
+    # 5. Cargas Físicas Históricas
     cargas = db.query(models.CargaAtleta).filter(
         models.CargaAtleta.atleta_id == atleta_id
     ).order_by(models.CargaAtleta.id.desc()).limit(5).all()
-    
-    analisis_ia = None
-    if cargas:
-        texto_cargas = "\n".join([f"RPE: {c.rpe_esfuerzo}, Salto: {c.saltos_cm}" for c in cargas])
-        
-        texto_nutri = ""
-        if atleta:
-            texto_nutri += f"- Peso base (fichaje): {atleta.peso_base} kg\n"
-        if ultima_biometria:
-            texto_nutri += f"- Peso actual: {ultima_biometria.peso_kg} kg, IMC: {ultima_biometria.imc}\n"
-            if atleta and atleta.peso_base and ultima_biometria.peso_kg:
-                dif_peso = atleta.peso_base - ultima_biometria.peso_kg
-                if dif_peso != 0:
-                    texto_nutri += f"- Cambio de peso: {'perdió' if dif_peso > 0 else 'ganó'} {abs(dif_peso):.1f} kg\n"
-        
-        ultimo_habito = habitos[0] if habitos else None
-        if ultimo_habito:
-            texto_nutri += f"- Hidratación diaria: {ultimo_habito.hidratacion_litros} litros\n"
-            texto_nutri += f"- Calidad de descanso: {ultimo_habito.calidad_descanso}/10\n"
-            texto_nutri += f"- Frecuencia de comidas: {ultimo_habito.frecuencia_comidas} al día\n"
-            if ultimo_habito.suplementacion:
-                texto_nutri += f"- Suplementación: {ultimo_habito.suplementacion}\n"
-            if ultimo_habito.plan_alimentacion:
-                texto_nutri += f"- Menú asignado: {ultimo_habito.plan_alimentacion}\n"
 
-        analisis_ia = utils.analizar_fatiga_con_ia(texto_cargas, texto_nutri if texto_nutri else None)
-
-    # 5. Respuesta Consolidada
+    # 6. Respuesta Consolidada
     return {
         "perfil": {
             "atleta_id": atleta.atleta_id,
@@ -85,6 +76,227 @@ def obtener_dashboard_atleta(
         "alerta_ia": analisis_ia,
         "cargas_historicas": [{"sesion": f"#{c.sesion_id}", "rpe": c.rpe_esfuerzo, "salto": c.saltos_cm} for c in reversed(cargas)] if cargas else []
     }
+
+@router.get("/atletas/{atleta_id}/analisis-ia")
+def obtener_analisis_ia(
+    atleta_id: int,
+    temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    # Verificar que el atleta existe
+    atleta = db.query(models.PerfilAtleta).filter(models.PerfilAtleta.atleta_id == atleta_id).first()
+    if not atleta:
+        raise HTTPException(status_code=404, detail="Atleta no encontrado.")
+    
+    hoy = datetime.date.today()
+    modulo_db = f"fatiga_{temporalidad}"
+    
+    # 1. Verificar Caché en la base de datos
+    registro_cache = db.query(models.RegistroIA).filter(
+        models.RegistroIA.atleta_id == atleta_id,
+        models.RegistroIA.modulo == modulo_db
+    ).order_by(models.RegistroIA.fecha_registro.desc()).first()
+    
+    usar_cache = False
+    if registro_cache:
+        # Reglas de expiración de caché
+        if temporalidad == "diario" and registro_cache.fecha_registro.date() == hoy:
+            usar_cache = True
+        elif temporalidad == "semanal" and registro_cache.fecha_registro.date() == hoy:
+            usar_cache = True
+        elif temporalidad == "mensual" and registro_cache.fecha_registro >= datetime.datetime.now() - datetime.timedelta(days=3):
+            usar_cache = True
+        elif temporalidad == "anual" and registro_cache.fecha_registro >= datetime.datetime.now() - datetime.timedelta(days=7):
+            usar_cache = True
+            
+    if usar_cache:
+        try:
+            return json.loads(registro_cache.respuesta)
+        except Exception:
+            pass # Si falla el decode, forzamos regeneración
+            
+    # 2. Si no hay caché o expiró, recolectar datos del periodo
+    # Biometría y hábitos (común a todos los reportes para cruzar datos)
+    ultima_biometria = db.query(models.RegistroBiometrico).filter(
+        models.RegistroBiometrico.atleta_id == atleta_id
+    ).order_by(models.RegistroBiometrico.id.desc()).first()
+    
+    texto_nutri = ""
+    if atleta:
+        texto_nutri += f"- Peso base (fichaje): {atleta.peso_base} kg\n"
+    if ultima_biometria:
+        texto_nutri += f"- Peso actual: {ultima_biometria.peso_kg} kg, IMC: {ultima_biometria.imc}\n"
+        if atleta and atleta.peso_base and ultima_biometria.peso_kg:
+            dif_peso = atleta.peso_base - ultima_biometria.peso_kg
+            if dif_peso != 0:
+                texto_nutri += f"- Cambio de peso: {'perdió' if dif_peso > 0 else 'ganó'} {abs(dif_peso):.1f} kg\n"
+                
+    if temporalidad == "diario":
+        # Cargas de hoy
+        cargas = db.query(models.CargaAtleta).join(models.SesionEntrenamiento).filter(
+            models.CargaAtleta.atleta_id == atleta_id,
+            models.SesionEntrenamiento.fecha == hoy
+        ).all()
+        
+        if not cargas:
+            return {
+                "nivel_fatiga": "Bajo",
+                "riesgo_lesion": "Bajo",
+                "analisis": "Sin cargas físicas registradas el día de hoy.",
+                "recomendacion": "Aprovecha el día de descanso para recuperar y mantener una hidratación adecuada."
+            }
+            
+        texto_cargas = "\n".join([f"Sesión hoy - RPE esfuerzo: {c.rpe_esfuerzo}/10, Salto vertical: {c.saltos_cm} cm" for c in cargas])
+        
+        # Hábito de hoy
+        habito_hoy = db.query(models.RegistroNutricional).filter(
+            models.RegistroNutricional.atleta_id == atleta_id,
+            models.RegistroNutricional.fecha == hoy
+        ).first()
+        if habito_hoy:
+            texto_nutri += f"- Hidratación hoy: {habito_hoy.hidratacion_litros} litros\n"
+            texto_nutri += f"- Calidad de descanso de anoche: {habito_hoy.calidad_descanso}/10\n"
+            texto_nutri += f"- Frecuencia de comidas: {habito_hoy.frecuencia_comidas} al día\n"
+            if habito_hoy.suplementacion:
+                texto_nutri += f"- Suplementación: {habito_hoy.suplementacion}\n"
+        else:
+            # Si no hay registro de hoy, usar el último disponible
+            ultimo_habito = db.query(models.RegistroNutricional).filter(
+                models.RegistroNutricional.atleta_id == atleta_id
+            ).order_by(models.RegistroNutricional.id.desc()).first()
+            if ultimo_habito:
+                texto_nutri += f"- Última hidratación registrada: {ultimo_habito.hidratacion_litros} litros\n"
+                texto_nutri += f"- Última calidad de descanso registrada: {ultimo_habito.calidad_descanso}/10\n"
+                
+    elif temporalidad == "semanal":
+        fecha_inicio = hoy - datetime.timedelta(days=7)
+        cargas = db.query(models.CargaAtleta).join(models.SesionEntrenamiento).filter(
+            models.CargaAtleta.atleta_id == atleta_id,
+            models.SesionEntrenamiento.fecha >= fecha_inicio
+        ).order_by(models.SesionEntrenamiento.fecha.desc()).all()
+        
+        if not cargas:
+            return {
+                "nivel_fatiga": "N/A",
+                "riesgo_lesion": "N/A",
+                "analisis": "No se registraron entrenamientos en los últimos 7 días.",
+                "recomendacion": "Registra tus entrenamientos para habilitar el análisis de fatiga semanal."
+            }
+            
+        texto_cargas = "\n".join([f"Fecha: {c.sesion.fecha} - RPE esfuerzo: {c.rpe_esfuerzo}/10, Salto: {c.saltos_cm} cm" for c in cargas])
+        
+        # Hábitos semanales
+        habitos = db.query(models.RegistroNutricional).filter(
+            models.RegistroNutricional.atleta_id == atleta_id,
+            models.RegistroNutricional.fecha >= fecha_inicio
+        ).all()
+        if habitos:
+            descansos = [h.calidad_descanso for h in habitos if h.calidad_descanso is not None]
+            hidrataciones = [h.hidratacion_litros for h in habitos if h.hidratacion_litros is not None]
+            promedio_descanso = sum(descansos) / len(descansos) if descansos else 0
+            promedio_hidratacion = sum(hidrataciones) / len(hidrataciones) if hidrataciones else 0
+            texto_nutri += f"- Promedio descanso semanal: {promedio_descanso:.1f}/10\n"
+            texto_nutri += f"- Promedio hidratación semanal: {promedio_hidratacion:.1f} litros/día\n"
+            
+    elif temporalidad == "mensual":
+        fecha_inicio = hoy - datetime.timedelta(days=30)
+        cargas = db.query(models.CargaAtleta).join(models.SesionEntrenamiento).filter(
+            models.CargaAtleta.atleta_id == atleta_id,
+            models.SesionEntrenamiento.fecha >= fecha_inicio
+        ).order_by(models.SesionEntrenamiento.fecha.desc()).all()
+        
+        if not cargas:
+            return {
+                "nivel_fatiga": "N/A",
+                "riesgo_lesion": "N/A",
+                "analisis": "No se registraron entrenamientos en los últimos 30 días.",
+                "recomendacion": "Registra tus entrenamientos para habilitar el análisis de fatiga mensual."
+            }
+            
+        # Resumen de cargas mensuales
+        rpes = [c.rpe_esfuerzo for c in cargas if c.rpe_esfuerzo is not None]
+        saltos = [c.saltos_cm for c in cargas if c.saltos_cm is not None]
+        rpe_promedio = sum(rpes) / len(rpes) if rpes else 0
+        salto_promedio = sum(saltos) / len(saltos) if saltos else 0
+        esfuerzos_altos = sum(1 for r in rpes if r >= 8)
+        texto_cargas = f"Resumen mensual: {len(cargas)} entrenamientos. RPE Promedio: {rpe_promedio:.1f}/10. Salto promedio: {salto_promedio:.1f} cm. Sesiones con esfuerzo alto (RPE>=8): {esfuerzos_altos}."
+        
+        # Hábitos mensuales
+        habitos = db.query(models.RegistroNutricional).filter(
+            models.RegistroNutricional.atleta_id == atleta_id,
+            models.RegistroNutricional.fecha >= fecha_inicio
+        ).all()
+        if habitos:
+            descansos = [h.calidad_descanso for h in habitos if h.calidad_descanso is not None]
+            hidrataciones = [h.hidratacion_litros for h in habitos if h.hidratacion_litros is not None]
+            promedio_descanso = sum(descansos) / len(descansos) if descansos else 0
+            promedio_hidratacion = sum(hidrataciones) / len(hidrataciones) if hidrataciones else 0
+            texto_nutri += f"- Promedio descanso mensual: {promedio_descanso:.1f}/10\n"
+            texto_nutri += f"- Promedio hidratación mensual: {promedio_hidratacion:.1f} litros/día\n"
+            
+    else: # anual
+        fecha_inicio = hoy - datetime.timedelta(days=365)
+        cargas = db.query(models.CargaAtleta).join(models.SesionEntrenamiento).filter(
+            models.CargaAtleta.atleta_id == atleta_id,
+            models.SesionEntrenamiento.fecha >= fecha_inicio
+        ).all()
+        
+        if not cargas:
+            return {
+                "nivel_fatiga": "N/A",
+                "riesgo_lesion": "N/A",
+                "analisis": "No se registraron entrenamientos en el último año.",
+                "recomendacion": "Registra tus entrenamientos para habilitar el análisis de fatiga anual."
+            }
+            
+        # Resumen de cargas anuales
+        rpes = [c.rpe_esfuerzo for c in cargas if c.rpe_esfuerzo is not None]
+        saltos = [c.saltos_cm for c in cargas if c.saltos_cm is not None]
+        rpe_promedio = sum(rpes) / len(rpes) if rpes else 0
+        salto_promedio = sum(saltos) / len(saltos) if saltos else 0
+        esfuerzos_altos = sum(1 for r in rpes if r >= 8)
+        texto_cargas = f"Resumen anual: {len(cargas)} entrenamientos. RPE Promedio anual: {rpe_promedio:.1f}/10. Salto promedio anual: {salto_promedio:.1f} cm. Sesiones con esfuerzo alto: {esfuerzos_altos}."
+        
+        # Hábitos anuales
+        habitos = db.query(models.RegistroNutricional).filter(
+            models.RegistroNutricional.atleta_id == atleta_id,
+            models.RegistroNutricional.fecha >= fecha_inicio
+        ).all()
+        if habitos:
+            descansos = [h.calidad_descanso for h in habitos if h.calidad_descanso is not None]
+            hidrataciones = [h.hidratacion_litros for h in habitos if h.hidratacion_litros is not None]
+            promedio_descanso = sum(descansos) / len(descansos) if descansos else 0
+            promedio_hidratacion = sum(hidrataciones) / len(hidrataciones) if hidrataciones else 0
+            texto_nutri += f"- Promedio descanso anual: {promedio_descanso:.1f}/10\n"
+            texto_nutri += f"- Promedio hidratación anual: {promedio_hidratacion:.1f} litros/día\n"
+
+    # 3. Consultar a la IA
+    resultado_ia = utils.analizar_fatiga_con_ia(texto_cargas, texto_nutri if texto_nutri else None, temporalidad)
+    
+    # 4. Guardar en Caché (RegistroIA) si no es un error
+    if isinstance(resultado_ia, dict) and "error" not in resultado_ia:
+        nuevo_registro = models.RegistroIA(
+            usuario_id=usuario_actual.id,
+            atleta_id=atleta_id,
+            modulo=modulo_db,
+            prompt=f"Cargas:\n{texto_cargas}\nNutrición:\n{texto_nutri}",
+            respuesta=json.dumps(resultado_ia),
+            proveedor="Groq",
+            modelo="llama-3.1-8b-instant"
+        )
+        db.add(nuevo_registro)
+        db.commit()
+        
+    return resultado_ia
+
+@router.get("/mi-dashboard/analisis-ia")
+def obtener_mi_analisis_ia(
+    temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    return obtener_analisis_ia(atleta_id=usuario_actual.id, temporalidad=temporalidad, db=db, usuario_actual=usuario_actual)
 
 @router.get("/mi-dashboard")
 def obtener_mi_dashboard(

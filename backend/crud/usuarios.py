@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 import models
 import schemas
 import security
@@ -16,7 +17,8 @@ def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
         apellido=usuario.apellido,
         correo=usuario.correo,
         password_hash=clave_licuada, 
-        rol=usuario.rol
+        rol=usuario.rol,
+        debe_cambiar_password=True # Por defecto debe cambiarla al entrar por primera vez
     )
     db.add(nuevo_usuario)
     db.commit()
@@ -33,3 +35,31 @@ def eliminar_usuario(db: Session, usuario_id: int):
     db.delete(usuario)
     db.commit()
     return usuario
+
+def actualizar_password_usuario(db: Session, usuario: models.Usuario, nueva_clave: str, primer_ingreso: bool = False):
+    clave_licuada = security.obtener_password_hash(nueva_clave)
+    usuario.password_hash = clave_licuada
+    if primer_ingreso:
+        usuario.debe_cambiar_password = False
+    
+    # Limpiar token si se cambia la clave exitosamente
+    usuario.reset_token = None
+    usuario.reset_token_expiration = None
+    
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+def guardar_token_recuperacion(db: Session, usuario: models.Usuario, token: str, expiracion: datetime):
+    usuario.reset_token = token
+    usuario.reset_token_expiration = expiracion
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+def obtener_usuario_por_token(db: Session, token: str):
+    return db.query(models.Usuario).filter(
+        models.Usuario.reset_token == token,
+        models.Usuario.reset_token_expiration > datetime.now()
+    ).first()
+

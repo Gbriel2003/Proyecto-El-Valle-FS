@@ -72,7 +72,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6 px-2 sm:px-4 lg:px-6">
       {mensaje.texto && (
         <div className={`p-4 rounded-lg text-sm font-medium border-l-4 ${mensaje.tipo === 'exito' ? 'bg-green-50 border-valle-green text-valle-green-dark' : 'bg-red-50 border-red-500 text-red-800'}`}>
           {mensaje.texto}
@@ -94,7 +94,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
           </div>
 
           <form onSubmit={crearUsuario} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
                 <input

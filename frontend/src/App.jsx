@@ -10,6 +10,8 @@ import ConfiguracionClub from './ConfiguracionClub';
 import FichaTecnica from './FichaTecnica';
 import ControlNutricional from './ControlNutricional';
 import PWAInstallModal from './components/modals/PWAInstallModal';
+import ChangePassword from './ChangePassword';
+import ResetPassword from './ResetPassword';
 import {
   Users,
   Activity,
@@ -30,7 +32,9 @@ import {
   CheckCircle,
   AlertCircle,
   Info,
-  AlertTriangle
+  AlertTriangle,
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
 
 
@@ -42,7 +46,8 @@ const titulosPaginas = {
   partidos: "Partidos y Calendario",
   configuracion: "Configuración del Club",
   mi_perfil: "Mi Ficha Técnica",
-  control_nutricional: "Control Nutricional"
+  control_nutricional: "Control Nutricional",
+  cambiar_contrasena: "Seguridad de la Cuenta"
 };
 
 export default function App() {
@@ -51,6 +56,8 @@ export default function App() {
   const [menuActivo, setMenuActivo] = useState('');
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(true);
+  const [debeCambiarPassword, setDebeCambiarPassword] = useState(false);
+  const [tokenRestablecer, setTokenRestablecer] = useState(null);
 
   // Estados globales de alertas y carga de reportes
   const [toasts, setToasts] = useState([]);
@@ -250,15 +257,28 @@ export default function App() {
   }, [menuActivo]);
 
   useEffect(() => {
+    // Detectar si el usuario viene de un enlace de recuperación de contraseña
+    const pathname = window.location.pathname;
+    if (pathname.startsWith('/reset-password/')) {
+      const token = pathname.substring('/reset-password/'.length);
+      if (token) {
+        setTokenRestablecer(token);
+      }
+    }
+
     const token = localStorage.getItem('token_valle');
     const rol = localStorage.getItem('rol_usuario') || 'atleta';
+    const debeCambiar = localStorage.getItem('debe_cambiar_password') === 'true';
 
     if (token) {
       setTimeout(() => {
         setAutenticado(true);
         setRolUsuario(rol.toLowerCase());
+        setDebeCambiarPassword(debeCambiar);
 
-        if (rol.toLowerCase() === 'atleta') {
+        if (debeCambiar) {
+          setMenuActivo('cambiar_contrasena');
+        } else if (rol.toLowerCase() === 'atleta') {
           setMenuActivo('mi_perfil');
         } else {
           setMenuActivo('dashboard');
@@ -288,6 +308,19 @@ export default function App() {
     setMenuActivo(menu);
     setMenuAbierto(false); // Cierra el menú en móvil al hacer clic
   };
+
+  if (tokenRestablecer) {
+    return (
+      <ResetPassword 
+        token={tokenRestablecer} 
+        crearNotificacion={crearNotificacion}
+        onResetSuccess={() => {
+          setTokenRestablecer(null);
+          window.history.pushState({}, document.title, "/");
+        }} 
+      />
+    );
+  }
 
   if (!autenticado) {
     return <Login onLoginSuccess={() => window.location.reload()} />;
@@ -338,108 +371,117 @@ export default function App() {
         </div>
 
         <nav className="flex-1 py-6 px-3 overflow-y-auto">
-          {/* Rendimiento Global (Admin, Entrenador, Nutricionista) */}
-          {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
-            <button onClick={() => handleNavClick('dashboard')} className={navItemClass('dashboard')}>
-              <BarChart2 size={18} className="mr-3" />
-              <span>Rendimiento Global</span>
-            </button>
-          )}
+          {debeCambiarPassword ? (
+            <div className="px-3.5 py-4 bg-amber-50/85 text-amber-800 text-xs font-semibold rounded-xl border border-amber-200/70 leading-relaxed space-y-2 animate-pulse">
+              <div className="font-extrabold flex items-center gap-1.5 text-amber-900">
+                <ShieldAlert size={14} />
+                Acción Requerida
+              </div>
+              <p>Debes cambiar tu contraseña temporal para poder utilizar el sistema.</p>
+            </div>
+          ) : (
+            <>
+              {/* Rendimiento Global (Admin, Entrenador, Nutricionista) */}
+              {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
+                <button onClick={() => handleNavClick('dashboard')} className={navItemClass('dashboard')}>
+                  <BarChart2 size={18} className="mr-3" />
+                  <span>Rendimiento Global</span>
+                </button>
+              )}
 
-          {/* Control de Entrenamiento (Admin, Entrenador) */}
-          {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
-            <button onClick={() => handleNavClick('ia')} className={navItemClass('ia')}>
-              <Activity size={18} className="mr-3" />
-              <span>Control Entrenamiento</span>
-            </button>
-          )}
+              {/* Control de Entrenamiento (Admin, Entrenador) */}
+              {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
+                <button onClick={() => handleNavClick('ia')} className={navItemClass('ia')}>
+                  <Activity size={18} className="mr-3" />
+                  <span>Control Entrenamiento</span>
+                </button>
+              )}
 
-          {/* Plantilla Activa (Admin, Entrenador, Nutricionista) */}
-          {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
-            <button onClick={() => handleNavClick('jugadores')} className={navItemClass('jugadores')}>
-              <Users size={18} className="mr-3" />
-              <span>Plantilla Activa</span>
-            </button>
-          )}
+              {/* Plantilla Activa (Admin, Entrenador, Nutricionista) */}
+              {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
+                <button onClick={() => handleNavClick('jugadores')} className={navItemClass('jugadores')}>
+                  <Users size={18} className="mr-3" />
+                  <span>Plantilla Activa</span>
+                </button>
+              )}
 
-          {/* Control Nutricional (Nutricionista, Admin) */}
-          {(rolUsuario === 'nutricionista' || rolUsuario === 'admin') && (
-            <button onClick={() => handleNavClick('control_nutricional')} className={navItemClass('control_nutricional')}>
-              <Apple size={18} className="mr-3" />
-              <span>Control Nutricional</span>
-            </button>
-          )}
+              {/* Control Nutricional (Nutricionista, Admin) */}
+              {(rolUsuario === 'nutricionista' || rolUsuario === 'admin') && (
+                <button onClick={() => handleNavClick('control_nutricional')} className={navItemClass('control_nutricional')}>
+                  <Apple size={18} className="mr-3" />
+                  <span>Control Nutricional</span>
+                </button>
+              )}
 
-          {/* Grupo Colapsable: Táctica y Partidos (Admin, Entrenador) */}
-          {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
-            <div className="space-y-1">
-              <button 
-                onClick={() => setTacticaMenuAbierto(!tacticaMenuAbierto)} 
-                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 group cursor-pointer focus:outline-none ${
-                  menuActivo === 'pizarra_tactica' || menuActivo === 'partidos'
-                    ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3'
-                    : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
-                }`}
-              >
-                <div className="flex items-center">
-                  <ClipboardList size={18} className="mr-3" />
-                  <span>Táctica y Partidos</span>
-                </div>
-                <ChevronDown 
-                  size={15} 
-                  className={`transition-transform duration-200 ${tacticaMenuAbierto ? 'rotate-180' : ''}`} 
-                />
-              </button>
-
-              {tacticaMenuAbierto && (
-                <div className="pl-3 space-y-1 animate-fade-in-up">
+              {/* Grupo Colapsable: Táctica y Partidos (Admin, Entrenador) */}
+              {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
+                <div className="space-y-1">
                   <button 
-                    onClick={() => handleNavClick('pizarra_tactica')} 
-                    className={subNavItemClass('pizarra_tactica')}
+                    onClick={() => setTacticaMenuAbierto(!tacticaMenuAbierto)} 
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 group cursor-pointer focus:outline-none ${
+                      menuActivo === 'pizarra_tactica' || menuActivo === 'partidos'
+                        ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-semibold border-l-4 border-valle-green pl-3'
+                        : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
+                    }`}
                   >
-                    <Pencil size={13} className="mr-2" />
-                    <span>Pizarra Táctica</span>
+                    <div className="flex items-center">
+                      <ClipboardList size={18} className="mr-3" />
+                      <span>Táctica y Partidos</span>
+                    </div>
+                    <ChevronDown 
+                      size={15} 
+                      className={`transition-transform duration-200 ${tacticaMenuAbierto ? 'rotate-180' : ''}`} 
+                    />
                   </button>
 
-                  <button 
-                    onClick={() => handleNavClick('partidos')} 
-                    className={subNavItemClass('partidos')}
-                  >
-                    <Calendar size={13} className="mr-2" />
-                    <span>Partidos</span>
-                  </button>
+                  {tacticaMenuAbierto && (
+                    <div className="pl-3 space-y-1 animate-fade-in-up">
+                      <button 
+                        onClick={() => handleNavClick('pizarra_tactica')} 
+                        className={subNavItemClass('pizarra_tactica')}
+                      >
+                        <Pencil size={13} className="mr-2" />
+                        <span>Pizarra Táctica</span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleNavClick('partidos')} 
+                        className={subNavItemClass('partidos')}
+                      >
+                        <Calendar size={13} className="mr-2" />
+                        <span>Partidos</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* VISTAS EXCLUSIVAS DEL ADMINISTRADOR */}
-          {rolUsuario === 'admin' && (
-            <button onClick={() => handleNavClick('configuracion')} className={navItemClass('configuracion')}>
-              <Settings size={18} className="mr-3" />
-              <span>Configuración Club</span>
-            </button>
-          )}
+              {/* VISTAS EXCLUSIVAS DEL ADMINISTRADOR */}
+              {rolUsuario === 'admin' && (
+                <button onClick={() => handleNavClick('configuracion')} className={navItemClass('configuracion')}>
+                  <Settings size={18} className="mr-3" />
+                  <span>Configuración Club</span>
+                </button>
+              )}
 
-          {/* VISTAS EXCLUSIVAS DEL ATLETA */}
-          {rolUsuario === 'atleta' && (
-            <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
-              <UserIcon size={18} className="mr-3" />
-              <span>Mi Ficha Técnica</span>
-            </button>
+              {/* VISTAS EXCLUSIVAS DEL ATLETA */}
+              {rolUsuario === 'atleta' && (
+                <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
+                  <UserIcon size={18} className="mr-3" />
+                  <span>Mi Ficha Técnica</span>
+                </button>
+              )}
+
+              {/* Cambiar Contraseña */}
+              <button onClick={() => handleNavClick('cambiar_contrasena')} className={navItemClass('cambiar_contrasena')}>
+                <Lock size={18} className="mr-3" />
+                <span>Cambiar Contraseña</span>
+              </button>
+            </>
           )}
         </nav>
 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="mb-4 px-3 flex items-center">
-            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 font-bold uppercase mr-3">
-              {rolUsuario.substring(0, 2)}
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 uppercase tracking-wider font-bold">Logueado como</p>
-              <p className="text-sm text-slate-900 capitalize font-bold">{rolUsuario}</p>
-            </div>
-          </div>
           <button
             onClick={cerrarSesion}
             className="w-full flex items-center px-4 py-2.5 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
@@ -600,6 +642,21 @@ export default function App() {
           {menuActivo === 'ia' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <RegistroEntrenamiento crearNotificacion={crearNotificacion} />}
           {menuActivo === 'configuracion' && rolUsuario === 'admin' && <ConfiguracionClub crearNotificacion={crearNotificacion} />}
           {menuActivo === 'mi_perfil' && rolUsuario === 'atleta' && <FichaTecnica crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'cambiar_contrasena' && (
+            <ChangePassword 
+              crearNotificacion={crearNotificacion} 
+              obligatoria={debeCambiarPassword}
+              onPasswordChanged={() => {
+                localStorage.setItem('debe_cambiar_password', 'false');
+                setDebeCambiarPassword(false);
+                if (rolUsuario === 'atleta') {
+                  setMenuActivo('mi_perfil');
+                } else {
+                  setMenuActivo('dashboard');
+                }
+              }} 
+            />
+          )}
 
         </div>
       </main>

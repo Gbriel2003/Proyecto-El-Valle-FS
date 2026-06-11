@@ -12,6 +12,16 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
 
+  const [temporalidad, setTemporalidad] = useState('diario');
+  const [analisisIa, setAnalisisIa] = useState({
+    diario: null,
+    semanal: null,
+    mensual: null,
+    anual: null
+  });
+  const [cargandoIa, setCargandoIa] = useState(false);
+  const [errorIa, setErrorIa] = useState('');
+
   // Roles de usuario
   const rol = localStorage.getItem('rol_usuario') || 'atleta';
   const esCuerpoTecnico = rol === 'admin' || rol === 'entrenador';
@@ -48,6 +58,36 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [rehabilitacionAlta, setRehabilitacionAlta] = useState('');
   const [guardandoAlta, setGuardandoAlta] = useState(false);
 
+  const cargarAnalisisIa = async (idAtleta, temp) => {
+    // Si ya está en caché local para esta sesión, no re-consultar
+    if (analisisIa[temp]) return;
+    
+    setCargandoIa(true);
+    setErrorIa('');
+    try {
+      const url = idAtleta 
+        ? `/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}`
+        : `/mi-dashboard/analisis-ia?temporalidad=${temp}`;
+      const res = await api.get(url);
+      setAnalisisIa(prev => ({
+        ...prev,
+        [temp]: res.data
+      }));
+    } catch (err) {
+      console.error(err);
+      setErrorIa('Error al cargar el análisis de la IA.');
+    } finally {
+      setCargandoIa(false);
+    }
+  };
+
+  useEffect(() => {
+    const targetId = actualAtletaId || datos?.perfil?.atleta_id;
+    if (datos) {
+      cargarAnalisisIa(targetId, temporalidad);
+    }
+  }, [temporalidad, actualAtletaId, datos]);
+
   const cargarDatos = async () => {
     try {
       setCargando(true);
@@ -59,7 +99,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
         // Revertir a orden cronológico para el gráfico
         data.cargas_historicas = [...data.cargas_historicas].reverse();
       }
+      
       setDatos(data);
+      setAnalisisIa({ diario: null, semanal: null, mensual: null, anual: null });
+      setTemporalidad('diario');
 
       const targetId = atletaId || data.perfil?.atleta_id;
       if (targetId) {
@@ -74,6 +117,17 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
         setHabitos(resHabitos.data || []);
         setLesiones(resLesiones.data || []);
       }
+
+      // Si el backend trajo el análisis de hoy en la respuesta principal, lo guardamos en la caché local
+      if (data.alerta_ia && !data.alerta_ia.error) {
+        setAnalisisIa(prev => ({
+          ...prev,
+          diario: data.alerta_ia
+        }));
+      } else {
+        cargarAnalisisIa(targetId, 'diario');
+      }
+
     } catch (err) {
       console.error(err);
       if (err.response && err.response.status === 404) {
@@ -207,7 +261,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const habitosDeHoyRegistrados = habitos.length > 0 && habitos[0].fecha === hoyStr;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="w-full mx-auto space-y-6 px-2 sm:px-4 lg:px-6">
 
       {/* Botón Volver (solo si se visualiza desde el listado de plantilla) */}
       {onBack && (
@@ -391,31 +445,76 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       </div>
 
       {/* Alerta Inteligente IA */}
-      {datos.alerta_ia && (
-        <div className="bg-valle-black rounded-xl shadow-md p-6 border border-valle-black-light text-white">
-          <div className="flex items-center mb-3">
-            <Brain className="text-valle-gold mr-3" size={24} />
-            <h3 className="font-bold text-lg">Recomendación de Prevención IA</h3>
+      <div className="bg-valle-black rounded-xl shadow-md p-6 border border-valle-black-light text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div className="flex items-center">
+            <Brain className="text-valle-gold mr-3 animate-pulse" size={24} />
+            <h3 className="font-bold text-lg">Análisis de Prevención y Rendimiento IA</h3>
           </div>
-          {typeof datos.alerta_ia === 'object' ? (
-            <div className="space-y-3 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
-              <p className="flex justify-between items-center pb-2 border-b border-slate-800">
-                <span>Riesgo Estimado:</span>
-                <span className={`font-bold px-2 py-0.5 rounded text-xs ${datos.alerta_ia.riesgo_lesion === 'Alto' ? 'bg-red-500 text-white' :
-                    datos.alerta_ia.riesgo_lesion === 'Medio' ? 'bg-amber-500 text-white' :
-                      'bg-green-500 text-white'
-                  }`}>{datos.alerta_ia.riesgo_lesion}</span>
-              </p>
-              <p className="text-slate-300 italic">"{datos.alerta_ia.analisis}"</p>
-              <p className="font-bold text-valle-gold">💡 {datos.alerta_ia.recomendacion}</p>
+
+          {/* Selector de Temporalidad Premium para Tema Oscuro */}
+          <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold w-full sm:w-auto">
+            {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
+              <button
+                key={temp}
+                type="button"
+                onClick={() => setTemporalidad(temp)}
+                className={`flex-1 sm:flex-none px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
+                  temporalidad === temp
+                    ? 'bg-valle-green text-valle-gold shadow-md'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                {temp}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {cargandoIa ? (
+          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-valle-gold mb-3"></div>
+            <p className="text-xs text-slate-400 font-bold">Generando análisis con IA...</p>
+          </div>
+        ) : errorIa ? (
+          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+            <AlertTriangle size={28} className="text-red-500 mb-2" />
+            <p className="text-sm text-red-400 font-bold">Error de Conexión IA</p>
+            <p className="text-xs text-red-500 mt-1">{errorIa}</p>
+          </div>
+        ) : analisisIa[temporalidad] ? (
+          analisisIa[temporalidad].error ? (
+            <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+              <AlertTriangle size={28} className="text-red-500 mb-2" />
+              <p className="text-sm text-red-400 font-bold">Error de la IA</p>
+              <p className="text-xs text-red-500 mt-1">{analisisIa[temporalidad].error}</p>
             </div>
           ) : (
-            <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line bg-valle-black-light/50 p-4 rounded-lg border border-slate-800">
-              {datos.alerta_ia}
-            </p>
-          )}
-        </div>
-      )}
+            <div className="space-y-4 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                <span className="text-slate-400 font-bold">Riesgo de Lesión Estimado:</span>
+                <span className={`font-black px-2.5 py-0.5 rounded text-xs shadow-sm ${
+                  analisisIa[temporalidad].riesgo_lesion === 'Alto' ? 'bg-red-600 text-white border border-red-700' :
+                  analisisIa[temporalidad].riesgo_lesion === 'Medio' ? 'bg-amber-600 text-white border border-amber-700' :
+                  'bg-emerald-600 text-white border border-emerald-700'
+                }`}>
+                  {analisisIa[temporalidad].riesgo_lesion}
+                </span>
+              </div>
+              <p className="text-slate-300 italic leading-relaxed">"{analisisIa[temporalidad].analisis}"</p>
+              <p className="font-bold text-valle-gold flex items-start gap-1.5 mt-2">
+                <span className="shrink-0 text-base">💡</span>
+                <span>{analisisIa[temporalidad].recomendacion}</span>
+              </p>
+            </div>
+          )
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+            <AlertTriangle size={28} className="text-slate-500 mb-2" />
+            <p className="text-sm text-slate-400">No hay datos suficientes para generar este reporte.</p>
+          </div>
+        )}
+      </div>
 
       {/* Gráfico y Diarios */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

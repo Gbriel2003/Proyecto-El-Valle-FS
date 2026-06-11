@@ -58,18 +58,35 @@ def eliminar_sesion_entrenamiento(db: Session, sesion_id: int):
 
 # Cargas físicas
 def registrar_carga_atleta(db: Session, sesion_id: int, carga: schemas.CargaAtletaCreate):
-    nueva_carga = models.CargaAtleta(
-        sesion_id=sesion_id,
-        atleta_id=carga.atleta_id,
-        asistencia=carga.asistencia,
-        rpe_esfuerzo=carga.rpe_esfuerzo,
-        saltos_cm=carga.saltos_cm,
-        tiempo_sprint_30m=carga.tiempo_sprint_30m
-    )
-    db.add(nueva_carga)
-    db.commit()
-    db.refresh(nueva_carga)
-    return nueva_carga
+    carga_existente = db.query(models.CargaAtleta).filter(
+        models.CargaAtleta.sesion_id == sesion_id,
+        models.CargaAtleta.atleta_id == carga.atleta_id
+    ).first()
+    
+    if carga_existente:
+        carga_existente.asistencia = carga.asistencia
+        if carga.rpe_esfuerzo is not None:
+            carga_existente.rpe_esfuerzo = carga.rpe_esfuerzo
+        if carga.saltos_cm is not None:
+            carga_existente.saltos_cm = carga.saltos_cm
+        if carga.tiempo_sprint_30m is not None:
+            carga_existente.tiempo_sprint_30m = carga.tiempo_sprint_30m
+        db.commit()
+        db.refresh(carga_existente)
+        return carga_existente
+    else:
+        nueva_carga = models.CargaAtleta(
+            sesion_id=sesion_id,
+            atleta_id=carga.atleta_id,
+            asistencia=carga.asistencia,
+            rpe_esfuerzo=carga.rpe_esfuerzo,
+            saltos_cm=carga.saltos_cm,
+            tiempo_sprint_30m=carga.tiempo_sprint_30m
+        )
+        db.add(nueva_carga)
+        db.commit()
+        db.refresh(nueva_carga)
+        return nueva_carga
 
 def obtener_cargas_sesion(db: Session, sesion_id: int):
     return db.query(models.CargaAtleta).filter(models.CargaAtleta.sesion_id == sesion_id).all()
@@ -78,3 +95,29 @@ def obtener_ultimas_cargas_atleta(db: Session, atleta_id: int, limite: int = 5):
     return db.query(models.CargaAtleta).filter(
         models.CargaAtleta.atleta_id == atleta_id
     ).order_by(models.CargaAtleta.id.desc()).limit(limite).all()
+
+def registrar_asistencia_masiva(db: Session, sesion_id: int, datos: schemas.AsistenciaMasiva):
+    registros_actualizados = []
+    for item in datos.asistencias:
+        carga = db.query(models.CargaAtleta).filter(
+            models.CargaAtleta.sesion_id == sesion_id,
+            models.CargaAtleta.atleta_id == item.atleta_id
+        ).first()
+        
+        if carga:
+            carga.asistencia = item.asistencia
+        else:
+            carga = models.CargaAtleta(
+                sesion_id=sesion_id,
+                atleta_id=item.atleta_id,
+                asistencia=item.asistencia,
+                rpe_esfuerzo=None,
+                saltos_cm=None,
+                tiempo_sprint_30m=None
+            )
+            db.add(carga)
+        registros_actualizados.append(carga)
+    db.commit()
+    for r in registros_actualizados:
+        db.refresh(r)
+    return registros_actualizados

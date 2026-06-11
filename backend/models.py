@@ -18,6 +18,9 @@ class Usuario(Base):
     password_hash = Column(Text, nullable=False)
     rol = Column(String(20))
     fecha_registro = Column(DateTime, server_default=func.now())
+    debe_cambiar_password = Column(Boolean, default=True, nullable=False)
+    reset_token = Column(String(255), nullable=True)
+    reset_token_expiration = Column(DateTime, nullable=True)
 
     # Relación uno a uno con el perfil del atleta
     perfil = relationship("PerfilAtleta", back_populates="usuario", uselist=False)

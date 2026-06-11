@@ -19,6 +19,7 @@ class UsuarioResponse(BaseModel):
     apellido: str
     correo: EmailStr
     rol: str
+    debe_cambiar_password: bool
     fecha_registro: datetime
 
     class Config:
@@ -35,6 +36,18 @@ class UsuarioLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+    debe_cambiar_password: bool = False
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+class ForgotPasswordRequest(BaseModel):
+    correo: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
 
 # ==========================================
 # ESQUEMAS DE DIETAS Y NUTRICIÓN
@@ -187,6 +200,7 @@ class RegistroNutricionalResponse(BaseModel):
 
 class CargaAtletaResponse(BaseModel):
     id: int
+    atleta_id: int
     asistencia: bool
     rpe_esfuerzo: Optional[int]
     saltos_cm: Optional[float]
@@ -240,3 +254,14 @@ class JugadaGuardadaResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ==========================================
+# ESQUEMAS DE ASISTENCIA MASIVA
+# ==========================================
+
+class AsistenciaItem(BaseModel):
+    atleta_id: int
+    asistencia: bool
+
+class AsistenciaMasiva(BaseModel):
+    asistencias: list[AsistenciaItem]

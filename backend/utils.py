@@ -88,27 +88,40 @@ def analizar_estadisticas_con_ia(texto_reporte: str):
         return {"error": "Fallo en la comunicación HTTP", "detalle_tecnico": str(e)}
 
 # --- JUGADOR 3: EL ANALISTA DE FATIGA CON IA ---
-def analizar_fatiga_con_ia(datos_cargas: str, datos_nutricionales: str = None):
+def analizar_fatiga_con_ia(datos_cargas: str, datos_nutricionales: str = None, temporalidad: str = "diario"):
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return {"error": "Error de configuración en el servidor", "detalle": "Falta la variable de entorno GROQ_API_KEY."}
 
     url = "https://api.groq.com/openai/v1/chat/completions"
     
+    # Adaptamos las instrucciones del prompt según la temporalidad
+    contexto_temporal = ""
+    if temporalidad == "diario":
+        contexto_temporal = "Analiza el impacto del entrenamiento del día de hoy. Evalúa la fatiga inmediata y prescribe recomendaciones de recuperación para las próximas 24 horas."
+    elif temporalidad == "semanal":
+        contexto_temporal = "Evalúa la fatiga acumulada a lo largo de esta semana (últimos 7 días). Identifica si hay sobrecarga por entrenamientos consecutivos y si es necesario dosificar el esfuerzo o cambiar hábitos para evitar lesiones."
+    elif temporalidad == "mensual":
+        contexto_temporal = "Analiza la tendencia de carga y fatiga de los últimos 30 días. Evalúa la adaptación física del atleta a este volumen de trabajo mensual y la consistencia de sus hábitos a mediano plazo."
+    elif temporalidad == "anual":
+        contexto_temporal = "Realiza un análisis macroscópico del comportamiento físico y nutricional del atleta a lo largo del último año. Identifica patrones estacionales, consistencia del estado físico y recomendaciones preventivas a largo plazo."
+    else:
+        contexto_temporal = "Evalúa la fatiga, riesgo de lesión y hábitos del atleta."
+
     prompt = f"""
-    Eres un fisioterapeuta, nutricionista deportivo y preparador físico de Futsal. Tu estilo es médico, directo y preventivo.
-    Evalúa el riesgo de lesión, fatiga muscular y deshidratación cruzando los datos físicos, hábitos nutricionales y variaciones de peso.
+    Eres un fisioterapeuta, nutricionista deportivo y preparador físico de Futsal de élite. Tu estilo es médico, directo, preventivo y profesional.
+    {contexto_temporal}
     
-    Historial de Cargas Físicas (RPE es esfuerzo del 1 al 10):
+    Datos de Cargas Físicas (RPE es esfuerzo del 1 al 10):
     {datos_cargas}
     """
     
     if datos_nutricionales:
         prompt += f"""
-    Datos Nutricionales y Biométricos Recientes:
+    Datos Nutricionales y Biométricos del periodo:
     {datos_nutricionales}
     
-    IMPORTANTE: Si el esfuerzo físico es alto (RPE >= 8, sprints o saltos) y se reporta una hidratación baja (litros < 2) o una pérdida de peso relevante en la semana, cruza estos datos. La deshidratación combinada con esfuerzos explosivos multiplica el riesgo de calambres musculares y lesiones. Advierte sobre esto y recomienda suplementación con electrolitos de forma inmediata si se detectan estos factores.
+    IMPORTANTE: Si el esfuerzo físico es alto (RPE >= 8, sprints o saltos) y se reporta una hidratación baja (litros < 2) o una pérdida de peso relevante, cruza estos datos. La deshidratación combinada con esfuerzos explosivos multiplica el riesgo de calambres musculares y lesiones. Advierte sobre esto y recomienda suplementación con electrolitos de forma inmediata si se detectan estos factores.
         """
         
     prompt += """
@@ -118,7 +131,7 @@ def analizar_fatiga_con_ia(datos_cargas: str, datos_nutricionales: str = None):
         "nivel_fatiga": "Bajo, Medio, Alto o Crítico",
         "riesgo_lesion": "Bajo, Medio o Alto",
         "analisis": "1 sola oración explicando la tendencia cruzada de los datos físicos, hidratación y peso.",
-        "recomendacion": "1 sola oración con la recomendación física y nutricional exacta (ej. 'Alto riesgo de calambres por deshidratación; se recomienda suplementación con electrolitos inmediatamente e hidratar 3L diarios')."
+        "recomendacion": "1 sola oración con la recomendación física y nutricional exacta."
     }
     Responde ÚNICAMENTE el objeto JSON puro.
     """
@@ -154,3 +167,70 @@ def analizar_fatiga_con_ia(datos_cargas: str, datos_nutricionales: str = None):
         return {"error": "Timeout", "detalle": "La IA tardó demasiado en responder."}
     except Exception as e:
         return {"error": "Fallo HTTP", "detalle": str(e)}
+
+# --- JUGADOR 4: EL ANALISTA DE ENTRENAMIENTO GRUPAL CON IA ---
+def analizar_entrenamientos_equipo_con_ia(datos_sesiones: str, temporalidad: str = "diario"):
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return {"error": "Error de configuración en el servidor", "detalle": "Falta la variable de entorno GROQ_API_KEY."}
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    
+    contexto_temporal = ""
+    if temporalidad == "diario":
+        contexto_temporal = "Analiza el rendimiento del equipo en la sesión de entrenamiento de HOY. Enfócate en la carga global, picos de intensidad y si el objetivo de la sesión se cumplió de forma equilibrada."
+    elif temporalidad == "semanal":
+        contexto_temporal = "Evalúa la tendencia de carga del equipo en esta semana (últimos 7 días). Identifica si hay sobrecarga acumulada o si la distribución física fue óptima para llegar al partido."
+    elif temporalidad == "mensual":
+        contexto_temporal = "Realiza un análisis macroscópico del equipo en los últimos 30 días. Evalúa la consistencia de asistencia, evolución del RPE promedio y picos de rendimiento físico colectivo."
+    elif temporalidad == "anual":
+        contexto_temporal = "Analiza la temporada del equipo en el último año. Identifica patrones estacionales de desgaste, meses de máxima carga y la estabilidad física general de la plantilla."
+
+    prompt = f"""
+    Eres el Preparador Físico Jefe de un equipo de Futsal de élite. Tu estilo es táctico, analítico, directo y altamente profesional.
+    {contexto_temporal}
+    
+    Datos de Entrenamientos y Cargas Grupales (RPE es esfuerzo del 1 al 10):
+    {datos_sesiones}
+    
+    REGLA ESTRICTA: Sé extremadamente conciso. No inventes datos que no estén en el texto.
+    El JSON debe tener esta estructura exacta:
+    {{
+        "carga_global": "Baja, Media, Alta o Crítica",
+        "tendencia": "1 sola oración resumiendo la tendencia de carga o intensidad.",
+        "puntos_fuertes": ["Una frase corta", "Una frase corta"],
+        "puntos_a_mejorar": ["Una frase corta", "Una frase corta"],
+        "recomendacion_tecnica": "1 sola oración con una recomendación grupal para la próxima sesión."
+    }}
+    Responde ÚNICAMENTE el objeto JSON puro sin markdown envolvente.
+    """
+    
+    payload = {
+        "model": "llama-3.1-8b-instant",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3
+    }
+    
+    try:
+        response = requests.post(url, json=payload, headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}, timeout=15)
+        
+        if response.status_code == 200:
+            data = response.json()
+            texto_res = data['choices'][0]['message']['content'].strip()
+            
+            if "```json" in texto_res:
+                texto_res = texto_res.split("```json")[1].split("```")[0]
+            elif "```" in texto_res:
+                texto_res = texto_res.split("```")[1].split("```")[0]
+                
+            try:
+                return json.loads(texto_res.strip())
+            except json.JSONDecodeError:
+                return {"error": "Formato inválido", "detalle": "La IA no generó un JSON válido."}
+        else:
+            return {"error": "Fallo en IA", "detalle": response.text}
+            
+    except requests.exceptions.Timeout:
+        return {"error": "Timeout", "detalle": "La IA tardó demasiado en responder."}
+    except Exception as e:
+        return {"error": "Fallo HTTP", "detalle": str(e)}

@@ -67,7 +67,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
     }
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto pb-8">
+        <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
 
             <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
                 <div className="flex items-center space-x-3 text-valle-black">

@@ -556,7 +556,7 @@ export default function Tactica({
     };
 
     return (
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-6 w-full mx-auto px-2 sm:px-4 lg:px-6">
             {/* Cabecera y Tabs */}
             <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="text-left">
