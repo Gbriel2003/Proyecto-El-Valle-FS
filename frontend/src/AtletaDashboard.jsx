@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Search, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Search, Activity, Scale, Droplet, Moon, Brain, AlertTriangle, CheckCircle, RefreshCw } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function AtletaDashboard() {
@@ -19,15 +19,15 @@ export default function AtletaDashboard() {
     const [cargandoIa, setCargandoIa] = useState(false);
     const [errorIa, setErrorIa] = useState('');
 
-    const cargarAnalisisIa = async (idAtleta, temp) => {
+    const cargarAnalisisIa = async (idAtleta, temp, forzar = false) => {
         if (!idAtleta) return;
-        // Si ya está en caché local para esta sesión, no re-consultar
-        if (analisisIa[temp]) return;
+        // Si ya está en caché local para esta sesión, no re-consultar (a menos que se fuerce)
+        if (analisisIa[temp] && !forzar) return;
         
         setCargandoIa(true);
         setErrorIa('');
         try {
-            const res = await api.get(`/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}`);
+            const res = await api.get(`/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}${forzar ? '&forzar=true' : ''}`);
             setAnalisisIa(prev => ({
                 ...prev,
                 [temp]: res.data
@@ -188,22 +188,32 @@ export default function AtletaDashboard() {
                             </h3>
                         </div>
 
-                        {/* Selector Segmentado de Temporalidad */}
-                        <div className="flex gap-1 p-1 bg-slate-100 rounded-lg mb-4 text-[10px] font-bold relative z-10">
-                            {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
-                                <button
-                                    key={temp}
-                                    type="button"
-                                    onClick={() => setTemporalidad(temp)}
-                                    className={`flex-1 py-1 rounded-md text-center capitalize transition cursor-pointer ${
-                                        temporalidad === temp
-                                            ? 'bg-valle-green text-valle-gold shadow-sm'
-                                            : 'text-slate-500 hover:text-slate-700'
-                                    }`}
-                                >
-                                    {temp}
-                                </button>
-                            ))}
+                        {/* Selector Segmentado de Temporalidad y Botón de Recarga */}
+                        <div className="flex items-center gap-2 mb-4 relative z-10 w-full">
+                            <div className="flex-1 flex gap-1 p-1 bg-slate-100 rounded-lg text-[10px] font-bold">
+                                {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
+                                    <button
+                                        key={temp}
+                                        type="button"
+                                        onClick={() => setTemporalidad(temp)}
+                                        className={`flex-1 py-1 rounded-md text-center capitalize transition cursor-pointer ${
+                                            temporalidad === temp
+                                                ? 'bg-valle-green text-valle-gold shadow-sm'
+                                                : 'text-slate-500 hover:text-slate-700'
+                                        }`}
+                                    >
+                                        {temp}
+                                    </button>
+                                ))}
+                            </div>
+                            <button
+                                onClick={() => cargarAnalisisIa(atletaId, temporalidad, true)}
+                                disabled={cargandoIa}
+                                className={`p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition shadow-xs flex items-center justify-center cursor-pointer ${cargandoIa ? 'animate-spin opacity-55' : ''}`}
+                                title="Regenerar análisis de IA en vivo"
+                            >
+                                <RefreshCw size={13} />
+                            </button>
                         </div>
 
                         <div className="flex-1 relative z-10 flex flex-col justify-center">

@@ -141,7 +141,9 @@ def registrar_biometria_basica(
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado en el sistema.")
-    return crud_atletas.registrar_biometria(db, atleta_id, biometria)
+    res = crud_atletas.registrar_biometria(db, atleta_id, biometria)
+    crud_atletas.limpiar_cache_ia_atleta(db, atleta_id)
+    return res
 
 @router.post("/atletas/{atleta_id}/habitos-nutricionales")
 def registrar_habitos_diarios(
@@ -157,7 +159,9 @@ def registrar_habitos_diarios(
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
-    return crud_atletas.registrar_habitos_nutricionales(db, atleta_id, registro)
+    res = crud_atletas.registrar_habitos_nutricionales(db, atleta_id, registro)
+    crud_atletas.limpiar_cache_ia_atleta(db, atleta_id)
+    return res
 
 @router.get("/atletas/{atleta_id}/habitos-nutricionales")
 def obtener_habitos_diarios(

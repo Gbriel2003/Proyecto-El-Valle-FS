@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import api from './api';
 import {
   User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle,
-  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple
+  Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple,
+  RefreshCw
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CustomSelect from './components/ui/CustomSelect';
@@ -23,7 +24,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [errorIa, setErrorIa] = useState('');
 
   // Roles de usuario
-  const rol = localStorage.getItem('rol_usuario') || 'atleta';
+  const rol = (localStorage.getItem('rol_usuario') || 'atleta').toLowerCase();
   const esCuerpoTecnico = rol === 'admin' || rol === 'entrenador';
 
   // ID final de atleta (el prop o el del dashboard propio)
@@ -58,16 +59,16 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [rehabilitacionAlta, setRehabilitacionAlta] = useState('');
   const [guardandoAlta, setGuardandoAlta] = useState(false);
 
-  const cargarAnalisisIa = async (idAtleta, temp) => {
-    // Si ya está en caché local para esta sesión, no re-consultar
-    if (analisisIa[temp]) return;
+  const cargarAnalisisIa = async (idAtleta, temp, forzar = false) => {
+    // Si ya está en caché local para esta sesión, no re-consultar (a menos que se fuerce)
+    if (analisisIa[temp] && !forzar) return;
     
     setCargandoIa(true);
     setErrorIa('');
     try {
       const url = idAtleta 
-        ? `/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}`
-        : `/mi-dashboard/analisis-ia?temporalidad=${temp}`;
+        ? `/atletas/${idAtleta}/analisis-ia?temporalidad=${temp}${forzar ? '&forzar=true' : ''}`
+        : `/mi-dashboard/analisis-ia?temporalidad=${temp}${forzar ? '&forzar=true' : ''}`;
       const res = await api.get(url);
       setAnalisisIa(prev => ({
         ...prev,
@@ -150,12 +151,12 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   useEffect(() => {
     if (mostrarHabitoModal) {
       const hoyStr = new Date().toLocaleDateString('sv');
-      const tieneHoy = habitos.length > 0 && habitos[0].fecha === hoyStr;
-      if (tieneHoy) {
-        setFrecuenciaComidas(habitos[0].frecuencia_comidas);
-        setSuplementacion(habitos[0].suplementacion || 'Ninguna');
-        setHidratacion(habitos[0].hidratacion_litros);
-        setCalidadDescanso(habitos[0].calidad_descanso);
+      const registroHoy = habitos.find(h => h.fecha === hoyStr);
+      if (registroHoy) {
+        setFrecuenciaComidas(registroHoy.frecuencia_comidas);
+        setSuplementacion(registroHoy.suplementacion || 'Ninguna');
+        setHidratacion(registroHoy.hidratacion_litros);
+        setCalidadDescanso(registroHoy.calidad_descanso);
       } else {
         setFrecuenciaComidas(4);
         setSuplementacion('Ninguna');
@@ -259,7 +260,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const lesionesActivas = lesiones.filter(l => !l.fecha_alta);
 
   const hoyStr = new Date().toLocaleDateString('sv');
-  const habitosDeHoyRegistrados = habitos.length > 0 && habitos[0].fecha === hoyStr;
+  const habitosDeHoyRegistrados = habitos.some(h => h.fecha === hoyStr);
 
   return (
     <div className="w-full mx-auto space-y-6 px-2 sm:px-4 lg:px-6">
@@ -453,22 +454,33 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
             <h3 className="font-bold text-lg">Análisis de Prevención y Rendimiento IA</h3>
           </div>
 
-          {/* Selector de Temporalidad Premium para Tema Oscuro */}
-          <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold w-full sm:w-auto">
-            {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
-              <button
-                key={temp}
-                type="button"
-                onClick={() => setTemporalidad(temp)}
-                className={`flex-1 sm:flex-none px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
-                  temporalidad === temp
-                    ? 'bg-valle-green text-valle-gold shadow-md'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                {temp}
-              </button>
-            ))}
+          {/* Selector de Temporalidad y Botón de Recarga Premium */}
+          <div className="flex items-center gap-2 w-full sm:w-auto self-end sm:self-auto justify-end sm:justify-start">
+            <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold">
+              {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
+                <button
+                  key={temp}
+                  type="button"
+                  onClick={() => setTemporalidad(temp)}
+                  className={`px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
+                    temporalidad === temp
+                      ? 'bg-valle-green text-valle-gold shadow-md'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {temp}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => cargarAnalisisIa(actualAtletaId || datos?.perfil?.atleta_id, temporalidad, true)}
+              disabled={cargandoIa}
+              className={`p-2 bg-valle-black-light/60 border border-slate-800 hover:border-valle-gold hover:text-valle-gold text-slate-300 rounded-lg transition shadow-xs flex items-center justify-center cursor-pointer ${cargandoIa ? 'animate-spin opacity-55' : ''}`}
+              title="Regenerar análisis de IA en vivo"
+            >
+              <RefreshCw size={14} />
+            </button>
           </div>
         </div>
 
@@ -662,8 +674,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       {/* ================= MODAL: DIARIO NUTRICIONAL ================= */}
       {mostrarHabitoModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fadeIn">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
               <h3 className="font-black text-sm flex items-center">
                 <Heart className="mr-2" size={16} /> Registro Diario de Hábitos
               </h3>
@@ -764,8 +776,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       {/* ================= MODAL: REPORTAR LESIÓN (COACH) ================= */}
       {mostrarLesionModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fadeIn">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-red-600 text-white">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-red-600 text-white rounded-t-xl">
               <h3 className="font-black text-sm flex items-center">
                 <ShieldAlert className="mr-2" size={16} /> Reportar Lesión Deportiva
               </h3>
@@ -843,8 +855,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       {/* ================= MODAL: DAR DE ALTA MÉDICA (COACH) ================= */}
       {mostrarAltaModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fadeIn">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
               <h3 className="font-black text-sm flex items-center">
                 <Check className="mr-2" size={16} /> Procesar Alta Médica
               </h3>

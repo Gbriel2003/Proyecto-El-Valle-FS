@@ -81,6 +81,7 @@ def obtener_dashboard_atleta(
 def obtener_analisis_ia(
     atleta_id: int,
     temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    forzar: bool = Query(False),
     db: Session = Depends(get_db),
     usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
 ):
@@ -99,7 +100,7 @@ def obtener_analisis_ia(
     ).order_by(models.RegistroIA.fecha_registro.desc()).first()
     
     usar_cache = False
-    if registro_cache:
+    if registro_cache and not forzar:
         # Reglas de expiración de caché
         if temporalidad == "diario" and registro_cache.fecha_registro.date() == hoy:
             usar_cache = True
@@ -110,7 +111,7 @@ def obtener_analisis_ia(
         elif temporalidad == "anual" and registro_cache.fecha_registro >= datetime.datetime.now() - datetime.timedelta(days=7):
             usar_cache = True
             
-    if usar_cache:
+    if usar_cache and not forzar:
         try:
             return json.loads(registro_cache.respuesta)
         except Exception:
@@ -293,10 +294,11 @@ def obtener_analisis_ia(
 @router.get("/mi-dashboard/analisis-ia")
 def obtener_mi_analisis_ia(
     temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    forzar: bool = Query(False),
     db: Session = Depends(get_db),
     usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
 ):
-    return obtener_analisis_ia(atleta_id=usuario_actual.id, temporalidad=temporalidad, db=db, usuario_actual=usuario_actual)
+    return obtener_analisis_ia(atleta_id=usuario_actual.id, temporalidad=temporalidad, forzar=forzar, db=db, usuario_actual=usuario_actual)
 
 @router.get("/mi-dashboard")
 def obtener_mi_dashboard(

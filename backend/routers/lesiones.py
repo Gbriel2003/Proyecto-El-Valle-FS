@@ -18,7 +18,9 @@ def registrar_lesion(
     atleta = crud_atletas.obtener_perfil_atleta(db, atleta_id)
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
-    return crud_lesiones.registrar_lesion(db, atleta_id, lesion)
+    res = crud_lesiones.registrar_lesion(db, atleta_id, lesion)
+    crud_atletas.limpiar_cache_ia_atleta(db, atleta_id)
+    return res
 
 @router.get("/atletas/{atleta_id}/lesiones", response_model=list[schemas.LesionResponse])
 def obtener_lesiones(
@@ -41,4 +43,5 @@ def dar_alta_lesion(
     lesion = crud_lesiones.dar_alta_lesion(db, lesion_id, alta_data)
     if not lesion:
         raise HTTPException(status_code=404, detail="Registro de lesión no encontrado.")
+    crud_atletas.limpiar_cache_ia_atleta(db, lesion.atleta_id)
     return lesion

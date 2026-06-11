@@ -66,6 +66,8 @@ def registrar_carga_atleta(
             )
 
     nueva_carga = crud_entrenamientos.registrar_carga_atleta(db, sesion_id, carga)
+    from crud.atletas import limpiar_cache_ia_atleta
+    limpiar_cache_ia_atleta(db, carga.atleta_id)
     return {"mensaje": "Carga registrada con éxito", "carga": nueva_carga}
 
 @router.get("/entrenamientos/{sesion_id}/cargas/")
@@ -105,6 +107,9 @@ def registrar_asistencia_masiva(
                     )
 
     cargas = crud_entrenamientos.registrar_asistencia_masiva(db, sesion_id, datos)
+    from crud.atletas import limpiar_cache_ia_atleta
+    for item in datos.asistencias:
+        limpiar_cache_ia_atleta(db, item.atleta_id)
     return {"mensaje": "Asistencia masiva registrada con éxito", "cargas": cargas}
 
 @router.get("/entrenamientos/equipo/analisis-ia")

@@ -202,14 +202,14 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   useEffect(() => {
     if (atletaSeleccionado) {
       const hoyStr = new Date().toLocaleDateString('sv');
-      const tieneHoy = habitosHistorial.length > 0 && habitosHistorial[0].fecha === hoyStr;
-      if (tieneHoy) {
-        setFrecuenciaComidas(habitosHistorial[0].frecuencia_comidas);
-        setSuplementacion(habitosHistorial[0].suplementacion || '');
-        setHidratacionLitros(habitosHistorial[0].hidratacion_litros);
-        setCalidadDescanso(habitosHistorial[0].calidad_descanso);
-        if (habitosHistorial[0].plan_alimentacion) {
-          setPlanAlimentacion(habitosHistorial[0].plan_alimentacion);
+      const registroHoy = habitosHistorial.find(h => h.fecha === hoyStr);
+      if (registroHoy) {
+        setFrecuenciaComidas(registroHoy.frecuencia_comidas);
+        setSuplementacion(registroHoy.suplementacion || '');
+        setHidratacionLitros(registroHoy.hidratacion_litros);
+        setCalidadDescanso(registroHoy.calidad_descanso);
+        if (registroHoy.plan_alimentacion) {
+          setPlanAlimentacion(registroHoy.plan_alimentacion);
         }
       } else {
         setFrecuenciaComidas(4);
@@ -617,7 +617,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       {/* Indicador de hábitos de hoy */}
                       {(() => {
                         const hoyStr = new Date().toLocaleDateString('sv');
-                        const tieneHoy = habitosHistorial.length > 0 && habitosHistorial[0].fecha === hoyStr;
+                        const tieneHoy = habitosHistorial.some(h => h.fecha === hoyStr);
                         if (tieneHoy) {
                           return (
                             <div className="py-1.5 px-3 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-200/60 flex items-center gap-1.5 w-fit">

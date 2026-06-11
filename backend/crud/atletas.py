@@ -93,3 +93,12 @@ def obtener_habitos_nutricionales(db: Session, atleta_id: int):
         models.RegistroNutricional.fecha.desc(),
         models.RegistroNutricional.id.desc()
     ).all()
+
+def limpiar_cache_ia_atleta(db: Session, atleta_id: int):
+    from datetime import date
+    hoy = date.today()
+    db.query(models.RegistroIA).filter(
+        models.RegistroIA.atleta_id == atleta_id,
+        models.RegistroIA.fecha_registro >= hoy
+    ).delete(synchronize_session=False)
+    db.commit()
