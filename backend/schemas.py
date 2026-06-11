@@ -175,6 +175,7 @@ class RegistroNutricionalCreate(BaseModel):
     hidratacion_litros: float
     calidad_descanso: int # Por ejemplo, del 1 al 10
     plan_alimentacion: Optional[str] = "Ninguno"
+    fecha: Optional[date] = None
 
 class RegistroBiometricoResponse(BaseModel):
     id: int

@@ -187,20 +187,22 @@ def analizar_entrenamientos_equipo_con_ia(datos_sesiones: str, temporalidad: str
         contexto_temporal = "Analiza la temporada del equipo en el último año. Identifica patrones estacionales de desgaste, meses de máxima carga y la estabilidad física general de la plantilla."
 
     prompt = f"""
-    Eres el Preparador Físico Jefe de un equipo de Futsal de élite. Tu estilo es táctico, analítico, directo y altamente profesional.
+    Eres el Científico del Deporte y Preparador Físico Jefe de un equipo de Futsal de élite. Tu estilo es táctico, biomecánico, analítico y altamente profesional.
     {contexto_temporal}
     
-    Datos de Entrenamientos y Cargas Grupales (RPE es esfuerzo del 1 al 10):
+    Analiza la relación entre el esfuerzo subjetivo (RPE de 1 a 10), la cantidad de jugadores en riesgo de sobrecarga (RPE > 8) y las métricas físicas objetivas (salto vertical y velocidad en sprint) si están presentes.
+    
+    Datos de Entrenamientos y Cargas Grupales:
     {datos_sesiones}
     
-    REGLA ESTRICTA: Sé extremadamente conciso. No inventes datos que no estén en el texto.
+    REGLA ESTRICTA: Sé extremadamente conciso. Si observas RPE altos constantes o caídas en el rendimiento físico (saltos/sprints), advierte sobre riesgo de lesión o fatiga del Sistema Nervioso Central. No inventes datos.
     El JSON debe tener esta estructura exacta:
     {{
         "carga_global": "Baja, Media, Alta o Crítica",
-        "tendencia": "1 sola oración resumiendo la tendencia de carga o intensidad.",
-        "puntos_fuertes": ["Una frase corta", "Una frase corta"],
-        "puntos_a_mejorar": ["Una frase corta", "Una frase corta"],
-        "recomendacion_tecnica": "1 sola oración con una recomendación grupal para la próxima sesión."
+        "tendencia": "1 sola oración resumiendo la tendencia de carga cruzando el RPE y el rendimiento físico.",
+        "puntos_fuertes": ["Una frase corta sobre adaptación física o consistencia", "Una frase corta"],
+        "puntos_a_mejorar": ["Una frase corta sobre riesgo de lesiones, fatiga o desequilibrios", "Una frase corta"],
+        "recomendacion_tecnica": "1 sola oración con una recomendación de biomecánica o recuperación para la próxima sesión."
     }}
     Responde ÚNICAMENTE el objeto JSON puro sin markdown envolvente.
     """

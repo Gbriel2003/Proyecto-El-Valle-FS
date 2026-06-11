@@ -53,6 +53,18 @@ def registrar_carga_atleta(
     if not sesion_existente:
         raise HTTPException(status_code=404, detail="La sesión de entrenamiento no existe.")
         
+    if carga.asistencia:
+        # Validar si el jugador está lesionado
+        lesion_activa = db.query(models.Lesion).filter(
+            models.Lesion.atleta_id == carga.atleta_id,
+            models.Lesion.fecha_alta == None
+        ).first()
+        if lesion_activa and sesion_existente.tipo_sesion != "Recuperación":
+            raise HTTPException(
+                status_code=400,
+                detail=f"El jugador está lesionado (lesión: {lesion_activa.tipo_lesion}) y no puede entrenar en sesiones de tipo '{sesion_existente.tipo_sesion}'. Solo debe hacer ejercicios de recuperación."
+            )
+
     nueva_carga = crud_entrenamientos.registrar_carga_atleta(db, sesion_id, carga)
     return {"mensaje": "Carga registrada con éxito", "carga": nueva_carga}
 
@@ -77,6 +89,21 @@ def registrar_asistencia_masiva(
     if not sesion_existente:
         raise HTTPException(status_code=404, detail="La sesión de entrenamiento no existe.")
     
+    if sesion_existente.tipo_sesion != "Recuperación":
+        for item in datos.asistencias:
+            if item.asistencia:
+                lesion_activa = db.query(models.Lesion).filter(
+                    models.Lesion.atleta_id == item.atleta_id,
+                    models.Lesion.fecha_alta == None
+                ).first()
+                if lesion_activa:
+                    usuario = db.query(models.Usuario).filter(models.Usuario.id == item.atleta_id).first()
+                    nombre_jugador = f"{usuario.nombre} {usuario.apellido}" if usuario else f"ID {item.atleta_id}"
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"El jugador {nombre_jugador} está lesionado y no puede asistir a una sesión de tipo '{sesion_existente.tipo_sesion}'. Solo debe hacer ejercicios de recuperación."
+                    )
+
     cargas = crud_entrenamientos.registrar_asistencia_masiva(db, sesion_id, datos)
     return {"mensaje": "Asistencia masiva registrada con éxito", "cargas": cargas}
 
@@ -125,7 +152,19 @@ def obtener_analisis_entrenamientos_ia(
             continue
             
         rpe_promedio = sum(c.rpe_esfuerzo for c in evaluados) / len(evaluados)
-        texto_sesiones += f"- Fecha: {s.fecha}, Tipo: {s.tipo_sesion}, Duración: {s.duracion_min}min. Asistencia: {len(cargas)}, RPE promedio: {rpe_promedio:.1f}/10\n"
+        jugadores_riesgo = sum(1 for c in evaluados if c.rpe_esfuerzo > 8)
+        
+        saltos = [float(c.saltos_cm) for c in evaluados if c.saltos_cm]
+        sprints = [float(c.tiempo_sprint_30m) for c in evaluados if c.tiempo_sprint_30m]
+        
+        salto_promedio = sum(saltos) / len(saltos) if saltos else 0
+        sprint_promedio = sum(sprints) / len(sprints) if sprints else 0
+        
+        detalle_fisico = ""
+        if salto_promedio > 0 or sprint_promedio > 0:
+            detalle_fisico = f" | Salto vertical prom: {salto_promedio:.1f}cm, Sprint 30m prom: {sprint_promedio:.2f}s"
+            
+        texto_sesiones += f"- Fecha: {s.fecha}, Tipo: {s.tipo_sesion}, Duración: {s.duracion_min}min. Asistencia: {len(cargas)}, RPE prom: {rpe_promedio:.1f}/10. Jugadores en riesgo (RPE>8): {jugadores_riesgo}{detalle_fisico}\n"
 
     # Buscar en caché (RegistroIA general para equipo usando usuario_id del admin pero atleta_id=0 o None, pero el modelo requiere atleta_id. Usaremos atleta_id=1 por defecto o guardamos de otra forma. Mejor no cachear para equipo por simplicidad temporal)
     

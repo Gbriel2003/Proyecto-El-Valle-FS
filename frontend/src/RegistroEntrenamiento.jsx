@@ -88,10 +88,11 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
             setSesionActiva(res.data);
             setCargasRegistradas([]);
             
-            // Inicializar asistencia para nueva sesión a true para todos
+            // Inicializar asistencia para nueva sesión a true para todos (excepto lesionados en sesiones normales)
             const nuevoEstado = {};
+            const isNoRecup = sesionForm.tipo_sesion !== 'Recuperación';
             jugadores.forEach(j => {
-                nuevoEstado[j.atleta_id] = true;
+                nuevoEstado[j.atleta_id] = (j.lesionado && isNoRecup) ? false : true;
             });
             setAsistenciaEstado(nuevoEstado);
 
@@ -127,11 +128,16 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
             const cargas = resCargas.data.cargas;
             setCargasRegistradas(cargas);
             
-            // Inicializar asistencia desde cargas existentes o por defecto true
+            // Inicializar asistencia desde cargas existentes o por defecto true (excepto lesionados en sesiones normales)
             const nuevoEstado = {};
+            const isNoRecup = sesion.tipo_sesion !== 'Recuperación';
             jugadores.forEach(j => {
-                const cargaExistente = cargas.find(c => c.atleta_id === j.atleta_id);
-                nuevoEstado[j.atleta_id] = cargaExistente ? cargaExistente.asistencia : true;
+                if (j.lesionado && isNoRecup) {
+                    nuevoEstado[j.atleta_id] = false;
+                } else {
+                    const cargaExistente = cargas.find(c => c.atleta_id === j.atleta_id);
+                    nuevoEstado[j.atleta_id] = cargaExistente ? cargaExistente.asistencia : true;
+                }
             });
             setAsistenciaEstado(nuevoEstado);
 
@@ -163,6 +169,11 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     };
 
     const toggleAsistencia = (atletaId) => {
+        const j = jugadores.find(x => x.atleta_id === atletaId);
+        const isNoRecup = sesionActiva?.tipo_sesion !== 'Recuperación';
+        if (j && j.lesionado && isNoRecup) {
+            return;
+        }
         setAsistenciaEstado(prev => ({
             ...prev,
             [atletaId]: !prev[atletaId]
@@ -529,20 +540,31 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                     jugadoresFiltradosAsistencia.map(j => (
                                         <div key={j.atleta_id} className="flex items-center justify-between p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
                                             <div className="flex items-center space-x-2.5">
-                                                <div className="w-7 h-7 rounded-full bg-valle-green/10 flex items-center justify-center font-bold text-[10px] text-valle-green-dark border border-valle-green/20">
+                                                <div className="w-7 h-7 rounded-full bg-valle-green/10 flex items-center justify-center font-bold text-[10px] text-valle-green-dark border border-valle-green/20 font-black shrink-0">
                                                     {j.nombre.charAt(0)}{j.apellido.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-bold text-slate-700">{j.nombre} {j.apellido}</p>
+                                                    <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
+                                                        <p className="text-xs font-bold text-slate-700">{j.nombre} {j.apellido}</p>
+                                                        {j.lesionado && (
+                                                            <span className="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-black uppercase tracking-wider scale-90 origin-left">
+                                                                Lesionado
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <p className="text-[9px] text-slate-400 font-medium">{j.posicion}</p>
                                                 </div>
                                             </div>
                                             <button
                                                 type="button"
+                                                disabled={j.lesionado && sesionActiva?.tipo_sesion !== 'Recuperación'}
                                                 onClick={() => toggleAsistencia(j.atleta_id)}
                                                 className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${
                                                     asistenciaEstado[j.atleta_id] ? 'bg-valle-green' : 'bg-slate-300'
+                                                } ${
+                                                    (j.lesionado && sesionActiva?.tipo_sesion !== 'Recuperación') ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
                                                 }`}
+                                                title={j.lesionado && sesionActiva?.tipo_sesion !== 'Recuperación' ? "Los jugadores lesionados no pueden asistir a sesiones normales." : ""}
                                             >
                                                 <span
                                                     className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
@@ -652,12 +674,12 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
 
             {/* VISTA 4: ANÁLISIS I.A. */}
             {vista === 'analisis_ia' && (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl mx-auto">
-                    <button onClick={() => setVista('lista')} className="text-sm font-medium text-slate-500 hover:text-valle-black flex items-center mb-6">
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl mx-auto min-h-[75vh] flex flex-col">
+                    <button onClick={() => setVista('lista')} className="text-sm font-medium text-slate-500 hover:text-valle-black flex items-center mb-6 w-fit">
                         <ArrowLeft size={16} className="mr-1" /> Volver al historial
                     </button>
                     
-                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-100 gap-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-100 gap-4 shrink-0">
                         <div className="flex items-center">
                             <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mr-4">
                                 <Activity size={24} className="text-valle-green" />
@@ -691,7 +713,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                     </div>
 
                     {generandoIA && (
-                        <div className="py-16 text-center text-slate-500 flex flex-col items-center animate-fade-in">
+                        <div className="flex-1 flex flex-col items-center justify-center text-slate-500 animate-fade-in py-12">
                             <div className="w-12 h-12 border-4 border-slate-200 border-t-valle-green rounded-full animate-spin mb-4" />
                             <p className="font-bold text-lg">Procesando datos del equipo...</p>
                             <p className="text-sm mt-1">El modelo LLM está analizando las cargas de entrenamiento.</p>
@@ -699,7 +721,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                     )}
 
                     {!generandoIA && aiReporte && (
-                        <div className="space-y-6 animate-fade-in-up">
+                        <div className="space-y-6 animate-fade-in-up flex-1">
                             {aiReporte.error ? (
                                 <div className="bg-red-50 border border-red-200 p-6 rounded-xl flex flex-col items-center text-center">
                                     <Activity size={32} className="text-red-500 mb-3" />
@@ -767,9 +789,9 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                     )}
                     
                     {!generandoIA && !aiReporte && (
-                        <div className="text-center py-12 text-slate-400">
-                            <Activity size={48} className="mx-auto mb-4 opacity-20" />
-                            <p>Selecciona una temporalidad y haz clic en "Generar Reporte"</p>
+                        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-12">
+                            <Activity size={48} className="mb-4 opacity-20" />
+                            <p className="font-medium">Selecciona una temporalidad y haz clic en "Generar Reporte"</p>
                         </div>
                     )}
                 </div>

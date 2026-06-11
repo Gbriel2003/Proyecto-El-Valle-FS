@@ -173,6 +173,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
     try {
       await api.post(`/atletas/${actualAtletaId}/habitos-nutricionales`, {
+        fecha: new Date().toLocaleDateString('sv'),
         frecuencia_comidas: frecuenciaComidas,
         suplementacion,
         hidratacion_litros: parseFloat(hidratacion),
@@ -574,7 +575,21 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                       {l.fecha_alta ? (
                         <span className="text-valle-green font-semibold">Alta: {l.fecha_alta}</span>
                       ) : (
-                        <span className="text-red-600 font-semibold animate-pulse">En Recuperación</span>
+                        <div className="flex justify-between items-center mt-1.5">
+                          <span className="text-red-600 font-semibold animate-pulse">En Recuperación</span>
+                          {esCuerpoTecnico && (
+                            <button
+                              onClick={() => {
+                                setFechaAlta(new Date().toISOString().split('T')[0]);
+                                setRehabilitacionAlta('');
+                                setMostrarAltaModal(l);
+                              }}
+                              className="px-2 py-1 bg-valle-green text-valle-gold rounded-md hover:bg-valle-green-dark transition text-[10px] font-black cursor-pointer shadow-xs"
+                            >
+                              Dar Alta Médica
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                     {l.rehabilitacion && (

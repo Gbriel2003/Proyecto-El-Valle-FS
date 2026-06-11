@@ -641,6 +641,8 @@ export default function Tactica({
                             isDrawing={isDrawing}
                             setIsDrawing={setIsDrawing}
                             setMostrarGuardarModal={setMostrarGuardarModal}
+                            jugadas={jugadas}
+                            cargarJugadaTactica={cargarJugadaTactica}
                         />
                     </div>
                     <div className="lg:col-span-1">

@@ -39,20 +39,28 @@ def obtener_plantilla_activa(skip: int = 0, limit: int = 100, db: Session = Depe
             models.RegistroBiometrico.atleta_id == atleta.atleta_id
         ).order_by(models.RegistroBiometrico.id.desc()).first()
         
+        # Buscar si tiene una lesión activa (sin fecha de alta)
+        lesion_activa = db.query(models.Lesion).filter(
+            models.Lesion.atleta_id == atleta.atleta_id,
+            models.Lesion.fecha_alta == None
+        ).first()
+
         lista_formateada.append({
             "atleta_id": atleta.atleta_id,
             "nombre": usuario.nombre if usuario else "Jugador",
             "apellido": usuario.apellido if usuario else "Sin Registro",
             "posicion": atleta.posicion_especifica,
             "numero_camisa": "N/A",
-            "estado_actual": "Activo",
+            "estado_actual": "Lesionado" if lesion_activa else "Activo",
             "detalles": f"Pierna hábil: {atleta.pierna_habil}",
             "peso_base": atleta.peso_base,
             "altura_base": atleta.altura_cm,
             "peso_actual": ultima_biometria.peso_kg if ultima_biometria else None,
             "imc_actual": ultima_biometria.imc if ultima_biometria else None,
             "dieta_asignada_id": atleta.dieta_asignada_id,
-            "dieta_asignada_nombre": atleta.dieta_asignada.nombre if atleta.dieta_asignada else None
+            "dieta_asignada_nombre": atleta.dieta_asignada.nombre if atleta.dieta_asignada else None,
+            "lesionado": lesion_activa is not None,
+            "lesion_tipo": lesion_activa.tipo_lesion if lesion_activa else None
         })
         
     return lista_formateada

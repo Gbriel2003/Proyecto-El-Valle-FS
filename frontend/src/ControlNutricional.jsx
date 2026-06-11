@@ -345,6 +345,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     try {
       setGuardandoHabitos(true);
       await api.post(`/atletas/${atletaSeleccionado.atleta_id}/habitos-nutricionales`, {
+        fecha: new Date().toLocaleDateString('sv'),
         frecuencia_comidas: parseInt(frecuenciaComidas),
         suplementacion: suplementacion.trim() || 'Ninguna',
         hidratacion_litros: parseFloat(hidratacionLitros),

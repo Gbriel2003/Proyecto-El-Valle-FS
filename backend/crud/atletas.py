@@ -53,20 +53,43 @@ def registrar_biometria(db: Session, atleta_id: int, biometria: schemas.Registro
     return nuevo_registro
 
 def registrar_habitos_nutricionales(db: Session, atleta_id: int, registro: schemas.RegistroNutricionalCreate):
-    nuevo_registro = models.RegistroNutricional(
-        atleta_id=atleta_id,
-        frecuencia_comidas=registro.frecuencia_comidas,
-        suplementacion=registro.suplementacion,
-        hidratacion_litros=registro.hidratacion_litros,
-        calidad_descanso=registro.calidad_descanso,
-        plan_alimentacion=registro.plan_alimentacion
-    )
-    db.add(nuevo_registro)
-    db.commit()
-    db.refresh(nuevo_registro)
-    return nuevo_registro
+    from datetime import date
+    fecha_registro = registro.fecha if registro.fecha is not None else date.today()
+    
+    registro_existente = db.query(models.RegistroNutricional).filter(
+        models.RegistroNutricional.atleta_id == atleta_id,
+        models.RegistroNutricional.fecha == fecha_registro
+    ).first()
+    
+    if registro_existente:
+        registro_existente.frecuencia_comidas = registro.frecuencia_comidas
+        registro_existente.suplementacion = registro.suplementacion
+        registro_existente.hidratacion_litros = registro.hidratacion_litros
+        registro_existente.calidad_descanso = registro.calidad_descanso
+        if registro.plan_alimentacion is not None:
+            registro_existente.plan_alimentacion = registro.plan_alimentacion
+        db.commit()
+        db.refresh(registro_existente)
+        return registro_existente
+    else:
+        nuevo_registro = models.RegistroNutricional(
+            atleta_id=atleta_id,
+            fecha=fecha_registro,
+            frecuencia_comidas=registro.frecuencia_comidas,
+            suplementacion=registro.suplementacion,
+            hidratacion_litros=registro.hidratacion_litros,
+            calidad_descanso=registro.calidad_descanso,
+            plan_alimentacion=registro.plan_alimentacion
+        )
+        db.add(nuevo_registro)
+        db.commit()
+        db.refresh(nuevo_registro)
+        return nuevo_registro
 
 def obtener_habitos_nutricionales(db: Session, atleta_id: int):
     return db.query(models.RegistroNutricional).filter(
         models.RegistroNutricional.atleta_id == atleta_id
-    ).order_by(models.RegistroNutricional.fecha.desc()).all()
+    ).order_by(
+        models.RegistroNutricional.fecha.desc(),
+        models.RegistroNutricional.id.desc()
+    ).all()

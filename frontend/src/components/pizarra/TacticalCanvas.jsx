@@ -18,7 +18,9 @@ export default function TacticalCanvas({
   aplicarFormacion,
   isDrawing,
   setIsDrawing,
-  setMostrarGuardarModal
+  setMostrarGuardarModal,
+  jugadas = [],
+  cargarJugadaTactica = () => {}
 }) {
   const [dragTokenId, setDragTokenId] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -425,6 +427,7 @@ export default function TacticalCanvas({
                 { value: "2-2", label: "Cuadrado (2-2)" },
                 { value: "3-1", label: "Defensiva (3-1)" }
               ]}
+              alignRight={true}
             />
           </div>
 
@@ -445,8 +448,30 @@ export default function TacticalCanvas({
                 { value: "2-2", label: "Cuadrado (2-2)" },
                 { value: "3-1", label: "Defensiva (3-1)" }
               ]}
+              alignRight={true}
             />
           </div>
+
+          {/* Jugadas Guardadas (Playbook) */}
+          {jugadas && jugadas.length > 0 && (
+            <div className="flex items-center gap-2 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1">
+              <span className="text-xs font-bold text-valle-gold uppercase shrink-0">Jugadas:</span>
+              <CustomSelect
+                value=""
+                onChange={(e) => {
+                  if(e.target.value) {
+                    const jugadaObj = jugadas.find(j => j.id.toString() === e.target.value);
+                    if (jugadaObj) cargarJugadaTactica(jugadaObj);
+                  }
+                }}
+                variant="dark"
+                className="flex-1 md:flex-initial landscape:w-full"
+                placeholder="-- Cargar Jugada --"
+                options={jugadas.map(j => ({ value: j.id.toString(), label: j.titulo }))}
+                alignRight={true}
+              />
+            </div>
+          )}
 
           {/* Grosor de Línea Compacto */}
           <div className="flex items-center gap-2.5 w-full md:w-auto landscape:flex-col landscape:items-start landscape:gap-1.5 landscape:w-full">
