@@ -18,6 +18,7 @@ def crear_usuario(db: Session, usuario: schemas.UsuarioCreate):
         correo=usuario.correo,
         password_hash=clave_licuada, 
         rol=usuario.rol,
+        telefono=usuario.telefono,
         debe_cambiar_password=True # Por defecto debe cambiarla al entrar por primera vez
     )
     db.add(nuevo_usuario)

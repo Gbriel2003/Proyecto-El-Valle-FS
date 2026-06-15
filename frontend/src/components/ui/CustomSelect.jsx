@@ -55,8 +55,10 @@ export default function CustomSelect({
     ? 'bg-white/10 hover:bg-white/15 border-white/20 text-white focus:ring-valle-gold/30 focus:border-valle-gold'
     : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm focus:ring-valle-green/15 focus:border-valle-green';
 
+  const hasCustomWidth = className.split(' ').some(c => c.startsWith('w-'));
+
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative ${hasCustomWidth ? '' : 'w-full'} ${className}`}>
       <button
         type="button"
         disabled={disabled}

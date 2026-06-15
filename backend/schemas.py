@@ -12,6 +12,7 @@ class UsuarioCreate(BaseModel):
     correo: EmailStr  
     password: str
     rol: str
+    telefono: Optional[str] = None
 
 class UsuarioResponse(BaseModel):
     id: int
@@ -21,9 +22,13 @@ class UsuarioResponse(BaseModel):
     rol: str
     debe_cambiar_password: bool
     fecha_registro: datetime
+    telefono: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+class UsuarioProfileUpdate(BaseModel):
+    telefono: str
 
 # ==========================================
 # ESQUEMAS DE SEGURIDAD (LOGIN Y TOKENS)
@@ -47,6 +52,9 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
+    new_password: str
+
+class ResetPasswordAdminRequest(BaseModel):
     new_password: str
 
 # ==========================================
@@ -79,6 +87,7 @@ class PerfilAtletaCreate(BaseModel):
     altura_cm: int
     posicion_especifica: str  
     pierna_habil: str         
+    numero_camisa: Optional[int] = None
 
 class PerfilAtletaResponse(BaseModel):
     atleta_id: int
@@ -87,6 +96,7 @@ class PerfilAtletaResponse(BaseModel):
     altura_cm: int
     posicion_especifica: str
     pierna_habil: str
+    numero_camisa: Optional[int] = None
     dieta_asignada_id: Optional[int] = None
     dieta_asignada: Optional[PropuestaDietaResponse] = None
 
@@ -98,6 +108,7 @@ class PerfilAtletaUpdate(BaseModel):
     altura_cm: Optional[int] = None
     posicion_especifica: Optional[str] = None
     pierna_habil: Optional[str] = None
+    numero_camisa: Optional[int] = None
 
 # ==========================================
 # ESQUEMAS DE TORNEOS Y PARTIDOS

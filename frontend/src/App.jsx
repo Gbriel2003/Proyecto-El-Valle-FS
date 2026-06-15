@@ -12,6 +12,7 @@ import ControlNutricional from './ControlNutricional';
 import PWAInstallModal from './components/modals/PWAInstallModal';
 import ChangePassword from './ChangePassword';
 import ResetPassword from './ResetPassword';
+import AdministrarPerfil from './AdministrarPerfil';
 import {
   Users,
   Activity,
@@ -34,7 +35,8 @@ import {
   Info,
   AlertTriangle,
   ShieldAlert,
-  Lock
+  Lock,
+  Award
 } from 'lucide-react';
 
 
@@ -45,9 +47,10 @@ const titulosPaginas = {
   pizarra_tactica: "Pizarra Táctica",
   partidos: "Partidos y Calendario",
   configuracion: "Configuración del Club",
-  mi_perfil: "Mi Ficha Técnica",
+  mi_perfil: "Ficha Deportiva",
   control_nutricional: "Control Nutricional",
-  cambiar_contrasena: "Seguridad de la Cuenta"
+  cambiar_contrasena: "Seguridad de la Cuenta",
+  administrar_perfil: "Mi Perfil"
 };
 
 export default function App() {
@@ -464,18 +467,18 @@ export default function App() {
                 </button>
               )}
 
-              {/* VISTAS EXCLUSIVAS DEL ATLETA */}
+              {/* Ficha Deportiva (Solo Atletas) */}
               {rolUsuario === 'atleta' && (
                 <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
-                  <UserIcon size={18} className="mr-3" />
-                  <span>Mi Ficha Técnica</span>
+                  <Award size={18} className="mr-3" />
+                  <span>Ficha Deportiva</span>
                 </button>
               )}
 
-              {/* Cambiar Contraseña */}
-              <button onClick={() => handleNavClick('cambiar_contrasena')} className={navItemClass('cambiar_contrasena')}>
-                <Lock size={18} className="mr-3" />
-                <span>Cambiar Contraseña</span>
+              {/* Mi Perfil (Todos) */}
+              <button onClick={() => handleNavClick('administrar_perfil')} className={navItemClass('administrar_perfil')}>
+                <UserIcon size={18} className="mr-3" />
+                <span>Mi Perfil</span>
               </button>
             </>
           )}
@@ -642,6 +645,22 @@ export default function App() {
           {menuActivo === 'ia' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <RegistroEntrenamiento crearNotificacion={crearNotificacion} />}
           {menuActivo === 'configuracion' && rolUsuario === 'admin' && <ConfiguracionClub crearNotificacion={crearNotificacion} />}
           {menuActivo === 'mi_perfil' && rolUsuario === 'atleta' && <FichaTecnica crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'administrar_perfil' && (
+            <AdministrarPerfil
+              rolUsuario={rolUsuario}
+              crearNotificacion={crearNotificacion}
+              debeCambiarPassword={debeCambiarPassword}
+              onPasswordChanged={() => {
+                localStorage.setItem('debe_cambiar_password', 'false');
+                setDebeCambiarPassword(false);
+                if (rolUsuario === 'atleta') {
+                  setMenuActivo('administrar_perfil');
+                } else {
+                  setMenuActivo('dashboard');
+                }
+              }}
+            />
+          )}
           {menuActivo === 'cambiar_contrasena' && (
             <ChangePassword 
               crearNotificacion={crearNotificacion} 
@@ -650,7 +669,7 @@ export default function App() {
                 localStorage.setItem('debe_cambiar_password', 'false');
                 setDebeCambiarPassword(false);
                 if (rolUsuario === 'atleta') {
-                  setMenuActivo('mi_perfil');
+                  setMenuActivo('administrar_perfil');
                 } else {
                   setMenuActivo('dashboard');
                 }

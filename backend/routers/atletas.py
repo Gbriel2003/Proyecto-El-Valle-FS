@@ -50,7 +50,7 @@ def obtener_plantilla_activa(skip: int = 0, limit: int = 100, db: Session = Depe
             "nombre": usuario.nombre if usuario else "Jugador",
             "apellido": usuario.apellido if usuario else "Sin Registro",
             "posicion": atleta.posicion_especifica,
-            "numero_camisa": "N/A",
+            "numero_camisa": atleta.numero_camisa,
             "estado_actual": "Lesionado" if lesion_activa else "Activo",
             "detalles": f"Pierna hábil: {atleta.pierna_habil}",
             "peso_base": atleta.peso_base,

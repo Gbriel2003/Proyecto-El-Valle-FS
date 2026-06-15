@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Shield, UserPlus, Trash2, Mail, Lock } from 'lucide-react';
+import { Shield, UserPlus, Trash2, Mail, Lock, X } from 'lucide-react';
 import CustomSelect from './components/ui/CustomSelect';
 
 export default function ConfiguracionClub({ crearNotificacion = null }) {
@@ -14,6 +14,39 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
   });
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   const [cargando, setCargando] = useState(false);
+  const [restableciendoUsuario, setRestableciendoUsuario] = useState(null);
+  const [nuevaPasswordUsuario, setNuevaPasswordUsuario] = useState('');
+  const [guardandoPasswordUsuario, setGuardandoPasswordUsuario] = useState(false);
+
+  const restablecerPasswordUsuario = async (e) => {
+    e.preventDefault();
+    if (!restableciendoUsuario || !nuevaPasswordUsuario.trim()) return;
+    if (nuevaPasswordUsuario.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+    setGuardandoPasswordUsuario(true);
+    try {
+      await api.put(`/usuarios/${restableciendoUsuario.id}/reset-password`, {
+        new_password: nuevaPasswordUsuario
+      });
+      mostrarMensaje('exito', `Contraseña de ${restableciendoUsuario.nombre} restablecida correctamente.`);
+      if (crearNotificacion) {
+        crearNotificacion(
+          "Contraseña Restablecida",
+          `Se restableció la contraseña de ${restableciendoUsuario.nombre} ${restableciendoUsuario.apellido}. Deberá cambiarla al iniciar sesión.`,
+          "warning"
+        );
+      }
+      setRestableciendoUsuario(null);
+      setNuevaPasswordUsuario('');
+    } catch (error) {
+      console.error("Error al restablecer contraseña:", error);
+      mostrarMensaje('error', error.response?.data?.detail || 'Error al restablecer contraseña.');
+    } finally {
+      setGuardandoPasswordUsuario(false);
+    }
+  };
 
   const mostrarMensaje = (tipo, texto) => {
     setMensaje({ tipo, texto });
@@ -204,8 +237,18 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
                         {u.rol}
                       </span>
                     </td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => eliminarUsuario(u.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Eliminar acceso">
+                    <td className="p-4 text-right flex items-center justify-end gap-1">
+                      <button 
+                        onClick={() => {
+                          setRestableciendoUsuario(u);
+                          setNuevaPasswordUsuario('');
+                        }} 
+                        className="p-2 text-slate-400 hover:text-valle-green hover:bg-slate-50 rounded-lg transition" 
+                        title="Restablecer contraseña"
+                      >
+                        <Lock size={18} />
+                      </button>
+                      <button onClick={() => eliminarUsuario(u.id)} className="p-2 text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg transition" title="Eliminar acceso">
                         <Trash2 size={18} />
                       </button>
                     </td>
@@ -222,6 +265,59 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
         </div>
 
       </div>
+
+      {/* Modal de Restablecer Contraseña */}
+      {restableciendoUsuario && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
+              <h3 className="font-black text-sm flex items-center">
+                <Lock className="mr-2" size={16} /> Restablecer Contraseña
+              </h3>
+              <button onClick={() => setRestableciendoUsuario(null)} className="text-valle-gold/80 hover:text-white transition cursor-pointer">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={restablecerPasswordUsuario} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+              <div>
+                <p className="text-sm font-bold text-slate-800 mb-2">
+                  Usuario: <span className="capitalize">{restableciendoUsuario.nombre} {restableciendoUsuario.apellido}</span>
+                </p>
+                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
+                  Nueva Contraseña Temporal
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium text-sm"
+                  value={nuevaPasswordUsuario}
+                  onChange={(e) => setNuevaPasswordUsuario(e.target.value)}
+                />
+                <p className="text-[10px] text-amber-600 mt-1.5 font-bold leading-normal">
+                  ⚠️ El usuario será forzado a cambiar esta contraseña al iniciar sesión por primera vez.
+                </p>
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRestableciendoUsuario(null)}
+                  className="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={guardandoPasswordUsuario}
+                  className="px-4 py-2 bg-valle-green text-valle-gold rounded-lg hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 cursor-pointer"
+                >
+                  {guardandoPasswordUsuario ? 'Restableciendo...' : 'Confirmar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

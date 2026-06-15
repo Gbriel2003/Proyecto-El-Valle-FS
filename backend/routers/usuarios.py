@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import schemas
 import models
 import security
-from dependencies import get_db, verificar_admin, obtener_usuario_actual
+from dependencies import get_db, verificar_admin, obtener_usuario_actual, verificar_cuerpo_tecnico
 from crud import usuarios as crud_usuarios
 
 router = APIRouter(tags=["Usuarios & Autenticación"])
@@ -110,4 +110,49 @@ def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
         }
         for u in usuarios
     ]
+
+@router.get("/usuarios/me", response_model=schemas.UsuarioResponse)
+def obtener_perfil_usuario_actual(usuario_actual: models.Usuario = Depends(obtener_usuario_actual)):
+    return usuario_actual
+
+@router.put("/usuarios/{usuario_id}/reset-password")
+def admin_reset_password(
+    usuario_id: int,
+    req: schemas.ResetPasswordAdminRequest,
+    db: Session = Depends(get_db),
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+):
+    usuario = crud_usuarios.obtener_usuario_por_id(db, usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    crud_usuarios.actualizar_password_usuario(db, usuario, req.new_password, primer_ingreso=False)
+    usuario.debe_cambiar_password = True
+    db.commit()
+    db.refresh(usuario)
+    return {"mensaje": f"Contraseña de {usuario.nombre} restablecida con éxito"}
+
+@router.put("/usuarios/me/profile", response_model=schemas.UsuarioResponse)
+def actualizar_perfil_usuario_actual(
+    req: schemas.UsuarioProfileUpdate,
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual),
+    db: Session = Depends(get_db)
+):
+    if req.telefono:
+        prefijos = ["0424", "0414", "0416", "0426", "0412", "0422"]
+        if len(req.telefono) != 11:
+            raise HTTPException(status_code=400, detail="El número de teléfono debe tener exactamente 11 dígitos.")
+        
+        prefijo = req.telefono[:4]
+        restante = req.telefono[4:]
+        if prefijo not in prefijos:
+            raise HTTPException(status_code=400, detail=f"Operador no válido. Debe comenzar con: {', '.join(prefijos)}")
+        if not restante.isdigit() or len(restante) != 7:
+            raise HTTPException(status_code=400, detail="Los últimos 7 dígitos deben ser numéricos.")
+            
+    usuario_actual.telefono = req.telefono
+    db.commit()
+    db.refresh(usuario_actual)
+    return usuario_actual
+
 

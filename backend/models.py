@@ -21,6 +21,7 @@ class Usuario(Base):
     debe_cambiar_password = Column(Boolean, default=True, nullable=False)
     reset_token = Column(String(255), nullable=True)
     reset_token_expiration = Column(DateTime, nullable=True)
+    telefono = Column(String(20), nullable=True)
 
     # Relación uno a uno con el perfil del atleta
     perfil = relationship("PerfilAtleta", back_populates="usuario", uselist=False)
@@ -36,6 +37,7 @@ class PerfilAtleta(Base):
     posicion_especifica = Column(String(50))
     pierna_habil = Column(String(10))
     dieta_asignada_id = Column(Integer, ForeignKey("propuestas_dieta.id"), nullable=True)
+    numero_camisa = Column(Integer, nullable=True)
 
     # Relaciones hacia arriba (Usuario) y hacia abajo (Estadísticas, Nutrición, etc)
     usuario = relationship("Usuario", back_populates="perfil")

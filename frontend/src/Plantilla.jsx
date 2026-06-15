@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Users, User, Shield, Target, Award, Search, Loader2, Eye } from 'lucide-react';
+import { Users, User, Shield, Target, Award, Search, Loader2, Eye, Pencil, X } from 'lucide-react';
 import FichaTecnica from './FichaTecnica';
 
 export default function Plantilla({ crearNotificacion = null, rolUsuario = '' }) {
@@ -9,6 +9,43 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
     const [selectedAtletaId, setSelectedAtletaId] = useState(null);
+    const [editandoDorsal, setEditandoDorsal] = useState(null);
+    const [nuevoDorsal, setNuevoDorsal] = useState('');
+    const [guardandoDorsal, setGuardandoDorsal] = useState(false);
+
+    const guardarDorsal = async (e) => {
+        e.preventDefault();
+        if (!editandoDorsal) return;
+        setGuardandoDorsal(true);
+        try {
+            const valorDorsal = nuevoDorsal.trim() !== '' ? parseInt(nuevoDorsal) : null;
+            await api.put(`/atletas/${editandoDorsal.atleta_id}`, {
+                numero_camisa: valorDorsal
+            });
+            
+            setJugadores(prev => prev.map(j => {
+                if (j.atleta_id === editandoDorsal.atleta_id) {
+                    return { ...j, numero_camisa: valorDorsal };
+                }
+                return j;
+            }));
+            
+            if (crearNotificacion) {
+                crearNotificacion(
+                    "Dorsal Asignado",
+                    `Se asignó el número #${valorDorsal !== null ? valorDorsal : '?'} a ${editandoDorsal.nombre || editandoDorsal.usuario?.nombre}`,
+                    "success"
+                );
+            }
+            setEditandoDorsal(null);
+            setNuevoDorsal('');
+        } catch (error) {
+            console.error("Error al asignar dorsal:", error);
+            alert("No se pudo asignar el dorsal. Inténtalo de nuevo.");
+        } finally {
+            setGuardandoDorsal(false);
+        }
+    };
 
     useEffect(() => {
         const obtenerJugadores = async () => {
@@ -120,9 +157,25 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                 onClick={() => setSelectedAtletaId(jugador.atleta_id)}
                             >
                                 <div className="p-5 flex flex-col items-center text-center relative">
-                                    <span className="absolute top-4 right-4 text-2xl font-black text-slate-100 group-hover:text-slate-200 transition select-none font-display">
-                                        #{jugador.numero_camisa || '?'}
-                                    </span>
+                                    {(rolUsuario === 'admin' || rolUsuario === 'entrenador') ? (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditandoDorsal(jugador);
+                                                setNuevoDorsal(jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? String(jugador.numero_camisa) : '');
+                                            }}
+                                            className="absolute top-4 right-4 text-xs font-black text-valle-green hover:text-white bg-slate-100 hover:bg-valle-green border border-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 transition shadow-sm z-20 group/btn"
+                                            title="Editar dorsal"
+                                        >
+                                            <span>#{jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? jugador.numero_camisa : '?'}</span>
+                                            <Pencil size={10} className="text-slate-400 group-hover/btn:text-white shrink-0" />
+                                        </button>
+                                    ) : (
+                                        <span className="absolute top-4 right-4 text-2xl font-black text-slate-300 select-none font-display">
+                                            #{jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? jugador.numero_camisa : '?'}
+                                        </span>
+                                    )}
 
                                     <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mb-3 border border-slate-100 text-slate-700 font-bold text-base group-hover:bg-valle-green group-hover:text-white transition duration-300 shadow-sm font-display">
                                         {iniciales}
@@ -179,6 +232,58 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                             No se encontraron atletas registrados en el club.
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Modal de Edición de Dorsal */}
+            {editandoDorsal && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+                        <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
+                            <h3 className="font-black text-sm flex items-center">
+                                <Shield className="mr-2" size={16} /> Asignar Dorsal
+                            </h3>
+                            <button onClick={() => setEditandoDorsal(null)} className="text-valle-gold/80 hover:text-white transition cursor-pointer">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form onSubmit={guardarDorsal} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+                            <div>
+                                <p className="text-sm font-bold text-slate-800 mb-2">
+                                    Jugador: <span className="capitalize">{editandoDorsal.nombre} {editandoDorsal.apellido}</span>
+                                </p>
+                                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
+                                    Número de Camisa (Dorsal)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="99"
+                                    placeholder="Ej: 10"
+                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium text-sm"
+                                    value={nuevoDorsal}
+                                    onChange={(e) => setNuevoDorsal(e.target.value)}
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1 font-medium">Deja vacío si deseas retirar el dorsal asignado.</p>
+                            </div>
+                            <div className="flex gap-2 justify-end pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditandoDorsal(null)}
+                                    className="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={guardandoDorsal}
+                                    className="px-4 py-2 bg-valle-green text-valle-gold rounded-lg hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 cursor-pointer"
+                                >
+                                    {guardandoDorsal ? 'Guardando...' : 'Guardar'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

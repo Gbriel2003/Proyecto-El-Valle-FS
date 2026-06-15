@@ -12,7 +12,8 @@ def crear_perfil_atleta(db: Session, perfil: schemas.PerfilAtletaCreate):
         peso_base=perfil.peso_base,
         altura_cm=perfil.altura_cm,
         posicion_especifica=perfil.posicion_especifica,
-        pierna_habil=perfil.pierna_habil
+        pierna_habil=perfil.pierna_habil,
+        numero_camisa=perfil.numero_camisa
     )
     db.add(nuevo_perfil)
     db.commit()
@@ -34,6 +35,8 @@ def actualizar_perfil_atleta(db: Session, atleta_id: int, perfil_actualizado: sc
         perfil.posicion_especifica = perfil_actualizado.posicion_especifica
     if perfil_actualizado.pierna_habil is not None:
         perfil.pierna_habil = perfil_actualizado.pierna_habil
+    if perfil_actualizado.numero_camisa is not None:
+        perfil.numero_camisa = perfil_actualizado.numero_camisa
     db.commit()
     db.refresh(perfil)
     return perfil
