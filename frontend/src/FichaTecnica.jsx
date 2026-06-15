@@ -58,6 +58,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   const [fechaAlta, setFechaAlta] = useState(new Date().toISOString().split('T')[0]);
   const [rehabilitacionAlta, setRehabilitacionAlta] = useState('');
   const [guardandoAlta, setGuardandoAlta] = useState(false);
+  const [notificacionInicialMostrada, setNotificacionInicialMostrada] = useState(false);
 
   const cargarAnalisisIa = async (idAtleta, temp, forzar = false) => {
     // Si ya está en caché local para esta sesión, no re-consultar (a menos que se fuerce)
@@ -165,6 +166,31 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       }
     }
   }, [mostrarHabitoModal, habitos]);
+
+  useEffect(() => {
+    if (!cargando && datos && crearNotificacion && !notificacionInicialMostrada) {
+      const hoyStr = new Date().toLocaleDateString('sv');
+      const completado = habitos.some(h => h.fecha === hoyStr);
+      if (completado) {
+        crearNotificacion(
+          "Hábitos al Día ✅",
+          !esCuerpoTecnico && !atletaId 
+            ? "Usted ha registrado sus hábitos el día de hoy."
+            : "El atleta ha registrado sus hábitos el día de hoy.",
+          "success"
+        );
+      } else {
+        crearNotificacion(
+          "Hábitos Pendientes ⚠️",
+          !esCuerpoTecnico && !atletaId 
+            ? "Usted no ha registrado sus hábitos de hoy."
+            : "El atleta no ha registrado sus hábitos de hoy.",
+          "warning"
+        );
+      }
+      setNotificacionInicialMostrada(true);
+    }
+  }, [cargando, datos, habitos, crearNotificacion, notificacionInicialMostrada, esCuerpoTecnico, atletaId]);
 
   // Guardar hábitos diarios
   const manejarGuardarHabito = async (e) => {
@@ -324,33 +350,6 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
         </div>
       </div>
 
-      {/* Alerta de Hábitos Diarios */}
-      {habitosDeHoyRegistrados ? (
-        <div className="bg-emerald-50 border border-emerald-100 border-l-4 border-l-emerald-600 p-4 rounded-xl text-xs text-emerald-800 font-semibold flex items-center gap-2.5 shadow-sm">
-          <Check className="text-emerald-600 shrink-0" size={18} />
-          <div>
-            <p className="font-bold text-sm">Hábitos de hoy: Completados ✅</p>
-            <p className="text-slate-655 font-medium mt-0.5">
-              {!esCuerpoTecnico && !atletaId
-                ? "Ya has reportado tu descanso, alimentación e hidratación de hoy. Puedes actualizarlo si es necesario."
-                : "El atleta ya ha registrado sus hábitos e hidratación para el día de hoy."}
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-amber-50 border border-amber-100 border-l-4 border-l-amber-500 p-4 rounded-xl text-xs text-amber-800 font-semibold flex items-center gap-2.5 shadow-sm">
-          <AlertTriangle className="text-amber-600 shrink-0 animate-pulse" size={18} />
-          <div>
-            <p className="font-bold text-sm">Hábitos de hoy: Pendientes de registrar ⚠️</p>
-            <p className="text-slate-655 font-medium mt-0.5">
-              {!esCuerpoTecnico && !atletaId
-                ? "Por favor, registra tus hábitos diarios para hoy. Es indispensable para el seguimiento nutricional del club."
-                : "El atleta aún no ha registrado su reporte diario de hábitos de hoy."}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Dieta Asignada */}
       {datos.perfil?.dieta_asignada && (
         <div className="bg-emerald-50 border border-emerald-100 border-l-4 border-l-valle-green p-4 rounded-xl text-xs text-slate-700 font-semibold flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
@@ -393,150 +392,67 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* Métricas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-indigo-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Peso / IMC Actual</p>
-            <p className="text-2xl font-black text-valle-black mt-1">
-              {datos.estado_fisico?.peso_actual} <span className="text-sm font-medium text-slate-400">kg</span>
+            <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Peso / IMC Actual</p>
+            <p className="text-2xl font-black text-indigo-950 mt-1">
+              {datos.estado_fisico?.peso_actual} <span className="text-sm font-medium text-indigo-700/70">kg</span>
             </p>
-            <p className="text-xs text-valle-green-light font-semibold mt-1">IMC: {datos.estado_fisico?.imc_actual}</p>
+            <p className="text-xs text-indigo-600 font-semibold mt-1">IMC: {datos.estado_fisico?.imc_actual}</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-            <Scale className="text-valle-gold" size={24} />
+          <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-indigo-500">
+            <Scale size={24} />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-xl shadow-sm border border-fuchsia-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Descanso Promedio</p>
-            <p className="text-2xl font-black text-valle-black mt-1">
-              {datos.habitos_semanales?.promedio_descanso || 0} <span className="text-sm font-medium text-slate-400">/ 10</span>
+            <p className="text-xs font-bold text-fuchsia-500 uppercase tracking-wider">Descanso Promedio</p>
+            <p className="text-2xl font-black text-fuchsia-950 mt-1">
+              {datos.habitos_semanales?.promedio_descanso || 0} <span className="text-sm font-medium text-fuchsia-700/70">/ 10</span>
             </p>
-            <p className="text-xs text-slate-400 font-semibold mt-1">Últimos 3 registros</p>
+            <p className="text-xs text-fuchsia-600 font-semibold mt-1">Últimos 3 registros</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-            <Moon className="text-valle-gold" size={24} />
+          <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-fuchsia-500">
+            <Moon size={24} />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl shadow-sm border border-sky-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hidratación Promedio</p>
-            <p className="text-2xl font-black text-valle-black mt-1">
-              {datos.habitos_semanales?.promedio_hidratacion || 0} <span className="text-sm font-medium text-slate-400">L</span>
+            <p className="text-xs font-bold text-sky-600 uppercase tracking-wider">Hidratación Promedio</p>
+            <p className="text-2xl font-black text-sky-950 mt-1">
+              {datos.habitos_semanales?.promedio_hidratacion || 0} <span className="text-sm font-medium text-sky-700/70">L</span>
             </p>
-            <p className="text-xs text-slate-400 font-semibold mt-1">Meta diaria: 3L</p>
+            <p className="text-xs text-sky-600 font-semibold mt-1">Meta diaria: 3L</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-            <Droplet className="text-valle-gold" size={24} />
+          <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-sky-500">
+            <Droplet size={24} />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl shadow-sm border border-teal-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Historial Sesiones</p>
-            <p className="text-2xl font-black text-valle-black mt-1">
+            <p className="text-xs font-bold text-teal-600 uppercase tracking-wider">Historial Sesiones</p>
+            <p className="text-2xl font-black text-teal-950 mt-1">
               {datos.cargas_historicas?.length || 0}
             </p>
-            <p className="text-xs text-slate-400 font-semibold mt-1">Entrenamientos evaluados</p>
+            <p className="text-xs text-teal-600 font-semibold mt-1">Entrenamientos evaluados</p>
           </div>
-          <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center">
-            <Activity className="text-valle-gold" size={24} />
+          <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center text-teal-500">
+            <Activity size={24} />
           </div>
         </div>
       </div>
 
-      {/* Alerta Inteligente IA */}
-      <div className="bg-valle-black rounded-xl shadow-md p-6 border border-valle-black-light text-white">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-          <div className="flex items-center">
-            <Brain className="text-valle-gold mr-3 animate-pulse" size={24} />
-            <h3 className="font-bold text-lg">Análisis de Prevención y Rendimiento IA</h3>
-          </div>
-
-          {/* Selector de Temporalidad y Botón de Recarga Premium */}
-          <div className="flex items-center gap-2 w-full sm:w-auto self-end sm:self-auto justify-end sm:justify-start">
-            <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold">
-              {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
-                <button
-                  key={temp}
-                  type="button"
-                  onClick={() => setTemporalidad(temp)}
-                  className={`px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
-                    temporalidad === temp
-                      ? 'bg-valle-green text-valle-gold shadow-md'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {temp}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={() => cargarAnalisisIa(actualAtletaId || datos?.perfil?.atleta_id, temporalidad, true)}
-              disabled={cargandoIa}
-              className={`p-2 bg-valle-black-light/60 border border-slate-800 hover:border-valle-gold hover:text-valle-gold text-slate-300 rounded-lg transition shadow-xs flex items-center justify-center cursor-pointer ${cargandoIa ? 'animate-spin opacity-55' : ''}`}
-              title="Regenerar análisis de IA en vivo"
-            >
-              <RefreshCw size={14} />
-            </button>
-          </div>
-        </div>
-
-        {cargandoIa ? (
-          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-valle-gold mb-3"></div>
-            <p className="text-xs text-slate-400 font-bold">Generando análisis con IA...</p>
-          </div>
-        ) : errorIa ? (
-          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
-            <AlertTriangle size={28} className="text-red-500 mb-2" />
-            <p className="text-sm text-red-400 font-bold">Error de Conexión IA</p>
-            <p className="text-xs text-red-500 mt-1">{errorIa}</p>
-          </div>
-        ) : analisisIa[temporalidad] ? (
-          analisisIa[temporalidad].error ? (
-            <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
-              <AlertTriangle size={28} className="text-red-500 mb-2" />
-              <p className="text-sm text-red-400 font-bold">Error de la IA</p>
-              <p className="text-xs text-red-500 mt-1">{analisisIa[temporalidad].error}</p>
-            </div>
-          ) : (
-            <div className="space-y-4 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
-              <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                <span className="text-slate-400 font-bold">Riesgo de Lesión Estimado:</span>
-                <span className={`font-black px-2.5 py-0.5 rounded text-xs shadow-sm ${
-                  analisisIa[temporalidad].riesgo_lesion === 'Alto' ? 'bg-red-600 text-white border border-red-700' :
-                  analisisIa[temporalidad].riesgo_lesion === 'Medio' ? 'bg-amber-600 text-white border border-amber-700' :
-                  'bg-emerald-600 text-white border border-emerald-700'
-                }`}>
-                  {analisisIa[temporalidad].riesgo_lesion}
-                </span>
-              </div>
-              <p className="text-slate-300 italic leading-relaxed">"{analisisIa[temporalidad].analisis}"</p>
-              <p className="font-bold text-valle-gold flex items-start gap-1.5 mt-2">
-                <span className="shrink-0 text-base">💡</span>
-                <span>{analisisIa[temporalidad].recomendacion}</span>
-              </p>
-            </div>
-          )
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
-            <AlertTriangle size={28} className="text-slate-500 mb-2" />
-            <p className="text-sm text-slate-400">No hay datos suficientes para generar este reporte.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Gráfico y Diarios */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Gráfico y Análisis IA (Mitad y Mitad) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Columna Gráfica de Rendimiento */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
           <h3 className="font-bold text-valle-black text-sm mb-4">Evolución de Cargas Físicas</h3>
           {datos.cargas_historicas && datos.cargas_historicas.length > 0 ? (
-            <div className="h-72 w-full">
+            <div className="h-72 w-full flex-1">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={datos.cargas_historicas}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -553,7 +469,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-72 flex items-center justify-center text-slate-400 text-xs">Sin cargas registradas recientemente.</div>
+            <div className="h-72 flex-1 flex items-center justify-center text-slate-400 text-xs">Sin cargas registradas recientemente.</div>
           )}
           <div className="flex justify-center space-x-6 mt-2 pt-2 border-t border-slate-50">
             <div className="flex items-center text-xs font-semibold text-slate-500"><div className="w-2.5 h-2.5 bg-valle-gold rounded-full mr-2"></div> Potencia (Salto)</div>
@@ -561,61 +477,146 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           </div>
         </div>
 
-        {/* Columna Historial Médico (Lesiones) */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+        {/* Alerta Inteligente IA */}
+        <div className="bg-valle-black rounded-xl shadow-md p-6 border border-valle-black-light text-white flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-valle-black text-sm mb-4 flex items-center">
-              <Heart className="text-red-500 mr-2" size={18} />
-              Historial Clínico de Lesiones
-            </h3>
-            <div className="space-y-3 overflow-y-auto max-h-72 pr-1">
-              {lesiones.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-8">Sin historial de lesiones reportado.</p>
-              ) : (
-                lesiones.map((l) => (
-                  <div key={l.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1.5">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-slate-800">{l.tipo_lesion}</span>
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${l.gravedad === 'Leve' ? 'bg-blue-100 text-blue-700' :
-                          l.gravedad === 'Media' ? 'bg-amber-100 text-amber-700' :
-                            'bg-red-100 text-red-700'
-                        }`}>{l.gravedad}</span>
-                    </div>
-                    {l.descripcion && <p className="text-slate-500 italic">"{l.descripcion}"</p>}
-                    <div className="text-xs text-slate-400 flex flex-col space-y-0.5">
-                      <span>Inicio: {l.fecha_inicio}</span>
-                      {l.fecha_alta ? (
-                        <span className="text-valle-green font-semibold">Alta: {l.fecha_alta}</span>
-                      ) : (
-                        <div className="flex justify-between items-center mt-1.5">
-                          <span className="text-red-600 font-semibold animate-pulse">En Recuperación</span>
-                          {esCuerpoTecnico && (
-                            <button
-                              onClick={() => {
-                                setFechaAlta(new Date().toISOString().split('T')[0]);
-                                setRehabilitacionAlta('');
-                                setMostrarAltaModal(l);
-                              }}
-                              className="px-2 py-1 bg-valle-green text-valle-gold rounded-md hover:bg-valle-green-dark transition text-[10px] font-black cursor-pointer shadow-xs"
-                            >
-                              Dar Alta Médica
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    {l.rehabilitacion && (
-                      <div className="mt-1 pt-1.5 border-t border-slate-200 text-xs text-slate-600">
-                        <strong className="text-slate-700">Rehabilitación:</strong> {l.rehabilitacion}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-4">
+              <div className="flex items-center">
+                <Brain className="text-valle-gold mr-3 animate-pulse shrink-0" size={24} />
+                <h3 className="font-bold text-lg leading-tight">Análisis Predictivo IA</h3>
+              </div>
+
+              {/* Selector de Temporalidad y Botón de Recarga Premium */}
+              <div className="flex items-center gap-2 w-full xl:w-auto self-end xl:self-auto justify-end">
+                <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold">
+                  {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
+                    <button
+                      key={temp}
+                      type="button"
+                      onClick={() => setTemporalidad(temp)}
+                      className={`px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
+                        temporalidad === temp
+                          ? 'bg-valle-green text-valle-gold shadow-md'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {temp}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => cargarAnalisisIa(actualAtletaId || datos?.perfil?.atleta_id, temporalidad, true)}
+                  disabled={cargandoIa}
+                  className={`p-2 bg-valle-black-light/60 border border-slate-800 hover:border-valle-gold hover:text-valle-gold text-slate-300 rounded-lg transition shadow-xs flex items-center justify-center cursor-pointer ${cargandoIa ? 'animate-spin opacity-55' : ''}`}
+                  title="Regenerar análisis de IA en vivo"
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
             </div>
+
+            {cargandoIa ? (
+              <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-valle-gold mb-3"></div>
+                <p className="text-xs text-slate-400 font-bold">Generando análisis con IA...</p>
+              </div>
+            ) : errorIa ? (
+              <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+                <AlertTriangle size={28} className="text-red-500 mb-2" />
+                <p className="text-sm text-red-400 font-bold">Error de Conexión IA</p>
+                <p className="text-xs text-red-500 mt-1">{errorIa}</p>
+              </div>
+            ) : analisisIa[temporalidad] ? (
+              analisisIa[temporalidad].error ? (
+                <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+                  <AlertTriangle size={28} className="text-red-500 mb-2" />
+                  <p className="text-sm text-red-400 font-bold">Error de la IA</p>
+                  <p className="text-xs text-red-500 mt-1">{analisisIa[temporalidad].error}</p>
+                </div>
+              ) : (
+                <div className="space-y-4 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                    <span className="text-slate-400 font-bold">Riesgo de Lesión:</span>
+                    <span className={`font-black px-2.5 py-0.5 rounded text-xs shadow-sm ${
+                      analisisIa[temporalidad].riesgo_lesion === 'Alto' ? 'bg-red-600 text-white border border-red-700' :
+                      analisisIa[temporalidad].riesgo_lesion === 'Medio' ? 'bg-amber-600 text-white border border-amber-700' :
+                      'bg-emerald-600 text-white border border-emerald-700'
+                    }`}>
+                      {analisisIa[temporalidad].riesgo_lesion}
+                    </span>
+                  </div>
+                  <p className="text-slate-300 italic leading-relaxed">"{analisisIa[temporalidad].analisis}"</p>
+                  <p className="font-bold text-valle-gold flex items-start gap-1.5 mt-2">
+                    <span className="shrink-0 text-base">💡</span>
+                    <span>{analisisIa[temporalidad].recomendacion}</span>
+                  </p>
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center py-8 bg-valle-black-light/30 border border-slate-800/50 rounded-lg">
+                <AlertTriangle size={28} className="text-slate-500 mb-2" />
+                <p className="text-sm text-slate-400">No hay datos suficientes para generar este reporte.</p>
+              </div>
+            )}
           </div>
         </div>
 
+      </div>
+
+      {/* Columna Historial Médico (Lesiones) */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h3 className="font-bold text-valle-black text-sm mb-4 flex items-center">
+          <Heart className="text-red-500 mr-2" size={18} />
+          Historial Clínico de Lesiones
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {lesiones.length === 0 ? (
+            <div className="col-span-full">
+              <p className="text-xs text-slate-400 py-4">Sin historial de lesiones reportado.</p>
+            </div>
+          ) : (
+            lesiones.map((l) => (
+              <div key={l.id} className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs flex flex-col justify-between">
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-slate-800 block mr-2 leading-tight">{l.tipo_lesion}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${l.gravedad === 'Leve' ? 'bg-blue-100 text-blue-700' :
+                      l.gravedad === 'Media' ? 'bg-amber-100 text-amber-700' :
+                        'bg-red-100 text-red-700'
+                    }`}>{l.gravedad}</span>
+                </div>
+                {l.descripcion && <p className="text-slate-500 italic mb-2">"{l.descripcion}"</p>}
+                <div className="text-xs text-slate-400 flex flex-col space-y-1 mt-auto">
+                  <span>Inicio: {l.fecha_inicio}</span>
+                  {l.fecha_alta ? (
+                    <span className="text-valle-green font-semibold">Alta: {l.fecha_alta}</span>
+                  ) : (
+                    <div className="flex justify-between items-center mt-1">
+                      <span className="text-red-600 font-semibold animate-pulse">En Recuperación</span>
+                      {esCuerpoTecnico && (
+                        <button
+                          onClick={() => {
+                            setFechaAlta(new Date().toISOString().split('T')[0]);
+                            setRehabilitacionAlta('');
+                            setMostrarAltaModal(l);
+                          }}
+                          className="px-2 py-1 bg-valle-green text-valle-gold rounded-md hover:bg-valle-green-dark transition text-[10px] font-black cursor-pointer shadow-xs"
+                        >
+                          Dar Alta Médica
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {l.rehabilitacion && (
+                  <div className="mt-2 pt-2 border-t border-slate-200 text-xs text-slate-600">
+                    <strong className="text-slate-700">Rehabilitación:</strong> {l.rehabilitacion}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       {/* Historial Nutricional y de Descanso (Litros, Comidas, Sueño) */}
