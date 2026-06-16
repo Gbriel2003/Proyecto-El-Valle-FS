@@ -110,33 +110,48 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
         </div>
       </div>
 
-      <div className="animate-fade-in-up space-y-6">
+      <div className="animate-fade-in-up grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         
         {/* Tarjeta de Detalles del Perfil */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 w-full space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 w-full flex flex-col h-full space-y-6">
           <h3 className="text-lg font-black text-slate-800 font-display flex items-center border-b border-slate-100 pb-3">
             <User className="text-valle-green mr-2" size={20} />
             Detalles del Perfil
           </h3>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nombre</span>
-              <span className="font-semibold text-slate-800 block capitalize">{usuario?.nombre}</span>
+          <div className="space-y-5 max-w-2xl">
+            {/* Nombre y Apellido */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Nombre</label>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize cursor-not-allowed shadow-inner select-none">
+                  {usuario?.nombre || 'Cargando...'}
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Apellido</label>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize cursor-not-allowed shadow-inner select-none">
+                  {usuario?.apellido || 'Cargando...'}
+                </div>
+              </div>
             </div>
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Apellido</span>
-              <span className="font-semibold text-slate-800 block capitalize">{usuario?.apellido}</span>
-            </div>
-            <div className="space-y-1 sm:col-span-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block flex items-center gap-1"><Mail size={12} /> Correo Electrónico</span>
-              <span className="font-semibold text-slate-800 block">{usuario?.correo}</span>
+
+            {/* Correo Electrónico */}
+            <div>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <Mail size={12} /> Correo Electrónico
+              </label>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 cursor-not-allowed shadow-inner select-none">
+                {usuario?.correo || 'Cargando...'}
+              </div>
             </div>
             
             {/* Teléfono con validación de operadora venezolana */}
-            <div className="space-y-1 sm:col-span-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Teléfono de Contacto</span>
-              <div className="flex gap-2 items-center mt-1">
+            <div>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
+                Teléfono de Contacto
+              </label>
+              <div className="flex gap-2 items-center">
                 <CustomSelect
                   value={prefijo}
                   onChange={(e) => setPrefijo(e.target.value)}
@@ -152,41 +167,43 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
                     if (val.length <= 7) setNumero(val);
                   }}
                   placeholder="1234567"
-                  className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-3 py-2.5 flex-1 focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green font-semibold"
+                  className="bg-white border border-slate-200 rounded-lg text-sm px-4 py-2.5 flex-1 focus:outline-none focus:border-valle-green focus:ring-2 focus:ring-valle-green/20 font-bold shadow-sm transition-all"
                 />
                 <button
                   onClick={guardarTelefono}
                   disabled={guardandoTel}
-                  className="px-4 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-lg text-xs font-black transition cursor-pointer disabled:opacity-50 active:scale-95"
+                  className="px-5 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-lg text-xs font-black transition cursor-pointer disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 whitespace-nowrap"
                 >
                   {guardandoTel ? 'Guardando...' : 'Actualizar'}
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 font-bold mt-1">Formatos permitidos: 0424, 0414, 0416, 0426, 0412, 0422 seguido de 7 dígitos.</p>
+              <p className="text-[10px] text-slate-400 font-bold mt-1.5">Formatos permitidos: 0424, 0414, 0416, 0426, 0412, 0422 seguido de 7 dígitos.</p>
             </div>
 
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block flex items-center gap-1"><Award size={12} /> Rol del Sistema</span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-valle-green/10 text-valle-green border border-valle-green/20 capitalize">
-                {usuario?.rol}
-              </span>
-            </div>
-            <div className="space-y-1">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block flex items-center gap-1"><Calendar size={12} /> Fecha de Registro</span>
-              <span className="font-semibold text-slate-800 block">
-                {usuario?.fecha_registro ? new Date(usuario.fecha_registro).toLocaleDateString('es-VE', {
-                  day: 'numeric', month: 'long', year: 'numeric'
-                }) : 'N/A'}
-              </span>
+            {/* Metadatos (Rol y Fecha) */}
+            <div className="grid grid-cols-2 gap-4 mt-2">
+              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2"><Award size={14} /> Rol del Sistema</span>
+                <span className="inline-flex items-center self-start px-3 py-1 rounded-md text-xs font-black bg-valle-green/10 text-valle-green border border-valle-green/20 capitalize shadow-sm">
+                  {usuario?.rol}
+                </span>
+              </div>
+              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2"><Calendar size={14} /> Fecha de Registro</span>
+                <span className="font-semibold text-slate-700 text-xs">
+                  {usuario?.fecha_registro ? new Date(usuario.fecha_registro).toLocaleDateString('es-VE', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                  }) : 'N/A'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Separador visual para scroll */}
-        <div className="w-full border-t border-slate-200/60 my-6" />
 
-        {/* Tarjeta de Seguridad (al final de la página) */}
-        <div className="w-full">
+
+        {/* Tarjeta de Seguridad */}
+        <div className="w-full h-full">
           {esCuerpoTecnico ? (
             // Admin y Entrenador pueden cambiar contraseña directamente
             <ChangePassword
@@ -196,7 +213,7 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
             />
           ) : (
             // Atletas y Nutricionistas requieren autorización
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 text-center flex flex-col items-center space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 text-center flex flex-col items-center justify-center space-y-4 h-full">
               <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shadow-xs">
                 <ShieldAlert size={24} />
               </div>

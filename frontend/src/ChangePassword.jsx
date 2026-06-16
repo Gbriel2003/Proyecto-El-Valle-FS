@@ -71,8 +71,8 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
   };
 
   return (
-    <div className={`w-full ${obligatoria ? 'max-w-md mx-auto my-12' : 'my-6'} animate-fade-in-up`}>
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 p-8 space-y-6">
+    <div className={`w-full h-full ${obligatoria ? 'max-w-md mx-auto my-12' : ''} animate-fade-in-up`}>
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col h-full space-y-6">
         <div className="text-center flex flex-col items-center">
           <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-md border-2 ${
             obligatoria 

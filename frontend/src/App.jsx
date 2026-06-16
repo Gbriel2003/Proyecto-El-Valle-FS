@@ -58,7 +58,7 @@ export default function App() {
   const [rolUsuario, setRolUsuario] = useState('');
   const [menuActivo, setMenuActivo] = useState('');
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(true);
+  const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(false);
   const [debeCambiarPassword, setDebeCambiarPassword] = useState(false);
   const [tokenRestablecer, setTokenRestablecer] = useState(null);
 

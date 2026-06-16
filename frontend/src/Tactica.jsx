@@ -181,12 +181,23 @@ export default function Tactica({
     }, []);
 
     // Recargar partidos cuando cambien los partidos en proceso de análisis global
+    const prevPartidosEnProcesoRef = useRef(partidosEnProceso);
     useEffect(() => {
         const timer = setTimeout(() => {
             cargarPartidos();
         }, 0);
+        
+        const prev = prevPartidosEnProcesoRef.current;
+        // Si teníamos un mensaje de procesando y el partido ya salió de la lista de "en proceso"
+        if (mensajeSubida.tipo === 'procesando' && mensajeSubida.partidoId) {
+            if (prev.includes(mensajeSubida.partidoId) && !partidosEnProceso.includes(mensajeSubida.partidoId)) {
+                setMensajeSubida({ partidoId: null, texto: '', tipo: '' });
+            }
+        }
+        prevPartidosEnProcesoRef.current = partidosEnProceso;
+
         return () => clearTimeout(timer);
-    }, [partidosEnProceso]);
+    }, [partidosEnProceso, mensajeSubida]);
 
     // Actualizar el reporte en el modal en tiempo real si el partido sale de la lista de procesamiento
     useEffect(() => {

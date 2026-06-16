@@ -203,24 +203,30 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     if (atletaSeleccionado) {
       const hoyStr = new Date().toLocaleDateString('sv');
       const registroHoy = habitosHistorial.find(h => h.fecha === hoyStr);
+      
+      // Buscar el nombre de la dieta asignada en base al ID o nombre del atleta
+      const dietaAsignada = dietas.find(d => d.id === atletaSeleccionado.dieta_asignada_id);
+      let planActual = '';
+      if (dietaAsignada) {
+        planActual = dietaAsignada.nombre;
+      } else if (atletaSeleccionado.dieta_asignada_nombre) {
+        planActual = atletaSeleccionado.dieta_asignada_nombre;
+      }
+
       if (registroHoy) {
         setFrecuenciaComidas(registroHoy.frecuencia_comidas);
         setSuplementacion(registroHoy.suplementacion || '');
         setHidratacionLitros(registroHoy.hidratacion_litros);
         setCalidadDescanso(registroHoy.calidad_descanso);
-        if (registroHoy.plan_alimentacion) {
-          setPlanAlimentacion(registroHoy.plan_alimentacion);
-        }
+        // Si hay un plan asignado a nivel de atleta, ese tiene prioridad para mostrarse.
+        // Si no, caemos en el plan que se haya guardado hoy.
+        setPlanAlimentacion(planActual || registroHoy.plan_alimentacion || '');
       } else {
         setFrecuenciaComidas(4);
         setSuplementacion('');
         setHidratacionLitros(2.5);
         setCalidadDescanso(7);
-        if (atletaSeleccionado.dieta_asignada_nombre) {
-          setPlanAlimentacion(atletaSeleccionado.dieta_asignada_nombre);
-        } else if (dietas.length > 0) {
-          setPlanAlimentacion(dietas[0].nombre);
-        }
+        setPlanAlimentacion(planActual);
       }
     }
   }, [habitosHistorial, atletaSeleccionado, dietas]);
@@ -497,7 +503,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 z-10">
+                  <div className="flex items-center space-x-4 z-30">
                     <div className="w-20 h-20 bg-white/10 rounded-full border-2 border-valle-gold/50 flex items-center justify-center text-white font-black text-2xl font-display uppercase shadow-inner">
                       {atletaSeleccionado.nombre.charAt(0)}{atletaSeleccionado.apellido.charAt(0)}
                     </div>
@@ -542,64 +548,83 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                   {/* FORMULARIO 1: REGISTRO BIOMÉTRICO (PESO Y ALTURA) */}
-                  <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
-                    <div className="flex items-center space-x-2 border-b border-slate-100 pb-3">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col h-full space-y-6">
+                    <div className="flex items-center space-x-2 border-b border-slate-100 pb-3 shrink-0">
                       <Scale size={20} className="text-valle-green" />
                       <span className="text-sm font-bold text-slate-850 tracking-tight font-display">Biometría Semanal</span>
                     </div>
 
-                    <form onSubmit={handleGuardarBiometria} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Peso (kg)</label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            placeholder="e.g. 74.5"
-                            value={pesoKg}
-                            onChange={(e) => setPesoKg(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
-                            required
-                          />
+                    <form onSubmit={handleGuardarBiometria} className="flex-1 flex flex-col justify-between space-y-4">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Peso Registrado</label>
+                            <div className="relative">
+                              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">kg</span>
+                              </div>
+                              <input
+                                type="number"
+                                step="0.1"
+                                placeholder="0.0"
+                                value={pesoKg}
+                                onChange={(e) => setPesoKg(e.target.value)}
+                                className="w-full pr-10 pl-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base font-bold focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/20 transition-all text-slate-800 shadow-inner"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Estatura Actual</label>
+                            <div className="relative">
+                              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span className="text-slate-400 font-bold text-xs uppercase tracking-wider">cm</span>
+                              </div>
+                              <input
+                                type="number"
+                                step="0.5"
+                                placeholder="0"
+                                value={alturaCm}
+                                onChange={(e) => setAlturaCm(e.target.value)}
+                                className="w-full pr-10 pl-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base font-bold focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/20 transition-all text-slate-800 shadow-inner"
+                                required
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Altura (cm)</label>
-                          <input
-                            type="number"
-                            step="0.5"
-                            placeholder="e.g. 178"
-                            value={alturaCm}
-                            onChange={(e) => setAlturaCm(e.target.value)}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 transition-all font-semibold text-slate-800"
-                            required
-                          />
-                        </div>
-                      </div>
 
-                      {/* IMC Calculado en vivo */}
-                      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between text-sm font-medium">
-                        <div>
-                          <span className="text-xs text-slate-500 block font-bold uppercase tracking-wider">IMC Estimado</span>
-                          <span className="text-base font-black text-slate-800 mt-0.5 block">{imcCalculado ? imcCalculado : 'Ingresa datos'}</span>
+                        {/* IMC Calculado en vivo */}
+                        <div className="bg-linear-to-r from-slate-50 to-slate-100/50 rounded-xl border border-slate-200/80 p-3.5 shadow-sm flex items-center justify-between relative overflow-hidden group">
+                          <div className="absolute right-0 top-0 h-full w-1/3 bg-linear-to-l from-white/40 to-transparent pointer-events-none" />
+                          <div className="z-10">
+                            <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                              <Activity size={12} className="text-valle-green" /> 
+                              Índice de Masa Corporal
+                            </span>
+                            <div className="flex items-baseline gap-1.5 mt-0.5">
+                              <span className="text-xl font-black text-slate-800 font-display tracking-tight leading-none">{imcCalculado ? imcCalculado : '--'}</span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">kg/m²</span>
+                            </div>
+                          </div>
+                          <span className={`z-10 text-[10px] font-black px-3 py-1 rounded-lg border uppercase tracking-widest shadow-xs transition-colors ${imcEstado.color}`}>
+                            {imcEstado.texto}
+                          </span>
                         </div>
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${imcEstado.color}`}>
-                          {imcEstado.texto}
-                        </span>
                       </div>
 
                       <button
                         type="submit"
                         disabled={guardandoBiometria}
-                        className="w-full py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer"
+                        className="w-full py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center cursor-pointer active:scale-95 disabled:opacity-70 mt-auto"
                       >
                         {guardandoBiometria ? (
                           <>
-                            <Loader2 className="animate-spin mr-1.5" size={16} />
+                            <Loader2 className="animate-spin mr-2" size={16} />
                             Guardando...
                           </>
                         ) : (
                           <>
-                            <Plus size={16} className="mr-1.5" />
+                            <Plus size={16} className="mr-2 opacity-90" />
                             Registrar Biometría
                           </>
                         )}
@@ -690,14 +715,18 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                             onChange={(e) => setPlanAlimentacion(e.target.value)}
                             options={
                               dietas.length > 0
-                                ? dietas.map(d => ({ value: d.nombre, label: d.nombre }))
+                                ? [
+                                    { value: '', label: 'Sin menú asignado' },
+                                    ...dietas.map(d => ({ value: d.nombre, label: d.nombre }))
+                                  ]
                                 : [
-                                  "Menú pre-partido",
-                                  "Menú post-partido",
-                                  "Menú de recuperación",
-                                  "Plan de definición",
-                                  "Plan de volumen"
-                                ]
+                                    { value: '', label: 'Sin menú asignado' },
+                                    { value: 'Menú pre-partido', label: 'Menú pre-partido' },
+                                    { value: 'Menú post-partido', label: 'Menú post-partido' },
+                                    { value: 'Menú de recuperación', label: 'Menú de recuperación' },
+                                    { value: 'Plan de definición', label: 'Plan de definición' },
+                                    { value: 'Plan de volumen', label: 'Plan de volumen' }
+                                  ]
                             }
                           />
                         </div>
