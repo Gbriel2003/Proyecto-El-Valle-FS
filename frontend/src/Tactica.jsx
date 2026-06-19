@@ -77,6 +77,7 @@ export default function Tactica({
     const [equipoVisitantePartido, setEquipoVisitantePartido] = useState('');
     const [fechaHoraPartido, setFechaHoraPartido] = useState('');
     const [programandoPartido, setProgramandoPartido] = useState(false);
+    const [editandoPartidoId, setEditandoPartidoId] = useState(null);
 
     // Formulario Finalizar Partido
     const [golesLocalPartido, setGolesLocalPartido] = useState(0);
@@ -432,17 +433,33 @@ export default function Tactica({
         if (!torneoIdPartido || !equipoLocalPartido || !equipoVisitantePartido || !fechaHoraPartido) return;
         setProgramandoPartido(true);
         try {
-            await api.post('/partidos/', {
-                torneo_id: parseInt(torneoIdPartido),
-                equipo_local: equipoLocalPartido,
-                equipo_visitante: equipoVisitantePartido,
-                fecha_hora: new Date(fechaHoraPartido).toISOString()
-            });
-            agregarToast("Partido programado", `Partido contra ${equipoVisitantePartido} agendado.`, "success");
+            if (editandoPartidoId) {
+                // Modo Edición
+                await api.put(`/partidos/${editandoPartidoId}`, {
+                    goles_local: 0,
+                    goles_visitante: 0,
+                    estado: 'Programado',
+                    jugadores_ids: jugadoresSeleccionados,
+                    fecha_hora: new Date(fechaHoraPartido).toISOString()
+                });
+                agregarToast("Partido actualizado", `Convocatoria y/o fecha actualizada.`, "success");
+            } else {
+                // Modo Creación
+                await api.post('/partidos/', {
+                    torneo_id: parseInt(torneoIdPartido),
+                    equipo_local: equipoLocalPartido,
+                    equipo_visitante: equipoVisitantePartido,
+                    fecha_hora: new Date(fechaHoraPartido).toISOString(),
+                    jugadores_ids: jugadoresSeleccionados
+                });
+                agregarToast("Partido programado", `Partido contra ${equipoVisitantePartido} agendado.`, "success");
+            }
             setTorneoIdPartido('');
             setEquipoLocalPartido('El Valle F.S.');
             setEquipoVisitantePartido('');
             setFechaHoraPartido('');
+            setJugadoresSeleccionados([]);
+            setEditandoPartidoId(null);
             setMostrarProgramarPartido(false);
             await cargarPartidos();
         } catch (err) {
@@ -461,13 +478,12 @@ export default function Tactica({
                 goles_local: golesLocalPartido,
                 goles_visitante: golesVisitantePartido,
                 estado: 'Finalizado',
-                jugadores_ids: jugadoresSeleccionados
+                jugadores_ids: []
             });
             agregarToast("Partido finalizado", `Resultado guardado para el partido contra ${mostrarFinalizarPartido.equipo_visitante}.`, "success");
             setMostrarFinalizarPartido(null);
             setGolesLocalPartido(0);
             setGolesVisitantePartido(0);
-            setJugadoresSeleccionados([]);
             await cargarPartidos();
         } catch (err) {
             console.error("Error al finalizar partido", err);
@@ -651,7 +667,15 @@ export default function Tactica({
                           </button>
                           <button
                             type="button"
-                            onClick={() => setMostrarProgramarPartido(true)}
+                            onClick={() => {
+                                setEditandoPartidoId(null);
+                                setTorneoIdPartido(torneos.length > 0 ? torneos[0].id.toString() : '');
+                                setEquipoLocalPartido('El Valle F.S.');
+                                setEquipoVisitantePartido('');
+                                setFechaHoraPartido('');
+                                setJugadoresSeleccionados([]);
+                                setMostrarProgramarPartido(true);
+                            }}
                             className="flex-1 sm:flex-initial px-3.5 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-xl text-xs font-bold transition flex items-center justify-center shadow-md shadow-valle-green/10 cursor-pointer"
                           >
                             <Calendar className="mr-1.5" size={14} /> Programar Partido
@@ -684,6 +708,12 @@ export default function Tactica({
                     manejarEliminarPartido={manejarEliminarPartido}
                     manejarEliminarTorneo={manejarEliminarTorneo}
                     manejarFinalizarTorneo={manejarFinalizarTorneo}
+                    setEditandoPartidoId={setEditandoPartidoId}
+                    setTorneoIdPartido={setTorneoIdPartido}
+                    setEquipoLocalPartido={setEquipoLocalPartido}
+                    setEquipoVisitantePartido={setEquipoVisitantePartido}
+                    setFechaHoraPartido={setFechaHoraPartido}
+                    setMostrarProgramarPartido={setMostrarProgramarPartido}
                     archivoSeleccionado={archivoSeleccionado}
                     mensajeSubida={mensajeSubida}
                     subiendo={subiendo}
@@ -768,7 +798,11 @@ export default function Tactica({
                 setEquipoVisitantePartido={setEquipoVisitantePartido}
                 fechaHoraPartido={fechaHoraPartido}
                 setFechaHoraPartido={setFechaHoraPartido}
+                plantillaAtletas={plantillaAtletas}
+                jugadoresSeleccionados={jugadoresSeleccionados}
+                setJugadoresSeleccionados={setJugadoresSeleccionados}
                 programandoPartido={programandoPartido}
+                editandoPartidoId={editandoPartidoId}
                 onAbrirCrearTorneo={() => {
                     setMostrarProgramarPartido(false);
                     setMostrarCrearTorneo(true);
@@ -784,9 +818,6 @@ export default function Tactica({
                 setGolesLocalPartido={setGolesLocalPartido}
                 golesVisitantePartido={golesVisitantePartido}
                 setGolesVisitantePartido={setGolesVisitantePartido}
-                jugadoresSeleccionados={jugadoresSeleccionados}
-                setJugadoresSeleccionados={setJugadoresSeleccionados}
-                plantillaAtletas={plantillaAtletas}
                 guardandoResultado={guardandoResultado}
                 onSubmit={manejarGuardarResultado}
             />

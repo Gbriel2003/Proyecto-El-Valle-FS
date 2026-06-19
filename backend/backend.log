@@ -652,3 +652,38 @@ Traceback (most recent call last):
 AssertionError: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba618a0d40>'
 [2026-06-18 09:31:19,513] INFO [el-valle-fs:27] [IA] Reporte del partido 5 procesado correctamente.
 [2026-06-19 11:21:11,232] INFO [el-valle-fs:27] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-19 14:43:11,088] INFO [el-valle-fs:28] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-19 14:56:45,471] ERROR [el-valle-fs:63] [IA ERROR] Error procesando reporte partido 5: 'Usuario' object has no attribute 'nombres'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\partidos.py", line 40, in procesar_reporte_ia_background
+    nombres_db = atleta_perfil.usuario.nombres.lower()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Usuario' object has no attribute 'nombres'. Did you mean: 'nombre'?
+[2026-06-19 15:52:21,559] ERROR [el-valle-fs:63] [IA ERROR] Error procesando reporte partido 5: 'Usuario' object has no attribute 'nombres'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\partidos.py", line 40, in procesar_reporte_ia_background
+    nombres_db = atleta_perfil.usuario.nombres.lower()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Usuario' object has no attribute 'nombres'. Did you mean: 'nombre'?
+[2026-06-19 15:53:46,940] INFO [el-valle-fs:58] [IA] Estadísticas individuales actualizadas para el partido 5.
+[2026-06-19 15:53:46,950] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-19 16:09:09,609] INFO [el-valle-fs:58] [IA] Estadísticas individuales actualizadas para el partido 5.
+[2026-06-19 16:09:09,617] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-19 16:16:54,085] ERROR [el-valle-fs:10] Error de Base de Datos en POST /usuarios/: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "usuarios_cedula_key"
+DETAIL:  Key (cedula)=(V-11222333) already exists.
+
+[SQL: INSERT INTO usuarios (nombre, apellido, correo, password_hash, rol, debe_cambiar_password, reset_token, reset_token_expiration, telefono, cedula, foto_perfil) VALUES (%(nombre)s, %(apellido)s, %(correo)s, %(password_hash)s, %(rol)s, %(debe_cambiar_password)s, %(reset_token)s, %(reset_token_expiration)s, %(telefono)s, %(cedula)s, %(foto_perfil)s) RETURNING usuarios.id, usuarios.fecha_registro]
+[parameters: {'nombre': 'Ronald ', 'apellido': 'Diaz', 'correo': 'ronaldiaz@gmail.com', 'password_hash': '$2b$12$LEZm1ikGTaSB3.WxkFIOCuYAA8rr6wyTaAXnTJvRrjDJO0wXOVrIK', 'rol': 'atleta', 'debe_cambiar_password': True, 'reset_token': None, 'reset_token_expiration': None, 'telefono': '0412-1234567', 'cedula': 'V-11222333', 'foto_perfil': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-06-19 16:16:57,651] ERROR [el-valle-fs:10] Error de Base de Datos en POST /usuarios/: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "usuarios_cedula_key"
+DETAIL:  Key (cedula)=(V-11222333) already exists.
+
+[SQL: INSERT INTO usuarios (nombre, apellido, correo, password_hash, rol, debe_cambiar_password, reset_token, reset_token_expiration, telefono, cedula, foto_perfil) VALUES (%(nombre)s, %(apellido)s, %(correo)s, %(password_hash)s, %(rol)s, %(debe_cambiar_password)s, %(reset_token)s, %(reset_token_expiration)s, %(telefono)s, %(cedula)s, %(foto_perfil)s) RETURNING usuarios.id, usuarios.fecha_registro]
+[parameters: {'nombre': 'Ronald ', 'apellido': 'Diaz', 'correo': 'ronaldiaz@gmail.com', 'password_hash': '$2b$12$P4TD122lc2SbwSDhQ64kTu4IwxkO4nWtjbwo6Mq3MqrQi9G3pSgYy', 'rol': 'atleta', 'debe_cambiar_password': True, 'reset_token': None, 'reset_token_expiration': None, 'telefono': '0412-1234567', 'cedula': 'V-11222333', 'foto_perfil': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-06-19 16:17:13,015] ERROR [el-valle-fs:10] Error de Base de Datos en POST /usuarios/: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "usuarios_cedula_key"
+DETAIL:  Key (cedula)=(V-11222333) already exists.
+
+[SQL: INSERT INTO usuarios (nombre, apellido, correo, password_hash, rol, debe_cambiar_password, reset_token, reset_token_expiration, telefono, cedula, foto_perfil) VALUES (%(nombre)s, %(apellido)s, %(correo)s, %(password_hash)s, %(rol)s, %(debe_cambiar_password)s, %(reset_token)s, %(reset_token_expiration)s, %(telefono)s, %(cedula)s, %(foto_perfil)s) RETURNING usuarios.id, usuarios.fecha_registro]
+[parameters: {'nombre': 'Ronald ', 'apellido': 'Diaz', 'correo': 'ronaldiaz@gmail.com', 'password_hash': '$2b$12$qIM482kj3FgmZiXdfIzV8uOgnYxDE5ZhKAusPAJkR4DldXQXI3SRC', 'rol': 'atleta', 'debe_cambiar_password': True, 'reset_token': None, 'reset_token_expiration': None, 'telefono': '0412-1234567', 'cedula': 'V-11222333', 'foto_perfil': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

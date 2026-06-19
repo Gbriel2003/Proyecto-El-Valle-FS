@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   X, Save, PlusCircle, Calendar, Award, Sparkles,
   Loader2, AlertTriangle, ThumbsUp, List, CheckCircle
@@ -210,27 +210,50 @@ export function ProgramarPartidoModal({
   setEquipoVisitantePartido,
   fechaHoraPartido,
   setFechaHoraPartido,
+  plantillaAtletas,
+  jugadoresSeleccionados,
+  setJugadoresSeleccionados,
   programandoPartido,
+  editandoPartidoId,
   onAbrirCrearTorneo,
   onSubmit
 }) {
   useEscapeKey(onClose);
+  
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Calcular la fecha mínima (mañana)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDateTime = tomorrow.toISOString().slice(0, 16);
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
       <div
-        className="bg-white rounded-2xl max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 overflow-hidden animate-fade-in-up"
+        className="bg-white rounded-2xl max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 animate-fade-in-up"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-match-title"
       >
-        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden rounded-t-2xl">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
           <h3 id="modal-match-title" className="font-black text-sm flex items-center tracking-widest uppercase text-white relative z-10 font-display">
-            <Calendar className="mr-2.5 text-valle-gold drop-shadow-md" size={16} /> Programar Nuevo Partido
+            <Calendar className="mr-2.5 text-valle-gold drop-shadow-md" size={16} /> {editandoPartidoId ? 'Editar Convocatoria / Partido' : 'Programar Nuevo Partido'}
           </h3>
           <button
             type="button"
@@ -295,15 +318,95 @@ export function ProgramarPartidoModal({
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Fecha y Hora</label>
-                <input
-                  type="datetime-local"
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
-                  value={fechaHoraPartido}
-                  onChange={(e) => setFechaHoraPartido(e.target.value)}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Fecha y Hora</label>
+                  <input
+                    type="datetime-local"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
+                    value={fechaHoraPartido}
+                    onChange={(e) => setFechaHoraPartido(e.target.value)}
+                    min={minDateTime}
+                    required
+                  />
+                </div>
+
+                {/* Plantilla / Jugadores Convocados */}
+                <div>
+                  <h4 className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex justify-between">
+                    <span>Convocados del Partido</span>
+                  </h4>
+                  <div ref={dropdownRef} className="relative">
+                    <div 
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 cursor-pointer flex justify-between items-center hover:border-valle-green shadow-sm transition-all focus-within:ring-4 focus-within:ring-valle-green/10"
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                    >
+                      <span className={jugadoresSeleccionados.length === 0 ? "text-slate-400" : "text-slate-800"}>
+                        {jugadoresSeleccionados.length === 0 
+                          ? "Seleccionar atletas..." 
+                          : `${jugadoresSeleccionados.length} convocado(s)`}
+                      </span>
+                      <svg className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ml-2 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    
+                    {dropdownOpen && (
+                      <div className="absolute z-50 bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.15)] rounded-xl overflow-hidden origin-bottom flex flex-col w-64 md:w-full">
+                        <div className="p-2 border-b border-slate-100 bg-slate-50">
+                          <input
+                            type="text"
+                            placeholder="Buscar atleta por nombre..."
+                            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-2 focus:ring-valle-green/10 text-slate-800"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto p-1.5">
+                          {plantillaAtletas.length === 0 ? (
+                            <p className="text-slate-400 text-center py-4 text-xs font-semibold">No hay atletas registrados.</p>
+                          ) : (
+                            <div className="flex flex-col gap-1">
+                              {plantillaAtletas
+                                .filter(a => `${a.nombre} ${a.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()))
+                                .map(atleta => {
+                                  const seleccionado = jugadoresSeleccionados.includes(atleta.atleta_id);
+                                  return (
+                                    <label
+                                      key={atleta.atleta_id}
+                                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${seleccionado
+                                          ? 'bg-valle-green/10 text-valle-green-dark border border-valle-green/20'
+                                          : 'bg-transparent border border-transparent text-slate-600 hover:bg-slate-50'
+                                        }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 cursor-pointer flex-shrink-0"
+                                        checked={seleccionado}
+                                        onChange={() => {
+                                          if (seleccionado) {
+                                            setJugadoresSeleccionados(prev => prev.filter(id => id !== atleta.atleta_id));
+                                          } else {
+                                            setJugadoresSeleccionados(prev => [...prev, atleta.atleta_id]);
+                                          }
+                                        }}
+                                      />
+                                      <div className="text-left flex-1 min-w-0">
+                                        <p className="text-xs font-bold leading-tight truncate">{atleta.nombre} {atleta.apellido}</p>
+                                        <p className="text-[10px] text-slate-500 leading-none mt-1">{atleta.posicion}</p>
+                                      </div>
+                                    </label>
+                                  );
+                                })}
+                              {plantillaAtletas.filter(a => `${a.nombre} ${a.apellido}`.toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
+                                <p className="text-slate-400 text-center py-3 text-xs font-semibold">No se encontraron atletas.</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="pt-2">
@@ -312,7 +415,7 @@ export function ProgramarPartidoModal({
                   disabled={programandoPartido}
                   className="w-full py-3.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
                 >
-                  {programandoPartido ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : 'Programar Partido'}
+                  {programandoPartido ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : (editandoPartidoId ? 'Guardar Cambios' : 'Programar Partido')}
                 </button>
               </div>
             </>
@@ -332,9 +435,6 @@ export function FinalizarPartidoModal({
   setGolesLocalPartido,
   golesVisitantePartido,
   setGolesVisitantePartido,
-  jugadoresSeleccionados,
-  setJugadoresSeleccionados,
-  plantillaAtletas,
   guardandoResultado,
   onSubmit
 }) {
@@ -394,48 +494,7 @@ export function FinalizarPartidoModal({
             </div>
           </div>
 
-          {/* Plantilla / Jugadores Convocados */}
-          <div>
-            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex justify-between">
-              <span>Convocados del Partido</span>
-              <span className="text-slate-400 font-mono font-bold">{jugadoresSeleccionados.length} seleccionados</span>
-            </h4>
-            {plantillaAtletas.length === 0 ? (
-              <p className="text-slate-400 text-center py-4 bg-slate-50 rounded-xl border">No hay atletas registrados en el club.</p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                {plantillaAtletas.map(atleta => {
-                  const seleccionado = jugadoresSeleccionados.includes(atleta.atleta_id);
-                  return (
-                    <label
-                      key={atleta.atleta_id}
-                      className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer select-none transition ${seleccionado
-                          ? 'bg-valle-green/5 border-valle-green/30 text-valle-green-dark'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                        }`}
-                    >
-                      <input
-                        type="checkbox"
-                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 cursor-pointer"
-                        checked={seleccionado}
-                        onChange={() => {
-                          if (seleccionado) {
-                            setJugadoresSeleccionados(prev => prev.filter(id => id !== atleta.atleta_id));
-                          } else {
-                            setJugadoresSeleccionados(prev => [...prev, atleta.atleta_id]);
-                          }
-                        }}
-                      />
-                      <div className="text-left">
-                        <p className="text-xs font-bold leading-tight line-clamp-1">{atleta.nombre} {atleta.apellido}</p>
-                        <p className="text-[10px] text-slate-400 leading-none mt-0.5">{atleta.posicion}</p>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+
 
           <button
             type="submit"

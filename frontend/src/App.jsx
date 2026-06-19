@@ -13,6 +13,7 @@ import PWAInstallModal from './components/modals/PWAInstallModal';
 import ChangePassword from './ChangePassword';
 import ResetPassword from './ResetPassword';
 import AdministrarPerfil from './AdministrarPerfil';
+import MisPartidos from './MisPartidos';
 import {
   Users,
   Activity,
@@ -36,7 +37,8 @@ import {
   AlertTriangle,
   ShieldAlert,
   Lock,
-  Award
+  Award,
+  Trophy
 } from 'lucide-react';
 
 
@@ -50,7 +52,8 @@ const titulosPaginas = {
   mi_perfil: "Ficha Deportiva",
   control_nutricional: "Control Nutricional",
   cambiar_contrasena: "Seguridad de la Cuenta",
-  administrar_perfil: "Mi Perfil"
+  administrar_perfil: "Mi Perfil",
+  mis_partidos: "Mis Partidos"
 };
 
 export default function App() {
@@ -179,18 +182,59 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autenticado, rolUsuario]);
 
+  // Polling para notificaciones del backend
+  useEffect(() => {
+    if (!autenticado) return;
+
+    const cargarNotificacionesBackend = async () => {
+      try {
+        const res = await api.get('/notificaciones/mis-notificaciones');
+        setNotificaciones(res.data.map(n => ({
+          id: n.id,
+          mensaje: n.mensaje,
+          tipo: n.tipo,
+          timestamp: new Date(n.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          leido: n.leido,
+          accionMenu: null // Por si queremos agragar acciones luego
+        })));
+      } catch (error) {
+        // Ignorar
+      }
+    };
+
+    cargarNotificacionesBackend();
+    const intervalo = setInterval(cargarNotificacionesBackend, 30000);
+    return () => clearInterval(intervalo);
+  }, [autenticado]);
+
   const unreadCount = notificaciones.filter(n => !n.leido).length;
 
-  const marcarTodasComoLeidas = () => {
-    setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
+  const marcarTodasComoLeidas = async () => {
+    try {
+      await api.put('/notificaciones/marcar-todas');
+      setNotificaciones(prev => prev.map(n => ({ ...n, leido: true })));
+    } catch (e) { console.error(e); }
   };
 
-  const eliminarNotificacion = (id) => {
-    setNotificaciones(prev => prev.filter(n => n.id !== id));
+  const marcarComoLeida = async (id) => {
+    try {
+      await api.put(`/notificaciones/${id}/leida`);
+      setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leido: true } : n));
+    } catch (e) { console.error(e); }
   };
 
-  const limpiarNotificaciones = () => {
-    setNotificaciones([]);
+  const eliminarNotificacion = async (id) => {
+    try {
+      await api.delete(`/notificaciones/${id}`);
+      setNotificaciones(prev => prev.filter(n => n.id !== id));
+    } catch (e) { console.error(e); }
+  };
+
+  const limpiarNotificaciones = async () => {
+    try {
+      await api.delete('/notificaciones/limpiar-todas');
+      setNotificaciones([]);
+    } catch (e) { console.error(e); }
   };
 
   const registrarPartidoEnProceso = (partidoId) => {
@@ -517,10 +561,16 @@ export default function App() {
 
               {/* Ficha Deportiva (Solo Atletas) */}
               {rolUsuario === 'atleta' && (
-                <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
-                  <Award size={18} className="mr-3" />
-                  <span>Ficha Deportiva</span>
-                </button>
+                <>
+                  <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
+                    <Award size={18} className="mr-3" />
+                    <span>Ficha Deportiva</span>
+                  </button>
+                  <button onClick={() => handleNavClick('mis_partidos')} className={navItemClass('mis_partidos')}>
+                    <Trophy size={18} className="mr-3" />
+                    <span>Mis Partidos</span>
+                  </button>
+                </>
               )}
 
               {/* Mi Perfil (Todos) */}
@@ -614,12 +664,13 @@ export default function App() {
                         <div 
                           key={n.id} 
                           onClick={() => {
+                            if (!n.leido) marcarComoLeida(n.id);
                             if (n.accionMenu) {
                               setMenuActivo(n.accionMenu);
                               setNotifDropdownAbierto(false);
                             }
                           }}
-                          className={`p-4 transition-colors flex items-start justify-between gap-3 hover:bg-white ${!n.leido ? 'bg-white border-l-2 border-valle-gold' : ''} ${n.accionMenu ? 'cursor-pointer hover:shadow-sm' : ''}`}
+                          className={`p-4 transition-colors flex items-start justify-between gap-3 hover:bg-slate-50 cursor-pointer ${!n.leido ? 'bg-white border-l-2 border-valle-gold' : ''} ${n.accionMenu ? 'hover:shadow-sm' : ''}`}
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-bold text-slate-700 leading-relaxed wrap-break-word">
@@ -712,6 +763,7 @@ export default function App() {
           {menuActivo === 'ia' && (rolUsuario === 'admin' || rolUsuario === 'entrenador') && <RegistroEntrenamiento crearNotificacion={crearNotificacion} />}
           {menuActivo === 'configuracion' && rolUsuario === 'admin' && <ConfiguracionClub crearNotificacion={crearNotificacion} />}
           {menuActivo === 'mi_perfil' && rolUsuario === 'atleta' && <FichaTecnica crearNotificacion={crearNotificacion} />}
+          {menuActivo === 'mis_partidos' && rolUsuario === 'atleta' && <MisPartidos crearNotificacion={crearNotificacion} />}
           {menuActivo === 'administrar_perfil' && (
             <AdministrarPerfil
               rolUsuario={rolUsuario}

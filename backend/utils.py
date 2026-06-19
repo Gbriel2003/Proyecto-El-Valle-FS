@@ -49,9 +49,20 @@ def analizar_estadisticas_con_ia(texto_reporte: str):
         "mvp": "Nombre del jugador y 1 sola razón corta de su impacto.",
         "puntos_fuertes": ["Una frase corta", "Una frase corta"],
         "puntos_a_mejorar": ["Una frase corta", "Una frase corta"],
-        "analisis_individual": "Mención telegráfica de 1 o 2 jugadores clave máximo."
+        "analisis_individual": "Mención telegráfica de 1 o 2 jugadores clave máximo.",
+        "estadisticas_jugadores": [
+            {{
+                "nombre": "Nombre del jugador extraído del texto",
+                "goles": 0,
+                "asistencias": 0,
+                "recuperaciones": 0,
+                "errores": 0
+            }}
+        ]
     }}
-    Responde ÚNICAMENTE el objeto JSON puro.
+    Extrae las estadísticas de TODOS los jugadores mencionados en el texto. Si un dato no existe, pon 0.
+    Nota: "recuperaciones" incluye robos, quites o intercepciones. "errores" incluye pérdidas de balón o errores de posicionamiento.
+    Responde ÚNICAMENTE el objeto JSON puro sin ningún texto adicional.
     """
     
     payload = {

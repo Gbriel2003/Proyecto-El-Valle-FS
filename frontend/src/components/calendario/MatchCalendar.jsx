@@ -1,7 +1,7 @@
 import { 
   Calendar, Clock, MapPin, Shield, FileText, 
   Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight,
-  MoreVertical, CheckCircle
+  MoreVertical, CheckCircle, Pencil
 } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from 'react';
 
@@ -25,7 +25,13 @@ export default function MatchCalendar({
   subiendo,
   progresoSubida,
   manejarCambioArchivo,
-  manejarSubida
+  manejarSubida,
+  setEditandoPartidoId,
+  setTorneoIdPartido,
+  setEquipoLocalPartido,
+  setEquipoVisitantePartido,
+  setFechaHoraPartido,
+  setMostrarProgramarPartido
 }) {
   const [torneoFiltro, setTorneoFiltro] = useState(null); // null = todos
 
@@ -231,14 +237,33 @@ export default function MatchCalendar({
               )}
 
               {!esFinalizado && esCuerpoTecnico && (
-                <button
-                  type="button"
-                  onClick={() => manejarEliminarPartido(partido.id)}
-                  className="p-1.5 text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg transition cursor-pointer"
-                  title="Eliminar partido"
-                >
-                  <Trash2 size={13} />
-                </button>
+                <>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditandoPartidoId(partido.id);
+                      setTorneoIdPartido(partido.torneo_id.toString());
+                      setEquipoLocalPartido(partido.equipo_local);
+                      setEquipoVisitantePartido(partido.equipo_visitante);
+                      setFechaHoraPartido(new Date(new Date(partido.fecha_hora).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16));
+                      setJugadoresSeleccionados(partido.jugadores_ids || []);
+                      setMostrarProgramarPartido(true);
+                    }}
+                    className="p-1.5 text-slate-400 hover:text-valle-green hover:bg-valle-green/10 rounded-lg transition cursor-pointer"
+                    title="Editar convocatoria o fecha"
+                  >
+                    <Pencil size={13} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => manejarEliminarPartido(partido.id)}
+                    className="p-1.5 text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg transition cursor-pointer"
+                    title="Eliminar partido"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </>
               )}
             </div>
           </div>

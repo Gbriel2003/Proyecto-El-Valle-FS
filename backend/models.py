@@ -246,3 +246,15 @@ class SolicitudPassword(Base):
     fecha_solicitud = Column(DateTime, server_default=func.now())
     
     usuario = relationship("Usuario")
+
+class Notificacion(Base):
+    __tablename__ = "notificaciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    mensaje = Column(String(255), nullable=False)
+    tipo = Column(String(20), default="info") # success, error, info, warning
+    leido = Column(Boolean, default=False)
+    fecha_creacion = Column(DateTime, server_default=func.now())
+
+    usuario = relationship("Usuario")

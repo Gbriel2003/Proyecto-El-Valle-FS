@@ -59,6 +59,28 @@ def crear_partido(db: Session, partido: schemas.PartidoCreate):
     db.add(nuevo_partido)
     db.commit()
     db.refresh(nuevo_partido)
+
+    # Crear convocatoria y notificar
+    for atleta_id in partido.jugadores_ids:
+        # Táctica
+        nueva_est = models.EstadisticasTacticas(
+            partido_id=nuevo_partido.id,
+            atleta_id=atleta_id,
+            goles=0, asistencias=0, recuperaciones=0, errores_posicionamiento=0, minutos_jugados=0
+        )
+        db.add(nueva_est)
+
+        # Notificación
+        formato_fecha = nuevo_partido.fecha_hora.strftime('%d/%m/%Y a las %I:%M %p')
+        mensaje = f"Has sido convocado al partido contra {nuevo_partido.equipo_visitante} programado para el {formato_fecha}."
+        nueva_notif = models.Notificacion(
+            usuario_id=atleta_id,
+            mensaje=mensaje,
+            tipo="info"
+        )
+        db.add(nueva_notif)
+
+    db.commit()
     return nuevo_partido
 
 def listar_partidos(db: Session, skip: int = 0, limit: int = 100):
@@ -71,23 +93,39 @@ def actualizar_partido(db: Session, partido_id: int, partido_data: schemas.Parti
     
     partido.goles_local = partido_data.goles_local
     partido.goles_visitante = partido_data.goles_visitante
+    
+    estado_anterior = partido.estado
     partido.estado = partido_data.estado
     
-    # Eliminar estadísticas tácticas antiguas asociadas a este partido
-    db.query(models.EstadisticasTacticas).filter(models.EstadisticasTacticas.partido_id == partido_id).delete()
-    
-    # Guardar la nueva alineación en EstadisticasTacticas
-    for atleta_id in partido_data.jugadores_ids:
-        nueva_est = models.EstadisticasTacticas(
-            partido_id=partido_id,
-            atleta_id=atleta_id,
-            goles=0,
-            asistencias=0,
-            recuperaciones=0,
-            errores_posicionamiento=0,
-            minutos_jugados=0
-        )
-        db.add(nueva_est)
+    # Si estamos actualizando la convocatoria (jugadores_ids) antes de jugar
+    if partido_data.estado == "Programado" and partido_data.jugadores_ids:
+        # Obtener ids actuales
+        jugadores_actuales = [est.atleta_id for est in partido.estadisticas]
+        nuevos_jugadores = set(partido_data.jugadores_ids) - set(jugadores_actuales)
+
+        # Eliminar estadísticas tácticas antiguas
+        db.query(models.EstadisticasTacticas).filter(models.EstadisticasTacticas.partido_id == partido_id).delete()
+        
+        # Guardar la nueva alineación en EstadisticasTacticas
+        for atleta_id in partido_data.jugadores_ids:
+            nueva_est = models.EstadisticasTacticas(
+                partido_id=partido_id,
+                atleta_id=atleta_id,
+                goles=0, asistencias=0, recuperaciones=0, errores_posicionamiento=0, minutos_jugados=0
+            )
+            db.add(nueva_est)
+
+        # Notificar solo a los NUEVOS jugadores agregados a la convocatoria
+        if nuevos_jugadores:
+            formato_fecha = partido.fecha_hora.strftime('%d/%m/%Y a las %I:%M %p') if partido.fecha_hora else "fecha por definir"
+            mensaje = f"Has sido convocado al partido contra {partido.equipo_visitante} programado para el {formato_fecha}."
+            for atleta_id in nuevos_jugadores:
+                nueva_notif = models.Notificacion(
+                    usuario_id=atleta_id,
+                    mensaje=mensaje,
+                    tipo="info"
+                )
+                db.add(nueva_notif)
     
     db.commit()
     db.refresh(partido)

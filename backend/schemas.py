@@ -141,6 +141,7 @@ class PartidoCreate(BaseModel):
     equipo_local: str
     equipo_visitante: str
     fecha_hora: datetime
+    jugadores_ids: list[int] = []
 
 class PartidoResponse(PartidoCreate):
     id: int
@@ -155,6 +156,25 @@ class PartidoUpdate(BaseModel):
     goles_visitante: int
     estado: str  # "Finalizado"
     jugadores_ids: list[int]
+
+class EstadisticaPersonalAtleta(BaseModel):
+    goles: int
+    asistencias: int
+    recuperaciones: int
+    errores_posicionamiento: int
+    minutos_jugados: int
+
+class PartidoAtletaResponse(BaseModel):
+    id: int
+    torneo_id: int
+    torneo_nombre: Optional[str] = None
+    equipo_local: str
+    equipo_visitante: str
+    fecha_hora: datetime
+    goles_local: int
+    goles_visitante: int
+    estado: str
+    estadisticas_personales: Optional[EstadisticaPersonalAtleta] = None
 
 # Esquema para crear la sesión general
 class SesionEntrenamientoCreate(BaseModel):
@@ -304,6 +324,26 @@ class SolicitudPasswordResponse(BaseModel):
     usuario_nombre: str
     usuario_apellido: str
     usuario_correo: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================
+# ESQUEMAS DE NOTIFICACIONES
+# ==========================================
+
+class NotificacionBase(BaseModel):
+    mensaje: str
+    tipo: Optional[str] = "info"
+    leido: Optional[bool] = False
+
+class NotificacionCreate(NotificacionBase):
+    usuario_id: int
+
+class NotificacionResponse(NotificacionBase):
+    id: int
+    usuario_id: int
+    fecha_creacion: datetime
 
     class Config:
         from_attributes = True

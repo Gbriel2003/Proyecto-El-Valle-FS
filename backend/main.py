@@ -9,7 +9,7 @@ import os
 os.makedirs("static/uploads/perfiles", exist_ok=True)
 
 # Importar sub-routers
-from routers import usuarios, atletas, partidos, entrenamientos, lesiones, jugadas, dashboards
+from routers import usuarios, atletas, partidos, entrenamientos, lesiones, jugadas, dashboards, notificaciones
 
 # Importar manejadores globales y configuración de logs
 from exceptions import registrar_manejadores_excepciones
@@ -52,4 +52,5 @@ app.include_router(entrenamientos.router)
 app.include_router(lesiones.router)
 app.include_router(jugadas.router)
 app.include_router(dashboards.router)
+app.include_router(notificaciones.router)
 # Force reload

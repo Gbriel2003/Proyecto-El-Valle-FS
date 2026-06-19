@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, UploadFile, File
 from sqlalchemy.orm import Session
+from datetime import datetime
 import os
 import boto3
 import uuid
@@ -23,6 +24,39 @@ def procesar_reporte_ia_background(file_path: str, partido_id: int):
         texto_extraido = utils.extraer_texto_pdf(file_path)
         analisis_ia = utils.analizar_estadisticas_con_ia(texto_extraido)
         
+        # Procesar estadísticas individuales si la IA las extrajo
+        if isinstance(analisis_ia, dict) and "estadisticas_jugadores" in analisis_ia:
+            estadisticas_db = db.query(models.EstadisticasTacticas).filter(
+                models.EstadisticasTacticas.partido_id == partido_id
+            ).all()
+            
+            for stat_ia in analisis_ia.get("estadisticas_jugadores", []):
+                nombre_ia = str(stat_ia.get("nombre", "")).lower()
+                if not nombre_ia: continue
+                
+                for est_db in estadisticas_db:
+                    atleta_perfil = est_db.atleta
+                    if atleta_perfil and atleta_perfil.usuario:
+                        nombres_db = atleta_perfil.usuario.nombre.lower()
+                        apellidos_db = atleta_perfil.usuario.apellido.lower()
+                        
+                        # Búsqueda difusa simple
+                        match_encontrado = False
+                        for palabra in nombre_ia.split():
+                            if len(palabra) > 3 and (palabra in nombres_db or palabra in apellidos_db):
+                                match_encontrado = True
+                                break
+                                
+                        if match_encontrado or nombre_ia in nombres_db or nombre_ia in apellidos_db:
+                            est_db.goles = int(stat_ia.get("goles") or 0)
+                            est_db.asistencias = int(stat_ia.get("asistencias") or 0)
+                            est_db.recuperaciones = int(stat_ia.get("recuperaciones") or 0)
+                            est_db.errores_posicionamiento = int(stat_ia.get("errores") or 0)
+                            break
+            
+            db.commit()
+            logger.info(f"[IA] Estadísticas individuales actualizadas para el partido {partido_id}.")
+
         crud_partidos.guardar_reporte_ia(db, partido_id, file_path, analisis_ia)
         logger.info(f"[IA] Reporte del partido {partido_id} procesado correctamente.")
     except Exception as e:
@@ -83,6 +117,11 @@ def crear_partido(
     torneo_existente = crud_partidos.obtener_torneo_por_id(db, partido.torneo_id)
     if not torneo_existente:
         raise HTTPException(status_code=404, detail="El torneo no existe")
+        
+    # Validar que la fecha sea estrictamente mayor al día de hoy (mañana en adelante)
+    if partido.fecha_hora.date() <= datetime.now().date():
+        raise HTTPException(status_code=400, detail="La fecha del partido debe ser a partir del día de mañana.")
+        
     return crud_partidos.crear_partido(db, partido)
 
 @router.get("/partidos/")
@@ -103,6 +142,41 @@ def obtener_partidos(skip: int = 0, limit: int = 100, db: Session = Depends(get_
         }
         for p in partidos
     ]
+
+@router.get("/partidos/mis-partidos", response_model=list[schemas.PartidoAtletaResponse])
+def obtener_mis_partidos(db: Session = Depends(get_db), usuario_actual: models.Usuario = Depends(obtener_usuario_actual)):
+    # Traer estadísticas tácticas donde aparece el atleta
+    estadisticas = db.query(models.EstadisticasTacticas).filter(
+        models.EstadisticasTacticas.atleta_id == usuario_actual.id
+    ).all()
+    
+    resultados = []
+    for est in estadisticas:
+        p = est.partido
+        if not p:
+            continue
+        resultados.append({
+            "id": p.id,
+            "torneo_id": p.torneo_id,
+            "torneo_nombre": p.torneo.nombre if p.torneo else "Amistoso",
+            "equipo_local": p.equipo_local,
+            "equipo_visitante": p.equipo_visitante,
+            "fecha_hora": p.fecha_hora,
+            "goles_local": p.goles_local,
+            "goles_visitante": p.goles_visitante,
+            "estado": p.estado,
+            "estadisticas_personales": {
+                "goles": est.goles,
+                "asistencias": est.asistencias,
+                "recuperaciones": est.recuperaciones,
+                "errores_posicionamiento": est.errores_posicionamiento,
+                "minutos_jugados": est.minutos_jugados
+            }
+        })
+    
+    # Ordenar por fecha descendente
+    resultados.sort(key=lambda x: x["fecha_hora"], reverse=True)
+    return resultados
 
 @router.put("/partidos/{partido_id}")
 def actualizar_partido(
