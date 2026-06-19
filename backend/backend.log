@@ -687,3 +687,229 @@ DETAIL:  Key (cedula)=(V-11222333) already exists.
 [SQL: INSERT INTO usuarios (nombre, apellido, correo, password_hash, rol, debe_cambiar_password, reset_token, reset_token_expiration, telefono, cedula, foto_perfil) VALUES (%(nombre)s, %(apellido)s, %(correo)s, %(password_hash)s, %(rol)s, %(debe_cambiar_password)s, %(reset_token)s, %(reset_token_expiration)s, %(telefono)s, %(cedula)s, %(foto_perfil)s) RETURNING usuarios.id, usuarios.fecha_registro]
 [parameters: {'nombre': 'Ronald ', 'apellido': 'Diaz', 'correo': 'ronaldiaz@gmail.com', 'password_hash': '$2b$12$qIM482kj3FgmZiXdfIzV8uOgnYxDE5ZhKAusPAJkR4DldXQXI3SRC', 'rol': 'atleta', 'debe_cambiar_password': True, 'reset_token': None, 'reset_token_expiration': None, 'telefono': '0412-1234567', 'cedula': 'V-11222333', 'foto_perfil': None}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+[2026-06-19 17:05:21,046] ERROR [el-valle-fs:21] Error inesperado no controlado en PUT /atletas/13: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 695, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 300, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+[2026-06-19 17:05:26,761] ERROR [el-valle-fs:21] Error inesperado no controlado en PUT /atletas/13: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 695, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 300, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+[2026-06-19 17:05:34,605] ERROR [el-valle-fs:21] Error inesperado no controlado en PUT /atletas/13: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 695, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 300, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+[2026-06-19 17:05:37,267] ERROR [el-valle-fs:21] Error inesperado no controlado en PUT /atletas/13: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 695, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 300, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+[2026-06-19 17:05:55,949] ERROR [el-valle-fs:21] Error inesperado no controlado en PUT /atletas/14: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 695, in app
+    content = await serialize_response(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 300, in serialize_response
+    raise ResponseValidationError(
+fastapi.exceptions.ResponseValidationError: 1 validation error:
+  {'type': 'date_type', 'loc': ('response', 'fecha_nacimiento'), 'msg': 'Input should be a valid date', 'input': None}
+
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
+    PUT /atletas/{atleta_id}
+[2026-06-19 19:49:27,489] INFO [el-valle-fs:44] Consulta al estado de salud del servidor realizada.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Users, User, Shield, Target, Award, Search, Loader2, Eye, Pencil, X } from 'lucide-react';
+import { Users, User, Shield, Target, Award, Search, Loader2, Eye, Pencil, X, ChevronDown } from 'lucide-react';
 import FichaTecnica from './FichaTecnica';
 
 export default function Plantilla({ crearNotificacion = null, rolUsuario = '' }) {
@@ -9,46 +9,60 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState('');
     const [selectedAtletaId, setSelectedAtletaId] = useState(null);
-    const [editandoDorsal, setEditandoDorsal] = useState(null);
+    const [editandoFicha, setEditandoFicha] = useState(null);
     const [nuevoDorsal, setNuevoDorsal] = useState('');
-    const [guardandoDorsal, setGuardandoDorsal] = useState(false);
+    const [nuevaPosicion, setNuevaPosicion] = useState('');
+    const [mostrarDropdownPosicion, setMostrarDropdownPosicion] = useState(false);
+    const [guardandoFicha, setGuardandoFicha] = useState(false);
 
-    const guardarDorsal = async (e) => {
+    const opcionesPosicion = [
+        { value: 'Portero', label: 'Portero', icon: Shield, color: 'text-valle-green' },
+        { value: 'Cierre', label: 'Cierre / Líbero', icon: Shield, color: 'text-valle-gold' },
+        { value: 'Ala', label: 'Ala', icon: Target, color: 'text-valle-green' },
+        { value: 'Pívot', label: 'Pívot', icon: Award, color: 'text-valle-gold' },
+        { value: 'Universal', label: 'Universal', icon: User, color: 'text-slate-500' }
+    ];
+
+    const guardarFicha = async (e) => {
         e.preventDefault();
-        if (!editandoDorsal) return;
-        setGuardandoDorsal(true);
+        if (!editandoFicha) return;
+        setGuardandoFicha(true);
         try {
             const valorDorsal = nuevoDorsal.trim() !== '' ? parseInt(nuevoDorsal) : null;
-            await api.put(`/atletas/${editandoDorsal.atleta_id}`, {
-                numero_camisa: valorDorsal
+            const valorPosicion = nuevaPosicion.trim() !== '' ? nuevaPosicion : null;
+            
+            await api.put(`/atletas/${editandoFicha.atleta_id}`, {
+                numero_camisa: valorDorsal,
+                posicion_especifica: valorPosicion
             });
             
             setJugadores(prev => prev.map(j => {
-                if (j.atleta_id === editandoDorsal.atleta_id) {
-                    return { ...j, numero_camisa: valorDorsal };
+                if (j.atleta_id === editandoFicha.atleta_id) {
+                    return { ...j, numero_camisa: valorDorsal, posicion_especifica: valorPosicion, posicion_principal: valorPosicion };
                 }
                 return j;
             }));
             
             if (crearNotificacion) {
                 crearNotificacion(
-                    "Dorsal Asignado",
-                    `Se asignó el número #${valorDorsal !== null ? valorDorsal : '?'} a ${editandoDorsal.nombre || editandoDorsal.usuario?.nombre}`,
+                    "Ficha Actualizada",
+                    `Se actualizaron los datos de ${editandoFicha.nombre || editandoFicha.usuario?.nombre}`,
                     "success"
                 );
             }
-            setEditandoDorsal(null);
+            setEditandoFicha(null);
             setNuevoDorsal('');
+            setNuevaPosicion('');
         } catch (error) {
-            console.error("Error al asignar dorsal:", error);
-            const msg = error.response?.data?.detail || "No se pudo asignar el dorsal. Inténtalo de nuevo.";
+            console.error("Error al actualizar ficha:", error);
+            const msg = error.response?.data?.detail || "No se pudo actualizar. Inténtalo de nuevo.";
             if (crearNotificacion) {
                 crearNotificacion("Error", msg, "error");
             } else {
                 alert(msg);
             }
         } finally {
-            setGuardandoDorsal(false);
+            setGuardandoFicha(false);
         }
     };
 
@@ -167,11 +181,12 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                             type="button"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setEditandoDorsal(jugador);
+                                                setEditandoFicha(jugador);
                                                 setNuevoDorsal(jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? String(jugador.numero_camisa) : '');
+                                                setNuevaPosicion(jugador.posicion_especifica || jugador.posicion_principal || jugador.posicion || '');
                                             }}
                                             className="absolute top-4 right-4 text-xs font-black text-valle-green hover:text-white bg-slate-100 hover:bg-valle-green border border-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 transition shadow-sm z-20 group/btn"
-                                            title="Editar dorsal"
+                                            title="Editar dorsal y posición"
                                         >
                                             <span>#{jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? jugador.numero_camisa : '?'}</span>
                                             <Pencil size={10} className="text-slate-400 group-hover/btn:text-white shrink-0" />
@@ -240,51 +255,112 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                 </div>
             )}
 
-            {/* Modal de Edición de Dorsal */}
-            {editandoDorsal && (
+            {/* Modal de Edición de Ficha */}
+            {editandoFicha && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl overflow-hidden animate-fadeIn relative">
+                    <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl animate-fadeIn relative flex flex-col">
                         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
                             <h3 className="font-black text-sm flex items-center">
-                                <Shield className="mr-2" size={16} /> Asignar Dorsal
+                                <Shield className="mr-2" size={16} /> Ficha Básica
                             </h3>
-                            <button onClick={() => setEditandoDorsal(null)} className="text-valle-gold/80 hover:text-white transition cursor-pointer">
+                            <button onClick={() => setEditandoFicha(null)} className="text-valle-gold/80 hover:text-white transition cursor-pointer">
                                 <X size={20} />
                             </button>
                         </div>
-                        <form onSubmit={guardarDorsal} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+                        <form onSubmit={guardarFicha} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
                             <div>
-                                <p className="text-sm font-bold text-slate-800 mb-2">
-                                    Jugador: <span className="capitalize">{editandoDorsal.nombre} {editandoDorsal.apellido}</span>
+                                <p className="text-sm font-bold text-slate-800 mb-4">
+                                    Jugador: <span className="capitalize">{editandoFicha.nombre} {editandoFicha.apellido}</span>
                                 </p>
-                                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
-                                    Número de Camisa (Dorsal)
-                                </label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    max="99"
-                                    placeholder="Ej: 10"
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium text-sm"
-                                    value={nuevoDorsal}
-                                    onChange={(e) => setNuevoDorsal(e.target.value)}
-                                />
-                                <p className="text-[10px] text-slate-400 mt-1 font-medium">Deja vacío si deseas retirar el dorsal asignado.</p>
+                                
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
+                                            Posición Principal
+                                        </label>
+                                        <div className="relative">
+                                            <div 
+                                                className={`w-full px-3 py-2.5 bg-slate-50 border ${mostrarDropdownPosicion ? 'border-valle-green ring-4 ring-valle-green/10' : 'border-slate-200'} rounded-xl cursor-pointer flex justify-between items-center transition-all duration-200`}
+                                                onClick={() => setMostrarDropdownPosicion(!mostrarDropdownPosicion)}
+                                            >
+                                                <div className="flex items-center gap-2.5">
+                                                    {nuevaPosicion ? (() => {
+                                                        const op = opcionesPosicion.find(o => o.value === nuevaPosicion) || opcionesPosicion[4];
+                                                        const Icono = op.icon;
+                                                        return (
+                                                            <>
+                                                                <div className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                                                                    <Icono size={14} className={op.color} />
+                                                                </div>
+                                                                <span className="text-sm font-bold text-slate-700">{op.label}</span>
+                                                            </>
+                                                        );
+                                                    })() : (
+                                                        <span className="text-sm font-semibold text-slate-400">-- Seleccionar Posición --</span>
+                                                    )}
+                                                </div>
+                                                <ChevronDown size={16} className={`text-slate-400 transition-transform duration-200 ${mostrarDropdownPosicion ? 'rotate-180' : ''}`} />
+                                            </div>
+                                            
+                                            {mostrarDropdownPosicion && (
+                                                <div className="absolute z-[60] w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-y-auto overflow-x-hidden max-h-24 animate-fade-in-up">
+                                                    {opcionesPosicion.map((opcion) => {
+                                                        const Icono = opcion.icon;
+                                                        const isSelected = nuevaPosicion === opcion.value;
+                                                        return (
+                                                            <div 
+                                                                key={opcion.value}
+                                                                className={`px-3 py-2.5 flex items-center gap-3 cursor-pointer transition-colors ${isSelected ? 'bg-valle-green/5' : 'hover:bg-slate-50'}`}
+                                                                onClick={() => {
+                                                                    setNuevaPosicion(opcion.value);
+                                                                    setMostrarDropdownPosicion(false);
+                                                                }}
+                                                            >
+                                                                <div className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-colors ${isSelected ? 'bg-white border-valle-green shadow-sm' : 'bg-slate-50 border-slate-200'}`}>
+                                                                    <Icono size={14} className={opcion.color} />
+                                                                </div>
+                                                                <span className={`text-sm ${isSelected ? 'font-bold text-valle-green-dark' : 'font-semibold text-slate-600'}`}>
+                                                                    {opcion.label}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
+                                            Número de Camisa (Dorsal)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="99"
+                                            placeholder="Ej: 10"
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium text-sm"
+                                            value={nuevoDorsal}
+                                            onChange={(e) => setNuevoDorsal(e.target.value)}
+                                        />
+                                        <p className="text-[10px] text-slate-400 mt-1 font-medium">Deja vacío si deseas retirar el dorsal asignado.</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex gap-2 justify-end pt-2">
+                            <div className="flex gap-2 justify-end pt-4 border-t border-slate-100">
                                 <button
                                     type="button"
-                                    onClick={() => setEditandoDorsal(null)}
+                                    onClick={() => setEditandoFicha(null)}
                                     className="px-4 py-2 border border-slate-200 text-slate-500 rounded-lg hover:bg-slate-50 transition cursor-pointer"
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={guardandoDorsal}
+                                    disabled={guardandoFicha}
                                     className="px-4 py-2 bg-valle-green text-valle-gold rounded-lg hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 cursor-pointer"
                                 >
-                                    {guardandoDorsal ? 'Guardando...' : 'Guardar'}
+                                    {guardandoFicha ? 'Guardando...' : 'Guardar Ficha'}
                                 </button>
                             </div>
                         </form>

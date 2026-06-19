@@ -101,11 +101,11 @@ class PerfilAtletaCreate(BaseModel):
 
 class PerfilAtletaResponse(BaseModel):
     atleta_id: int
-    fecha_nacimiento: date
-    peso_base: float
-    altura_cm: int
-    posicion_especifica: str
-    pierna_habil: str
+    fecha_nacimiento: Optional[date] = None
+    peso_base: Optional[float] = None
+    altura_cm: Optional[int] = None
+    posicion_especifica: Optional[str] = None
+    pierna_habil: Optional[str] = None
     numero_camisa: Optional[int] = None
     dieta_asignada_id: Optional[int] = None
     dieta_asignada: Optional[PropuestaDietaResponse] = None

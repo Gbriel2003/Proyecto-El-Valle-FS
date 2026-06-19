@@ -27,10 +27,10 @@ api.interceptors.response.use(
                 localStorage.removeItem('token_valle');
                 localStorage.removeItem('rol_usuario');
                 localStorage.removeItem('valle_notificaciones');
-                
+
                 // Almacenar el mensaje de error para mostrar en el Login
                 sessionStorage.setItem('valle_session_error', 'Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
-                
+
                 // Recargar la página para forzar el enrutamiento al Login
                 window.location.reload();
             }
