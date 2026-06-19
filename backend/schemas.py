@@ -12,7 +12,8 @@ class UsuarioCreate(BaseModel):
     correo: EmailStr  
     password: str
     rol: str
-    telefono: Optional[str] = None
+    telefono: str
+    cedula: str
 
 class UsuarioResponse(BaseModel):
     id: int
@@ -23,6 +24,15 @@ class UsuarioResponse(BaseModel):
     debe_cambiar_password: bool
     fecha_registro: datetime
     telefono: Optional[str] = None
+    cedula: Optional[str] = None
+    foto_perfil: Optional[str] = None
+
+class UsuarioUpdate(BaseModel):
+    nombre: Optional[str] = None
+    apellido: Optional[str] = None
+    telefono: Optional[str] = None
+    cedula: Optional[str] = None
+    rol: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -119,6 +129,7 @@ class TorneoCreate(BaseModel):
     temporada: str
     fecha_inicio: date
     fecha_fin: date
+    estado: Optional[str] = "Activo"
 
 class TorneoResponse(TorneoCreate):
     id: int
@@ -277,3 +288,22 @@ class AsistenciaItem(BaseModel):
 
 class AsistenciaMasiva(BaseModel):
     asistencias: list[AsistenciaItem]
+
+# ==========================================
+# ESQUEMAS DE SOLICITUD DE RECUPERACIÓN DE CONTRASEÑA
+# ==========================================
+
+class SolicitudPasswordCreate(BaseModel):
+    correo: str
+
+class SolicitudPasswordResponse(BaseModel):
+    id: int
+    usuario_id: int
+    estado: str
+    fecha_solicitud: datetime
+    usuario_nombre: str
+    usuario_apellido: str
+    usuario_correo: str
+
+    class Config:
+        from_attributes = True

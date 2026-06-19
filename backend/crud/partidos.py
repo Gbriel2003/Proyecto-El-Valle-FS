@@ -21,6 +21,30 @@ def crear_torneo(db: Session, torneo: schemas.TorneoCreate):
 def listar_torneos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Torneo).offset(skip).limit(limit).all()
 
+def eliminar_torneo(db: Session, torneo_id: int):
+    torneo = obtener_torneo_por_id(db, torneo_id)
+    if not torneo:
+        return None
+    # Usando SQLAlchemy cascade="all, delete-orphan", borrar el torneo borra los partidos.
+    # Pero los partidos también tienen reportes y estadísticas que podrían no tener cascada desde el partido.
+    # Vamos a eliminar los partidos manualmente a través del CRUD para asegurar limpieza completa.
+    partidos = db.query(models.Partido).filter(models.Partido.torneo_id == torneo_id).all()
+    for p in partidos:
+        eliminar_partido(db, p.id)
+    
+    db.delete(torneo)
+    db.commit()
+    return torneo
+
+def finalizar_torneo(db: Session, torneo_id: int):
+    torneo = obtener_torneo_por_id(db, torneo_id)
+    if not torneo:
+        return None
+    torneo.estado = "Finalizado"
+    db.commit()
+    db.refresh(torneo)
+    return torneo
+
 # Partidos
 def obtener_partido_por_id(db: Session, partido_id: int):
     return db.query(models.Partido).filter(models.Partido.id == partido_id).first()

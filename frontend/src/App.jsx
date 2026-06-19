@@ -61,6 +61,7 @@ export default function App() {
   const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(false);
   const [debeCambiarPassword, setDebeCambiarPassword] = useState(false);
   const [tokenRestablecer, setTokenRestablecer] = useState(null);
+  const [fotoPerfil, setFotoPerfil] = useState(null);
 
   // Estados globales de alertas y carga de reportes
   const [toasts, setToasts] = useState([]);
@@ -108,7 +109,7 @@ export default function App() {
     }, 7000);
   };
 
-  const crearNotificacion = (mensaje, subtexto = '', tipo = 'info') => {
+  const crearNotificacion = (mensaje, subtexto = '', tipo = 'info', accionMenu = null) => {
     const realTipo = ['success', 'error', 'info', 'warning'].includes(subtexto) ? subtexto : (tipo || 'info');
     const realSubtexto = ['success', 'error', 'info', 'warning'].includes(subtexto) ? '' : subtexto;
     
@@ -122,7 +123,8 @@ export default function App() {
       mensaje: textoCompleto,
       tipo: realTipo,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      leido: false
+      leido: false,
+      accionMenu: accionMenu
     };
 
     setNotificaciones(prev => {
@@ -144,6 +146,38 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autenticado]);
+
+  // Polling para notificar solicitudes de contraseña a los administradores
+  useEffect(() => {
+    if (!autenticado || rolUsuario !== 'admin') return;
+
+    let totalAnterior = 0;
+
+    const chequearSolicitudes = async () => {
+      try {
+        const res = await api.get('/usuarios/solicitudes-password');
+        const cantidadActual = res.data.length;
+        if (cantidadActual > totalAnterior) {
+          crearNotificacion(
+            "Recuperación de Clave", 
+            `Hay ${cantidadActual} solicitud(es) de contraseña pendiente(s) por revisión en Configuración Club.`, 
+            "warning"
+          );
+        }
+        totalAnterior = cantidadActual;
+      } catch (error) {
+        // Ignorar errores silenciosamente para no saturar la consola
+      }
+    };
+
+    // Chequeo inicial
+    chequearSolicitudes();
+
+    // Polling cada 30 segundos
+    const intervalo = setInterval(chequearSolicitudes, 30000);
+    return () => clearInterval(intervalo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autenticado, rolUsuario]);
 
   const unreadCount = notificaciones.filter(n => !n.leido).length;
 
@@ -200,8 +234,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (autenticado && (rolUsuario === 'admin' || rolUsuario === 'entrenador')) {
-      cargarPartidosGlobal();
+    if (autenticado) {
+      if (rolUsuario === 'admin' || rolUsuario === 'entrenador') {
+        cargarPartidosGlobal();
+      }
+      
+      const cargarMiPerfil = async () => {
+        try {
+          const res = await api.get('/usuarios/me');
+          if (res.data.foto_perfil) {
+            setFotoPerfil(res.data.foto_perfil);
+          }
+        } catch (err) {
+          console.error("Error cargando mi perfil", err);
+        }
+      };
+      cargarMiPerfil();
     }
   }, [autenticado, rolUsuario]);
 
@@ -541,48 +589,59 @@ export default function App() {
 
               {/* Panel Dropdown */}
               {notifDropdownAbierto && (
-                <div className="absolute right-0 mt-2.5 w-80 bg-white border border-slate-200/80 backdrop-blur-md rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in-up">
-                  <div className="p-3 bg-valle-green text-valle-gold flex justify-between items-center">
-                    <span className="text-[10px] font-bold tracking-wider uppercase font-display">Actividad del Club</span>
+                <div className="absolute -right-12 sm:right-0 mt-3 w-72 sm:w-80 bg-white border-2 border-valle-gold/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
+                  <div className="px-4 sm:px-5 py-4 border-b border-valle-gold/20 flex justify-between items-center bg-gradient-to-r from-valle-gold/10 via-transparent to-valle-green/5">
+                    <span className="text-xs font-bold text-slate-800 flex items-center tracking-tight font-display">
+                      <Bell className="mr-2 text-valle-gold drop-shadow-sm" size={14} /> Actividad del Club
+                    </span>
                     {unreadCount > 0 && (
                       <button
                         onClick={marcarTodasComoLeidas}
-                        className="text-[10px] text-white hover:text-valle-gold font-bold transition cursor-pointer"
+                        className="text-[10px] text-valle-gold hover:text-valle-green font-bold transition cursor-pointer bg-white border border-valle-gold/30 hover:border-valle-green/40 hover:bg-valle-green/5 px-2.5 py-1 rounded-md shadow-sm"
                       >
-                        Marcar como leídas
+                        Marcar leídas
                       </button>
                     )}
                   </div>
 
-                  <div className="max-h-64 overflow-y-auto divide-y divide-slate-105 min-h-24 flex flex-col justify-between">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-200 min-h-24 flex flex-col justify-between bg-white">
                     {notificaciones.length === 0 ? (
-                      <div className="p-6 text-center text-slate-400 text-xs font-semibold my-auto">
-                        No hay registros recientes
+                      <div className="p-8 text-center text-slate-400 text-xs font-semibold my-auto">
+                        No hay notificaciones recientes
                       </div>
                     ) : (
                       notificaciones.map(n => (
                         <div 
                           key={n.id} 
-                          className={`p-3 transition-colors flex items-start justify-between gap-3 hover:bg-slate-50/50 ${!n.leido ? 'bg-slate-50/30' : ''}`}
+                          onClick={() => {
+                            if (n.accionMenu) {
+                              setMenuActivo(n.accionMenu);
+                              setNotifDropdownAbierto(false);
+                            }
+                          }}
+                          className={`p-4 transition-colors flex items-start justify-between gap-3 hover:bg-white ${!n.leido ? 'bg-white border-l-2 border-valle-gold' : ''} ${n.accionMenu ? 'cursor-pointer hover:shadow-sm' : ''}`}
                         >
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-700 leading-normal wrap-break-word">
+                            <p className="text-xs font-bold text-slate-700 leading-relaxed wrap-break-word">
                               {n.mensaje}
                             </p>
-                            <span className="text-[9px] text-slate-450 font-bold block mt-1">
+                            <span className="text-[10px] text-slate-400 font-medium mt-1.5 flex items-center">
                               {n.timestamp}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 mt-0.5">
                             {!n.leido && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-valle-gold shrink-0" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-valle-gold shrink-0 animate-pulse" />
                             )}
                             <button
-                              onClick={() => eliminarNotificacion(n.id)}
-                              className="text-slate-350 hover:text-red-500 transition cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                eliminarNotificacion(n.id);
+                              }}
+                              className="text-slate-300 hover:text-red-500 hover:bg-red-50 p-1 rounded-md transition cursor-pointer"
                               title="Eliminar"
                             >
-                              <X size={11} />
+                              <X size={12} />
                             </button>
                           </div>
                         </div>
@@ -591,10 +650,10 @@ export default function App() {
                   </div>
 
                   {notificaciones.length > 0 && (
-                    <div className="p-2 bg-slate-50 border-t border-slate-100 text-center">
+                    <div className="p-3 bg-white border-t border-slate-100 text-center">
                       <button
                         onClick={limpiarNotificaciones}
-                        className="text-[10px] text-slate-400 hover:text-red-650 font-bold transition cursor-pointer"
+                        className="text-xs text-slate-400 hover:text-red-500 font-bold transition cursor-pointer hover:bg-red-50/50 px-4 py-1.5 rounded-lg w-full"
                       >
                         Limpiar Historial
                       </button>
@@ -604,9 +663,17 @@ export default function App() {
               )}
             </div>
             <span className="text-sm font-medium text-slate-700 mr-1 hidden sm:block capitalize">{rolUsuario}</span>
-            <div className="w-9 h-9 rounded-full bg-valle-green border-2 border-valle-gold shadow-sm flex items-center justify-center text-valle-gold font-bold text-sm uppercase">
-              {rolUsuario.substring(0, 2)}
-            </div>
+            {fotoPerfil ? (
+              <img 
+                src={fotoPerfil.startsWith('http') ? fotoPerfil : `${api.defaults.baseURL}${fotoPerfil.startsWith('/') ? '' : '/'}${fotoPerfil}`} 
+                alt="Perfil" 
+                className="w-9 h-9 rounded-full object-cover border-2 border-valle-gold shadow-sm" 
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-valle-green border-2 border-valle-gold shadow-sm flex items-center justify-center text-valle-gold font-bold text-sm uppercase shrink-0">
+                {rolUsuario.substring(0, 2)}
+              </div>
+            )}
           </div>
         </header>
  
@@ -711,15 +778,15 @@ export default function App() {
           return (
             <div 
               key={toast.id}
-              className={`p-4 rounded-xl shadow-xl border-t border-r border-b border-l-4 flex items-start gap-3.5 pointer-events-auto transition-all duration-300 animate-toast-in w-full max-w-md ${bgClass}`}
+              className={`p-3 sm:p-4 rounded-xl shadow-xl border-t border-r border-b border-l-4 flex items-start gap-2.5 sm:gap-3.5 pointer-events-auto transition-all duration-300 animate-toast-in w-auto max-w-[90vw] sm:max-w-md ${bgClass}`}
             >
-              <div className={`shrink-0 mt-0.5 ${iconColor}`}>
-                <IconComponent size={20} />
+              <div className={`shrink-0 mt-0.5 sm:mt-0 ${iconColor}`}>
+                <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div className="flex-1 text-left min-w-0">
-                <p className="text-sm font-extrabold text-slate-950 leading-snug">{toast.mensaje}</p>
+                <p className="text-xs sm:text-sm font-extrabold text-slate-950 leading-snug">{toast.mensaje}</p>
                 {toast.subtexto && (
-                  <p className="text-xs text-slate-650 mt-1 font-semibold leading-relaxed">
+                  <p className="text-[10px] sm:text-xs text-slate-650 mt-0.5 sm:mt-1 font-semibold leading-relaxed">
                     {toast.subtexto}
                   </p>
                 )}
@@ -730,7 +797,7 @@ export default function App() {
                 className="text-slate-500 hover:text-slate-800 transition cursor-pointer p-1 rounded-full hover:bg-slate-100 shrink-0 -mt-1 -mr-1"
                 title="Cerrar"
               >
-                <X size={16} />
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           );

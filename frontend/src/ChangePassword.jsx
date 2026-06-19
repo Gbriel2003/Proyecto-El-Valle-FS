@@ -71,17 +71,17 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
   };
 
   return (
-    <div className={`w-full h-full ${obligatoria ? 'max-w-md mx-auto my-12' : ''} animate-fade-in-up`}>
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col h-full space-y-6">
+    <div className={`w-full ${obligatoria ? 'max-w-md mx-auto my-8' : ''} animate-fade-in-up`}>
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col space-y-4">
         <div className="text-center flex flex-col items-center">
-          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-md border-2 ${
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 shadow-sm border ${
             obligatoria 
               ? 'bg-amber-50 border-amber-300 text-amber-600 animate-pulse' 
               : 'bg-valle-green/10 border-valle-green/20 text-valle-green'
           }`}>
-            {obligatoria ? <ShieldAlert size={32} /> : <Lock size={32} />}
+            {obligatoria ? <ShieldAlert size={24} /> : <Lock size={24} />}
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight font-display">
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight font-display">
             {obligatoria ? 'Cambio de Contraseña Obligatorio' : 'Cambiar Contraseña'}
           </h2>
           <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">
@@ -105,9 +105,9 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
               Contraseña Actual
             </label>
             <div className="relative group">
@@ -117,7 +117,7 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
               <input
                 type="password"
                 required
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                 placeholder="••••••••"
                 value={passwordActual}
                 onChange={(e) => setPasswordActual(e.target.value)}
@@ -125,9 +125,9 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
             </div>
           </div>
 
-          <div className="border-t border-slate-100 my-4 pt-4">
+          <div className="border-t border-slate-100 my-3 pt-3">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 Nueva Contraseña
               </label>
               <div className="relative group">
@@ -137,7 +137,7 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
                 <input
                   type="password"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                   placeholder="Mínimo 6 caracteres"
                   value={nuevaPassword}
                   onChange={(e) => setNuevaPassword(e.target.value)}
@@ -145,8 +145,8 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
               </div>
             </div>
 
-            <div className="mt-4">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <div className="mt-3">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 Confirmar Nueva Contraseña
               </label>
               <div className="relative group">
@@ -156,7 +156,7 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
                 <input
                   type="password"
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                   placeholder="Repite la nueva contraseña"
                   value={confirmarPassword}
                   onChange={(e) => setConfirmarPassword(e.target.value)}
@@ -168,7 +168,7 @@ export default function ChangePassword({ crearNotificacion, onPasswordChanged, o
           <button
             type="submit"
             disabled={cargando || exito}
-            className="w-full py-3.5 mt-2 bg-linear-to-r from-valle-green to-valle-green-light hover:from-valle-green-light hover:to-valle-green text-white rounded-xl text-sm font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-valle-green/10 active:scale-[0.99] disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center gap-2 group cursor-pointer"
+            className="w-full py-2.5 mt-2 bg-linear-to-r from-valle-green to-valle-green-light hover:from-valle-green-light hover:to-valle-green text-white rounded-xl text-sm font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:shadow-valle-green/10 active:scale-[0.99] disabled:opacity-70 disabled:pointer-events-none flex items-center justify-center gap-2 group cursor-pointer"
           >
             {cargando ? (
               <>

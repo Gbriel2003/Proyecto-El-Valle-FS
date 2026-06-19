@@ -41,7 +41,12 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
             setNuevoDorsal('');
         } catch (error) {
             console.error("Error al asignar dorsal:", error);
-            alert("No se pudo asignar el dorsal. Inténtalo de nuevo.");
+            const msg = error.response?.data?.detail || "No se pudo asignar el dorsal. Inténtalo de nuevo.";
+            if (crearNotificacion) {
+                crearNotificacion("Error", msg, "error");
+            } else {
+                alert(msg);
+            }
         } finally {
             setGuardandoDorsal(false);
         }
@@ -238,7 +243,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
             {/* Modal de Edición de Dorsal */}
             {editandoDorsal && (
                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+                    <div className="bg-white rounded-xl max-w-sm w-full shadow-2xl overflow-hidden animate-fadeIn relative">
                         <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
                             <h3 className="font-black text-sm flex items-center">
                                 <Shield className="mr-2" size={16} /> Asignar Dorsal

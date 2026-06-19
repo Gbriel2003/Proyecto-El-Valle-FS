@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Eye, EyeOff, RefreshCw, Maximize2, Minimize2, Save } from 'lucide-react';
+import { Trash2, Eye, EyeOff, RefreshCw, Maximize2, Minimize2, Save, Smartphone } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 
 export default function TacticalCanvas({
@@ -105,7 +105,28 @@ export default function TacticalCanvas({
     <div className={isFullscreen 
       ? "fixed inset-0 z-100 bg-[#0c160e] p-3 flex flex-col justify-between overflow-hidden select-none gap-3 animate-fade-in-up landscape:flex-row landscape:p-2 landscape:gap-2" 
       : "grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in-up"
-    }>      {/* Barra superior de controles en Pantalla Completa */}
+    }>
+      {/* Overlay para forzar modo horizontal en móviles */}
+      {isFullscreen && (
+        <div className="hidden portrait:flex fixed inset-0 z-[1000] bg-[#0c160e] text-white flex-col items-center justify-center p-6 text-center animate-fade-in">
+          <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-lg border border-slate-700 animate-pulse">
+            <Smartphone size={40} className="text-valle-gold rotate-90 transition-transform duration-1000" />
+          </div>
+          <h2 className="text-2xl font-black mb-3 font-display tracking-tight">Gira tu dispositivo</h2>
+          <p className="text-slate-400 text-sm max-w-xs leading-relaxed font-medium mb-8">
+            La pizarra táctica móvil está diseñada para usarse en modo horizontal para aprovechar todo el espacio de la cancha.
+          </p>
+          <button 
+            type="button"
+            onClick={() => setIsFullscreen(false)} 
+            className="px-8 py-3.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition shadow-md border border-slate-700 cursor-pointer"
+          >
+            Salir de la Pizarra
+          </button>
+        </div>
+      )}
+
+      {/* Barra superior de controles en Pantalla Completa */}
       {isFullscreen && (
         <div className="bg-slate-900/80 border border-slate-800/40 backdrop-blur-md px-4 py-2.5 rounded-2xl flex justify-between items-center text-white shrink-0 shadow-lg landscape:flex-col landscape:w-auto landscape:h-full landscape:justify-between landscape:py-4 landscape:px-2.5">
           <div className="flex items-center gap-2 landscape:flex-col landscape:gap-1">

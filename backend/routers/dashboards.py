@@ -18,6 +18,8 @@ def obtener_dashboard_atleta(
     atleta = db.query(models.PerfilAtleta).filter(models.PerfilAtleta.atleta_id == atleta_id).first()
     if not atleta:
         raise HTTPException(status_code=404, detail="Atleta no encontrado.")
+        
+    usuario = db.query(models.Usuario).filter(models.Usuario.id == atleta_id).first()
 
     # 2. Última Biometría (Peso, Altura, IMC)
     ultima_biometria = db.query(models.RegistroBiometrico).filter(
@@ -56,6 +58,7 @@ def obtener_dashboard_atleta(
     return {
         "perfil": {
             "atleta_id": atleta.atleta_id,
+            "foto_perfil": usuario.foto_perfil if usuario else None,
             "peso_fichaje": atleta.peso_base,
             "altura_fichaje": atleta.altura_cm,
             "dieta_asignada": {
@@ -155,6 +158,7 @@ def obtener_analisis_ia(
             models.RegistroNutricional.atleta_id == atleta_id,
             models.RegistroNutricional.fecha == hoy
         ).first()
+        
         if habito_hoy:
             texto_nutri += f"- Hidratación hoy: {habito_hoy.hidratacion_litros} litros\n"
             texto_nutri += f"- Calidad de descanso de anoche: {habito_hoy.calidad_descanso}/10\n"

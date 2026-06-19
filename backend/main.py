@@ -1,7 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from database import engine
 import models
+import os
+
+# Crear directorio de subidas estáticas si no existe
+os.makedirs("static/uploads/perfiles", exist_ok=True)
 
 # Importar sub-routers
 from routers import usuarios, atletas, partidos, entrenamientos, lesiones, jugadas, dashboards
@@ -27,6 +32,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Montar carpeta de archivos estáticos para poder ver fotos subidas
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Registrar manejadores de excepciones globales (resiliencia del backend)
 registrar_manejadores_excepciones(app)
 
@@ -44,3 +52,4 @@ app.include_router(entrenamientos.router)
 app.include_router(lesiones.router)
 app.include_router(jugadas.router)
 app.include_router(dashboards.router)
+# Force reload

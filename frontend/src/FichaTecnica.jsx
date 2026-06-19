@@ -177,7 +177,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           !esCuerpoTecnico && !atletaId 
             ? "Usted ha registrado sus hábitos el día de hoy."
             : "El atleta ha registrado sus hábitos el día de hoy.",
-          "success"
+          "success",
+          (!esCuerpoTecnico && !atletaId) ? "mi_perfil" : "jugadores"
         );
       } else {
         crearNotificacion(
@@ -185,7 +186,8 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           !esCuerpoTecnico && !atletaId 
             ? "Usted no ha registrado sus hábitos de hoy."
             : "El atleta no ha registrado sus hábitos de hoy.",
-          "warning"
+          "warning",
+          (!esCuerpoTecnico && !atletaId) ? "mi_perfil" : "jugadores"
         );
       }
       setNotificacionInicialMostrada(true);
@@ -305,9 +307,17 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       {/* Cabecera del Jugador */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-valle-green/10 border-2 border-valle-gold flex items-center justify-center text-valle-green font-black text-2xl">
-            {datos.perfil ? datos.perfil.atleta_id : 'AJ'}
-          </div>
+          {datos.perfil?.foto_perfil ? (
+            <img 
+              src={datos.perfil.foto_perfil.startsWith('http') ? datos.perfil.foto_perfil : `${api.defaults.baseURL}${datos.perfil.foto_perfil.startsWith('/') ? '' : '/'}${datos.perfil.foto_perfil}`}
+              alt="Perfil"
+              className="w-16 h-16 rounded-full object-cover border-2 border-valle-gold shadow-sm shrink-0"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-valle-green/10 border-2 border-valle-gold flex items-center justify-center text-valle-green font-black text-2xl shrink-0">
+              {datos.perfil ? datos.perfil.atleta_id : 'AJ'}
+            </div>
+          )}
           <div>
             <h2 className="text-xl font-black text-valle-black flex items-center">
               <User className="text-valle-green mr-2" size={20} />
@@ -392,7 +402,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* Métricas Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-indigo-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+        <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-indigo-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Peso / IMC Actual</p>
             <p className="text-2xl font-black text-indigo-950 mt-1">
@@ -405,7 +415,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-xl shadow-sm border border-fuchsia-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+        <div className="bg-linear-to-br from-purple-50 to-fuchsia-50 rounded-xl shadow-sm border border-fuchsia-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-xs font-bold text-fuchsia-500 uppercase tracking-wider">Descanso Promedio</p>
             <p className="text-2xl font-black text-fuchsia-950 mt-1">
@@ -418,7 +428,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl shadow-sm border border-sky-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+        <div className="bg-linear-to-br from-cyan-50 to-sky-50 rounded-xl shadow-sm border border-sky-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-xs font-bold text-sky-600 uppercase tracking-wider">Hidratación Promedio</p>
             <p className="text-2xl font-black text-sky-950 mt-1">
@@ -431,7 +441,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl shadow-sm border border-teal-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+        <div className="bg-linear-to-br from-emerald-50 to-teal-50 rounded-xl shadow-sm border border-teal-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-xs font-bold text-teal-600 uppercase tracking-wider">Historial Sesiones</p>
             <p className="text-2xl font-black text-teal-950 mt-1">
@@ -453,7 +463,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
           <h3 className="font-bold text-valle-black text-sm mb-4">Evolución de Cargas Físicas</h3>
           {datos.cargas_historicas && datos.cargas_historicas.length > 0 ? (
             <div className="h-72 w-full flex-1">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                 <LineChart data={datos.cargas_historicas}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                   <XAxis dataKey="sesion" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
@@ -487,14 +497,14 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               </div>
 
               {/* Selector de Temporalidad y Botón de Recarga Premium */}
-              <div className="flex items-center gap-2 w-full xl:w-auto self-end xl:self-auto justify-end">
-                <div className="flex gap-1 p-1 bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold">
+              <div className="flex items-center gap-2 w-full xl:w-auto justify-center xl:justify-end">
+                <div className="flex flex-1 xl:flex-none justify-between gap-1 p-1 bg-[#1a1a1a] sm:bg-valle-black-light/60 border border-slate-800 rounded-lg text-xs font-bold">
                   {['diario', 'semanal', 'mensual', 'anual'].map((temp) => (
                     <button
                       key={temp}
                       type="button"
                       onClick={() => setTemporalidad(temp)}
-                      className={`px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs ${
+                      className={`focus:outline-none flex-1 px-1 sm:px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs whitespace-nowrap ${
                         temporalidad === temp
                           ? 'bg-valle-green text-valle-gold shadow-md'
                           : 'text-slate-400 hover:text-slate-200'
@@ -508,10 +518,10 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 <button
                   onClick={() => cargarAnalisisIa(actualAtletaId || datos?.perfil?.atleta_id, temporalidad, true)}
                   disabled={cargandoIa}
-                  className={`p-2 bg-valle-black-light/60 border border-slate-800 hover:border-valle-gold hover:text-valle-gold text-slate-300 rounded-lg transition shadow-xs flex items-center justify-center cursor-pointer ${cargandoIa ? 'animate-spin opacity-55' : ''}`}
-                  title="Regenerar análisis de IA en vivo"
+                  className="p-1.5 sm:p-2 bg-valle-black-light border border-slate-700 hover:border-valle-gold rounded-lg text-slate-300 hover:text-valle-gold transition cursor-pointer shrink-0"
+                  title="Recalcular análisis"
                 >
-                  <RefreshCw size={14} />
+                  <RefreshCw size={14} className={`${cargandoIa ? 'animate-spin text-valle-green' : ''}`} />
                 </button>
               </div>
             </div>
@@ -674,17 +684,17 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* ================= MODAL: DIARIO NUTRICIONAL ================= */}
       {mostrarHabitoModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
-              <h3 className="font-black text-sm flex items-center">
-                <Heart className="mr-2" size={16} /> Registro Diario de Hábitos
+        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-visible animate-fadeIn relative">
+            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+              <h3 className="font-bold text-lg text-slate-800 flex items-center tracking-tight font-display">
+                <Heart className="mr-2.5 text-valle-green" size={20} /> Registro Diario de Hábitos
               </h3>
-              <button onClick={() => setMostrarHabitoModal(false)} className="text-valle-gold/80 hover:text-white transition">
+              <button onClick={() => setMostrarHabitoModal(false)} className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors cursor-pointer">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={manejarGuardarHabito} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+            <form onSubmit={manejarGuardarHabito} className="p-6 space-y-5 text-sm font-medium text-slate-700 bg-slate-50/50 rounded-b-2xl">
 
               {/* Dieta Asignada Informativa */}
               <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/80 flex justify-between items-center text-xs">
@@ -712,40 +722,43 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 />
               </div>
 
-              {/* Hidratación */}
-              <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
-                  Hidratación (Litros de agua)
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="10"
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium"
-                  value={hidratacion}
-                  onChange={(e) => setHidratacion(parseFloat(e.target.value) || 0)}
-                />
-                <p className="text-xs text-slate-400 mt-1 font-medium">Ejemplo: 2.5 o 3.0 litros al día.</p>
-              </div>
+              {/* Fila agrupada: Hidratación y Descanso */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Hidratación */}
+                <div>
+                  <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px] sm:text-xs font-bold">
+                    Hidratación (Litros)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="10"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium"
+                    value={hidratacion}
+                    onChange={(e) => setHidratacion(parseFloat(e.target.value) || 0)}
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-medium leading-tight">Ej: 2.5 o 3.0 al día.</p>
+                </div>
 
-              {/* Calidad del descanso */}
-              <div>
-                <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
-                  Calidad del Descanso (Escala 1 al 10)
-                </label>
-                <CustomSelect
-                  value={calidadDescanso}
-                  onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
-                  options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => ({
-                    value: num,
-                    label: `${num} - ${num <= 4 ? 'Bajo (Fatiga Física)' :
-                        num <= 6 ? 'Regular (Descanso Incompleto)' :
-                          num <= 8 ? 'Bueno (Óptimo)' :
-                            'Excelente (Recuperación Completa)'
-                      }`
-                  }))}
-                />
+                {/* Calidad del descanso */}
+                <div>
+                  <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px] sm:text-xs font-bold">
+                    Descanso (1 al 10)
+                  </label>
+                  <CustomSelect
+                    value={calidadDescanso}
+                    onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
+                    options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => ({
+                      value: num,
+                      label: `${num} - ${num <= 4 ? 'Bajo' :
+                          num <= 6 ? 'Regular' :
+                            num <= 8 ? 'Bueno' :
+                              'Excelente'
+                        }`
+                    }))}
+                  />
+                </div>
               </div>
 
               {/* Suplementación */}
@@ -765,7 +778,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               <button
                 type="submit"
                 disabled={guardandoHabito}
-                className="w-full py-2.5 bg-valle-green text-valle-gold rounded-lg text-xs font-black hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 flex items-center justify-center mt-2"
+                className="w-full py-3 bg-valle-green text-white rounded-xl text-sm font-bold hover:bg-valle-green-dark transition-all duration-200 shadow-lg shadow-valle-green/20 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center mt-4"
               >
                 {guardandoHabito ? 'Guardando...' : 'Guardar Registro Diario'}
               </button>
@@ -776,18 +789,18 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
       {/* ================= MODAL: REPORTAR LESIÓN (COACH) ================= */}
       {mostrarLesionModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-red-600 text-white rounded-t-xl">
-              <h3 className="font-black text-sm flex items-center">
-                <ShieldAlert className="mr-2" size={16} /> Reportar Lesión Deportiva
+        <div className="fixed inset-0 bg-slate-900/40 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-visible animate-fadeIn relative">
+            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl">
+              <h3 className="font-bold text-lg text-slate-800 flex items-center tracking-tight font-display">
+                <ShieldAlert className="mr-2.5 text-red-500" size={20} /> Reportar Lesión Deportiva
               </h3>
-              <button onClick={() => setMostrarLesionModal(false)} className="text-white/80 hover:text-white transition">
+              <button onClick={() => setMostrarLesionModal(false)} className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors cursor-pointer">
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={manejarGuardarLesion} className="p-5 space-y-4">
+            <form onSubmit={manejarGuardarLesion} className="p-6 space-y-5 bg-slate-50/50 rounded-b-2xl">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Gravedad</label>
@@ -844,7 +857,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
               <button
                 type="submit"
                 disabled={guardandoLesion}
-                className="w-full py-2.5 bg-red-600 text-white rounded-lg text-xs font-black hover:bg-red-700 transition shadow-md disabled:opacity-50"
+                className="w-full py-3 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center mt-4"
               >
                 {guardandoLesion ? 'Guardando...' : 'Reportar Baja Médica'}
               </button>
@@ -856,7 +869,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
       {/* ================= MODAL: DAR DE ALTA MÉDICA (COACH) ================= */}
       {mostrarAltaModal && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl border border-slate-100 animate-fadeIn relative">
+          <div className="bg-white rounded-xl max-w-md w-full shadow-2xl overflow-visible animate-fadeIn relative">
             <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold rounded-t-xl">
               <h3 className="font-black text-sm flex items-center">
                 <Check className="mr-2" size={16} /> Procesar Alta Médica

@@ -66,8 +66,8 @@ export default function Login({ onLoginSuccess }) {
         setCargandoRecuperacion(true);
 
         try {
-            await api.post('/usuarios/forgot-password', { correo: correoRecuperar });
-            setMensajeRecuperacion('Si el correo está registrado en el sistema, recibirás un enlace de restablecimiento pronto.');
+            await api.post('/usuarios/solicitud-password', { correo: correoRecuperar });
+            setMensajeRecuperacion('Tu solicitud ha sido enviada al administrador. Una vez aprobada, se te asignará una contraseña temporal (12345678).');
             setCorreoRecuperar('');
         } catch (err) {
             console.error(err);
@@ -186,10 +186,10 @@ export default function Login({ onLoginSuccess }) {
                                 <Lock size={32} className="text-valle-green" />
                             </div>
                             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-                                Recuperar Clave
+                                Solicitar Clave
                             </h2>
                             <p className="text-sm font-medium text-slate-500 mt-1.5">
-                                Ingresa tu correo registrado y te enviaremos un enlace de recuperación.
+                                Ingresa tu correo para solicitar un restablecimiento al administrador.
                             </p>
                         </div>
 

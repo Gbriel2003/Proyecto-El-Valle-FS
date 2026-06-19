@@ -98,7 +98,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             icon: <Users size={22} />,
             color: 'text-emerald-700',
             bg: 'bg-emerald-100',
-            cardBg: 'bg-gradient-to-br from-emerald-50/80 to-emerald-100/20 border-emerald-200/80 hover:border-emerald-300 hover:shadow-emerald-950/5',
+            cardBg: 'bg-linear-to-br from-emerald-50/80 to-emerald-100/20 border-emerald-200/80 hover:border-emerald-300 hover:shadow-emerald-950/5',
             textVal: 'text-emerald-950',
             textLab: 'text-emerald-900',
             textSub: 'text-emerald-700/80'
@@ -110,7 +110,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             icon: <Trophy size={22} />,
             color: 'text-amber-700',
             bg: 'bg-amber-100',
-            cardBg: 'bg-gradient-to-br from-amber-50/80 to-amber-100/20 border-amber-200/80 hover:border-amber-300 hover:shadow-amber-950/5',
+            cardBg: 'bg-linear-to-br from-amber-50/80 to-amber-100/20 border-amber-200/80 hover:border-amber-300 hover:shadow-amber-950/5',
             textVal: 'text-amber-950',
             textLab: 'text-amber-900',
             textSub: 'text-amber-700/80'
@@ -122,7 +122,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             icon: <Target size={22} />,
             color: 'text-sky-700',
             bg: 'bg-sky-100',
-            cardBg: 'bg-gradient-to-br from-sky-50/80 to-sky-100/20 border-sky-200/80 hover:border-sky-300 hover:shadow-sky-950/5',
+            cardBg: 'bg-linear-to-br from-sky-50/80 to-sky-100/20 border-sky-200/80 hover:border-sky-300 hover:shadow-sky-950/5',
             textVal: 'text-sky-950',
             textLab: 'text-sky-900',
             textSub: 'text-sky-700/80'
@@ -134,7 +134,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             icon: <Heart size={22} />,
             color: 'text-rose-700',
             bg: 'bg-rose-100',
-            cardBg: 'bg-gradient-to-br from-rose-50/80 to-rose-100/20 border-rose-200/80 hover:border-rose-300 hover:shadow-rose-950/5',
+            cardBg: 'bg-linear-to-br from-rose-50/80 to-rose-100/20 border-rose-200/80 hover:border-rose-300 hover:shadow-rose-950/5',
             textVal: 'text-rose-950',
             textLab: 'text-rose-900',
             textSub: 'text-rose-700/80'
@@ -160,7 +160,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                     <TrendingUp size={14} /> Actualizar
                 </button>
             </div>            {/* KPI Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {kpis.map((kpi, i) => (
                     <div 
                         key={i} 
@@ -213,7 +213,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                         return (
                             <div className="flex flex-col sm:flex-row items-center justify-around gap-4 mt-6 flex-1">
                                 <div className="relative w-40 h-40 flex items-center justify-center shrink-0">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                         <PieChart>
                                             <Pie
                                                 data={datosPartidos}
@@ -288,7 +288,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                         return (
                             <div className="mt-6 flex-1 flex flex-col justify-end">
                                 <div className="h-40 w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                         <BarChart data={datosSalud} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                             <XAxis 
@@ -334,7 +334,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                         </div>
                     </div>
                     <div className="h-64">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                             <AreaChart data={tendencia_carga_equipo} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
                                 <defs>
                                     <linearGradient id="rpeGrad" x1="0" y1="0" x2="0" y2="1">

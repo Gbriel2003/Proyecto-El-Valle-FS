@@ -1,7 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import secrets
+import boto3
+import os
+import uuid
 from datetime import datetime, timedelta
 import schemas
 import models
@@ -53,41 +56,135 @@ def cambiar_password(
     crud_usuarios.actualizar_password_usuario(db, usuario_actual, req.new_password, primer_ingreso=True)
     return {"mensaje": "Contraseña actualizada exitosamente"}
 
-@router.post("/usuarios/forgot-password")
+@router.get("/usuarios/me", response_model=schemas.UsuarioResponse)
+def obtener_mi_perfil(usuario_actual: models.Usuario = Depends(obtener_usuario_actual)):
+    return usuario_actual
+
+@router.put("/usuarios/{usuario_id}", response_model=schemas.UsuarioResponse)
+def actualizar_usuario(
+    usuario_id: int,
+    datos: schemas.UsuarioUpdate,
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual),
+    db: Session = Depends(get_db)
+):
+    rol_actual = usuario_actual.rol.lower() if usuario_actual.rol else ""
+    if rol_actual != "admin" and usuario_actual.id != usuario_id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para editar este perfil")
+    
+    # Si es atleta y se intenta modificar a sí mismo (solo administradores pueden editar los datos personales)
+    if rol_actual == "atleta" and usuario_actual.id == usuario_id:
+        raise HTTPException(status_code=403, detail="Los atletas no pueden editar sus datos personales. Contacte al administrador.")
+        
+    usuario = crud_usuarios.actualizar_usuario(db, usuario_id, datos)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return usuario
+
+@router.post("/usuarios/me/foto")
+def subir_foto_perfil(
+    file: UploadFile = File(...),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual),
+    db: Session = Depends(get_db)
+):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser una imagen")
+        
+    import os
+    aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
+    aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+    aws_bucket = os.getenv("AWS_BUCKET_NAME")
+    aws_region = os.getenv("AWS_REGION")
+    
+    if not all([aws_access_key, aws_secret_key, aws_bucket, aws_region]):
+        raise HTTPException(status_code=500, detail="La configuración de AWS no está completa en el archivo .env del servidor.")
+        
+    file_bytes = file.file.read()
+    if len(file_bytes) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="La imagen no puede pesar más de 5MB")
+        
+    try:
+        import boto3
+        import uuid
+        s3 = boto3.client('s3', aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key, region_name=aws_region)
+        ext = file.filename.split('.')[-1]
+        file_name = f"perfiles/{usuario_actual.id}_{uuid.uuid4().hex[:8]}.{ext}"
+        
+        s3.put_object(
+            Bucket=aws_bucket,
+            Key=file_name,
+            Body=file_bytes,
+            ContentType=file.content_type,
+            ACL='public-read' # Hacemos la foto pública para que se pueda ver en la web
+        )
+        url_publica = f"https://{aws_bucket}.s3.{aws_region}.amazonaws.com/{file_name}"
+        
+        crud_usuarios.actualizar_foto_perfil(db, usuario_actual.id, url_publica)
+        
+        return {"foto_perfil": url_publica}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al subir imagen a AWS S3: {str(e)}\n(Verifica que el bucket permite ACLs públicas)")
+
+@router.post("/usuarios/solicitud-password")
 def solicitar_recuperacion(
-    req: schemas.ForgotPasswordRequest,
+    req: schemas.SolicitudPasswordCreate,
     db: Session = Depends(get_db)
 ):
     usuario = crud_usuarios.obtener_usuario_por_correo(db, req.correo)
     if not usuario:
         # Retorno amigable e igual para evitar enumeración de correos
-        return {"mensaje": "Si el correo está registrado, se enviará un enlace de restablecimiento"}
+        return {"mensaje": "Si el correo está registrado, se enviará la solicitud al administrador."}
     
-    token = secrets.token_urlsafe(32)
-    expiracion = datetime.now() + timedelta(hours=1)
-    
-    crud_usuarios.guardar_token_recuperacion(db, usuario, token, expiracion)
-    
-    # Impresión en consola (luego se cambiará a SMTP de Gmail)
-    reset_link = f"http://localhost:5173/reset-password/{token}"
-    print("\n" + "="*80)
-    print(f"CORREO DE RECUPERACIÓN PARA: {usuario.correo}")
-    print(f"Enlace de restablecimiento: {reset_link}")
-    print("="*80 + "\n")
-    
-    return {"mensaje": "Si el correo está registrado, se enviará un enlace de restablecimiento"}
+    crud_usuarios.crear_solicitud_password(db, usuario.id)
+    return {"mensaje": "Si el correo está registrado, se enviará la solicitud al administrador."}
 
-@router.post("/usuarios/reset-password")
-def restablecer_password(
-    req: schemas.ResetPasswordRequest,
-    db: Session = Depends(get_db)
+@router.get("/usuarios/solicitudes-password", response_model=list[schemas.SolicitudPasswordResponse])
+def listar_solicitudes_pendientes(
+    db: Session = Depends(get_db), 
+    admin: models.Usuario = Depends(verificar_admin)
 ):
-    usuario = crud_usuarios.obtener_usuario_por_token(db, req.token)
-    if not usuario:
-        raise HTTPException(status_code=400, detail="Token inválido o expirado")
+    solicitudes = crud_usuarios.listar_solicitudes_pendientes(db)
+    resultado = []
+    for s in solicitudes:
+        resultado.append({
+            "id": s.id,
+            "usuario_id": s.usuario_id,
+            "estado": s.estado,
+            "fecha_solicitud": s.fecha_solicitud,
+            "usuario_nombre": s.usuario.nombre,
+            "usuario_apellido": s.usuario.apellido,
+            "usuario_correo": s.usuario.correo
+        })
+    return resultado
+
+@router.put("/usuarios/solicitudes-password/{solicitud_id}/aprobar")
+def aprobar_solicitud_password(
+    solicitud_id: int,
+    db: Session = Depends(get_db),
+    admin: models.Usuario = Depends(verificar_admin)
+):
+    solicitud = crud_usuarios.actualizar_estado_solicitud(db, solicitud_id, "Aprobada")
+    if not solicitud:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada")
         
-    crud_usuarios.actualizar_password_usuario(db, usuario, req.new_password, primer_ingreso=True)
-    return {"mensaje": "Tu contraseña ha sido restablecida correctamente"}
+    usuario = crud_usuarios.obtener_usuario_por_id(db, solicitud.usuario_id)
+    
+    # Asignar contraseña genérica 12345678 y obligar a cambiar
+    crud_usuarios.actualizar_password_usuario(db, usuario, "12345678", primer_ingreso=False)
+    usuario.debe_cambiar_password = True
+    db.commit()
+    
+    return {"mensaje": "Solicitud aprobada y contraseña restablecida a 12345678"}
+
+@router.put("/usuarios/solicitudes-password/{solicitud_id}/rechazar")
+def rechazar_solicitud_password(
+    solicitud_id: int,
+    db: Session = Depends(get_db),
+    admin: models.Usuario = Depends(verificar_admin)
+):
+    solicitud = crud_usuarios.actualizar_estado_solicitud(db, solicitud_id, "Rechazada")
+    if not solicitud:
+        raise HTTPException(status_code=404, detail="Solicitud no encontrada")
+    return {"mensaje": "Solicitud rechazada"}
 
 @router.delete("/usuarios/{usuario_id}")
 def eliminar_usuario(usuario_id: int, db: Session = Depends(get_db), admin: models.Usuario = Depends(verificar_admin)):
@@ -106,7 +203,10 @@ def listar_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
             "apellido": u.apellido,
             "correo": u.correo,
             "rol": u.rol,
-            "debe_cambiar_password": u.debe_cambiar_password
+            "debe_cambiar_password": u.debe_cambiar_password,
+            "cedula": u.cedula,
+            "telefono": u.telefono,
+            "foto_perfil": u.foto_perfil
         }
         for u in usuarios
     ]

@@ -1,8 +1,9 @@
 import { 
   Calendar, Clock, MapPin, Shield, FileText, 
-  Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight
+  Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight,
+  MoreVertical, CheckCircle
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 
 export default function MatchCalendar({
   partidos,
@@ -17,6 +18,8 @@ export default function MatchCalendar({
   setGolesVisitantePartido,
   setJugadoresSeleccionados,
   manejarEliminarPartido,
+  manejarEliminarTorneo,
+  manejarFinalizarTorneo,
   archivoSeleccionado,
   mensajeSubida,
   subiendo,
@@ -80,62 +83,106 @@ export default function MatchCalendar({
     const esValleVisitante = partido.equipo_visitante.toLowerCase().includes('valle');
     const esFinalizado = partido.estado === 'Finalizado';
 
+    let valleGanador = false;
+    let vallePerdedor = false;
+    let empate = false;
+
+    if (esFinalizado && (esValleLocal || esValleVisitante)) {
+      if (partido.goles_local === partido.goles_visitante) empate = true;
+      else if (esValleLocal && partido.goles_local > partido.goles_visitante) valleGanador = true;
+      else if (esValleVisitante && partido.goles_visitante > partido.goles_local) valleGanador = true;
+      else vallePerdedor = true;
+    }
+
+    // Definir colores semánticos basados en el resultado de El Valle F.S.
+    let borderColor = 'border-l-slate-300';
+    let statusBgColor = 'bg-slate-100 text-slate-500';
+    
+    if (esFinalizado) {
+      if (valleGanador) {
+        borderColor = 'border-l-valle-green';
+        statusBgColor = 'bg-valle-green/10 text-valle-green-dark border border-valle-green/20';
+      } else if (vallePerdedor) {
+        borderColor = 'border-l-red-500';
+        statusBgColor = 'bg-red-50 text-red-600 border border-red-200';
+      } else if (empate) {
+        borderColor = 'border-l-slate-400';
+        statusBgColor = 'bg-slate-100 text-slate-600 border border-slate-200';
+      }
+    } else {
+      borderColor = 'border-l-valle-gold';
+      statusBgColor = 'bg-valle-gold/10 text-valle-gold-dark border border-valle-gold/30';
+    }
+
     return (
-      <div className="bg-white rounded-xl border border-slate-200/80 overflow-hidden hover:shadow-md hover:border-slate-300/80 transition duration-300">
+      <div className={`bg-white rounded-xl border border-slate-200/80 overflow-hidden hover:shadow-lg transition-all duration-300 relative border-l-4 ${borderColor}`}>
         {/* Compact match display */}
         <div className="p-4 sm:p-5">
           {/* Top bar: torneo + estado */}
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider truncate max-w-[60%]">
+          <div className="flex justify-between items-center mb-4 pb-1">
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 truncate max-w-[60%]">
+              <Trophy size={13} className={esFinalizado ? (valleGanador ? 'text-valle-green' : 'text-slate-400') : 'text-valle-gold'} />
               {partido.torneo_nombre || "Torneo Oficial"}
             </span>
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-              esFinalizado 
-                ? 'bg-slate-100 text-slate-500' 
-                : 'bg-valle-green/10 text-valle-green-dark'
-            }`}>
-              {partido.estado}
+            <span className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider shadow-sm ${statusBgColor}`}>
+              {esFinalizado ? (valleGanador ? 'Victoria' : vallePerdedor ? 'Derrota' : 'Empate') : partido.estado}
             </span>
           </div>
 
           {/* Teams + Score - horizontal compact layout */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-3 bg-slate-50/40 p-3 rounded-xl border border-slate-100/50">
             {/* Local */}
-            <div className="flex items-center flex-1 min-w-0 gap-2.5">
-              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0 ${
+            <div className={`flex items-center flex-1 min-w-0 gap-3 p-2 rounded-lg transition-colors ${esFinalizado && partido.goles_local > partido.goles_visitante ? 'bg-green-50/50' : ''}`}>
+              <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 shadow-sm overflow-hidden ${
                 esValleLocal 
-                  ? 'bg-valle-green/5 border-valle-green/30 text-valle-green' 
-                  : 'bg-slate-50 border-slate-200 text-slate-400'
+                  ? 'bg-white border-valle-gold text-valle-green-dark' 
+                  : 'bg-white border-slate-200 text-slate-400'
               }`}>
-                <Shield size={18} />
+                {esValleLocal ? (
+                  <img src="/logo.png" alt="El Valle F.S." className="w-full h-full object-contain p-1" />
+                ) : (
+                  <Shield size={20} />
+                )}
               </div>
-              <span className={`text-sm font-bold truncate ${esValleLocal ? 'text-valle-green-dark' : 'text-slate-700'}`}>
+              <span className={`text-sm sm:text-base font-black truncate ${esValleLocal ? 'text-valle-green-dark' : 'text-slate-700'}`}>
                 {partido.equipo_local}
               </span>
             </div>
 
             {/* Score / VS */}
-            <div className="shrink-0 px-2">
+            <div className="shrink-0 px-3 flex flex-col items-center justify-center">
               {esFinalizado ? (
-                <div className="text-lg font-black text-slate-800 tracking-wider bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-mono">
-                  {partido.goles_local} - {partido.goles_visitante}
+                <div className="flex items-center gap-2">
+                  <span className={`text-2xl font-black ${partido.goles_local > partido.goles_visitante ? 'text-slate-800' : 'text-slate-400'}`}>
+                    {partido.goles_local}
+                  </span>
+                  <span className="text-sm font-bold text-slate-300">-</span>
+                  <span className={`text-2xl font-black ${partido.goles_visitante > partido.goles_local ? 'text-slate-800' : 'text-slate-400'}`}>
+                    {partido.goles_visitante}
+                  </span>
                 </div>
               ) : (
-                <div className="text-xs font-extrabold text-slate-350 tracking-wider uppercase bg-slate-50/50 px-2.5 py-1 rounded-lg border border-slate-100">VS</div>
+                <div className="w-8 h-8 rounded-full bg-valle-gold/20 flex items-center justify-center border border-valle-gold/30">
+                  <span className="text-[10px] font-black text-valle-gold-dark tracking-tighter">VS</span>
+                </div>
               )}
             </div>
 
             {/* Visitante */}
-            <div className="flex items-center flex-1 min-w-0 gap-2.5 justify-end">
-              <span className={`text-sm font-bold truncate text-right ${esValleVisitante ? 'text-valle-green-dark' : 'text-slate-700'}`}>
+            <div className={`flex items-center flex-1 min-w-0 gap-3 justify-end p-2 rounded-lg transition-colors ${esFinalizado && partido.goles_visitante > partido.goles_local ? 'bg-green-50/50' : ''}`}>
+              <span className={`text-sm sm:text-base font-black truncate text-right ${esValleVisitante ? 'text-valle-green-dark' : 'text-slate-700'}`}>
                 {partido.equipo_visitante}
               </span>
-              <div className={`w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0 ${
+              <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shrink-0 shadow-sm overflow-hidden ${
                 esValleVisitante 
-                  ? 'bg-valle-green/5 border-valle-green/30 text-valle-green' 
-                  : 'bg-slate-50 border-slate-200 text-slate-400'
+                  ? 'bg-white border-valle-gold text-valle-green-dark' 
+                  : 'bg-white border-slate-200 text-slate-400'
               }`}>
-                <Shield size={18} />
+                {esValleVisitante ? (
+                  <img src="/logo.png" alt="El Valle F.S." className="w-full h-full object-contain p-1" />
+                ) : (
+                  <Shield size={20} />
+                )}
               </div>
             </div>
           </div>
@@ -273,38 +320,43 @@ export default function MatchCalendar({
       
       {/* ====== PANEL IZQUIERDO: TORNEOS ====== */}
       <div className="lg:col-span-4 space-y-4">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="text-sm font-bold text-slate-800 flex items-center">
-              <Trophy size={16} className="mr-2 text-valle-gold" />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden relative">
+          {/* Header con colores del club */}
+          <div className="px-5 py-5 bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+            {/* Elemento decorativo de fondo */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+            
+            <h3 className="text-base font-black text-white flex items-center relative z-10 tracking-wide font-display">
+              <Trophy size={18} className="mr-2.5 text-valle-gold drop-shadow-md" />
               Torneos Activos
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Selecciona un torneo para filtrar los partidos</p>
+            <p className="text-xs text-valle-gold/90 mt-1.5 relative z-10 font-semibold tracking-wide">Selecciona un torneo para filtrar los partidos</p>
           </div>
 
-          <div className="p-3 space-y-2">
+          <div className="p-4 bg-slate-50/30 space-y-3">
             {/* Filtro: Todos */}
             <button
               type="button"
               onClick={() => setTorneoFiltro(null)}
-              className={`w-full text-left p-3 rounded-xl transition cursor-pointer border ${
+              className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 cursor-pointer border-2 ${
                 torneoFiltro === null 
-                  ? 'bg-valle-green/5 border-valle-green/20 shadow-sm' 
-                  : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200'
+                  ? 'bg-valle-gold/5 border-valle-gold/50 shadow-sm' 
+                  : 'bg-white border-slate-100 hover:bg-white hover:border-slate-300 hover:shadow-sm'
               }`}
             >
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
-                    torneoFiltro === null ? 'bg-valle-green text-valle-gold' : 'bg-slate-100 text-slate-400'
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${
+                    torneoFiltro === null ? 'bg-gradient-to-br from-valle-gold to-yellow-600 text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
-                    <Filter size={13} />
+                    <Filter size={14} />
                   </div>
-                  <span className={`text-sm font-bold ${torneoFiltro === null ? 'text-valle-green-dark' : 'text-slate-600'}`}>
+                  <span className={`text-sm font-black tracking-tight ${torneoFiltro === null ? 'text-valle-gold-dark' : 'text-slate-600'}`}>
                     Todos los Partidos
                   </span>
                 </div>
-                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${torneoFiltro === null ? 'bg-valle-gold/20 text-valle-gold-dark' : 'bg-slate-100 text-slate-400'}`}>
                   {partidos.length}
                 </span>
               </div>
@@ -317,47 +369,77 @@ export default function MatchCalendar({
               const progreso = stats.total > 0 ? Math.round((stats.jugados / stats.total) * 100) : 0;
 
               return (
-                <button
+                <div
                   key={torneo.id}
-                  type="button"
-                  onClick={() => setTorneoFiltro(isActive ? null : torneo.id)}
-                  className={`w-full text-left p-3 rounded-xl transition cursor-pointer border ${
+                  className={`w-full text-left p-3.5 rounded-xl transition-all duration-300 border-2 ${
                     isActive 
-                      ? 'bg-valle-green/5 border-valle-green/20 shadow-sm' 
-                      : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-200'
+                      ? 'bg-valle-green/5 border-valle-green/50 shadow-sm' 
+                      : 'bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm'
                   }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-start gap-2.5 min-w-0">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                        isActive ? 'bg-valle-gold text-valle-black' : 'bg-slate-100 text-slate-400'
+                  <div className="flex justify-between items-start gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setTorneoFiltro(isActive ? null : torneo.id)}
+                      className="flex items-start gap-3 min-w-0 flex-1 hover:opacity-80 transition cursor-pointer text-left"
+                    >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-sm transition-colors ${
+                        isActive ? 'bg-gradient-to-br from-valle-green to-valle-green-dark text-valle-gold' : 'bg-slate-100 text-slate-400'
                       }`}>
-                        <Trophy size={13} />
+                        <Trophy size={14} />
                       </div>
                       <div className="min-w-0">
-                        <span className={`text-sm font-bold block truncate ${isActive ? 'text-valle-green-dark' : 'text-slate-700'}`}>
+                        <span className={`text-sm font-black tracking-tight truncate flex items-center gap-2 ${isActive ? 'text-valle-green-dark' : 'text-slate-700'}`}>
                           {torneo.nombre}
+                          {torneo.estado === 'Finalizado' && (
+                            <CheckCircle size={14} className="text-valle-green shrink-0" title="Finalizado" />
+                          )}
                         </span>
-                        <span className="text-xs text-slate-400 font-medium">
+                        <span className={`text-[10px] font-bold tracking-wider uppercase mt-0.5 block ${isActive ? 'text-valle-green/70' : 'text-slate-400'}`}>
                           {torneo.temporada}
                         </span>
                       </div>
+                    </button>
+                    
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mb-1">
+                        {stats.total}
+                      </span>
+                      {esCuerpoTecnico && (
+                        <div className="flex gap-1">
+                          {torneo.estado !== 'Finalizado' && (
+                            <button
+                              type="button"
+                              onClick={() => manejarFinalizarTorneo(torneo.id)}
+                              className="p-1.5 text-slate-400 hover:text-valle-green hover:bg-valle-green/10 rounded-md transition cursor-pointer"
+                              title="Finalizar torneo"
+                            >
+                              <CheckCircle size={14} />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => manejarEliminarTorneo(torneo.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-md transition cursor-pointer"
+                            title="Eliminar torneo"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
-                      {stats.total}
-                    </span>
                   </div>
 
                   {/* Mini barra de progreso del torneo */}
                   {stats.total > 0 && (
-                    <div className="mt-2.5 ml-9">
-                      <div className="flex justify-between text-xs text-slate-400 font-medium mb-1">
-                        <span>{stats.jugados} jugados</span>
-                        <span>{stats.porJugar} por jugar</span>
+                    <div className="mt-3 ml-11">
+                      <div className="flex justify-between text-[10px] font-black uppercase tracking-wider mb-1.5">
+                        <span className="text-slate-400">{stats.jugados} Jugados</span>
+                        <span className="text-slate-400">{stats.porJugar} Por Jugar</span>
                       </div>
-                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div className="w-full bg-slate-100/80 rounded-full h-2 overflow-hidden shadow-inner">
                         <div 
-                          className="h-full bg-valle-green rounded-full transition-all duration-500"
+                          className={`h-full rounded-full transition-all duration-500 shadow-sm ${torneo.estado === 'Finalizado' ? 'bg-slate-400' : 'bg-gradient-to-r from-valle-green to-valle-green-dark'}`}
                           style={{ width: `${progreso}%` }}
                         />
                       </div>
@@ -365,13 +447,18 @@ export default function MatchCalendar({
                   )}
 
                   {/* Fechas del torneo */}
-                  <div className="mt-2 ml-9 flex items-center gap-1 text-xs text-slate-400 font-medium">
-                    <Calendar size={10} className="text-slate-300" />
-                    <span>{torneo.fecha_inicio}</span>
-                    <ArrowRight size={10} className="text-slate-300" />
-                    <span>{torneo.fecha_fin}</span>
+                  <div className="mt-3 ml-11 pt-3 border-t border-slate-100/80 flex items-center justify-between text-[10px] font-bold">
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <Calendar size={11} className={isActive ? "text-valle-green/50" : "text-slate-300"} />
+                      <span>{torneo.fecha_inicio}</span>
+                      <ArrowRight size={10} className="text-slate-300 mx-0.5" />
+                      <span>{torneo.fecha_fin}</span>
+                    </div>
+                    {torneo.estado === 'Finalizado' && (
+                       <span className="text-slate-400/80 italic">Finalizado</span>
+                    )}
                   </div>
-                </button>
+                </div>
               );
             })}
 

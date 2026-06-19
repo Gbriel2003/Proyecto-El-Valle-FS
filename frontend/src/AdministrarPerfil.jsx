@@ -8,11 +8,9 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-
-  // Estados del número de teléfono
-  const [prefijo, setPrefijo] = useState('');
-  const [numero, setNumero] = useState('');
-  const [guardandoTel, setGuardandoTel] = useState(false);
+  const [formData, setFormData] = useState({ nombre: '', apellido: '', cedula: '', telefono: '' });
+  const [guardando, setGuardando] = useState(false);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
 
   const cargarUsuarioMe = async () => {
     try {
@@ -20,13 +18,12 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
       setError('');
       const res = await api.get('/usuarios/me');
       setUsuario(res.data);
-      if (res.data.telefono && res.data.telefono.length === 11) {
-        setPrefijo(res.data.telefono.substring(0, 4));
-        setNumero(res.data.telefono.substring(4));
-      } else {
-        setPrefijo('');
-        setNumero('');
-      }
+      setFormData({
+        nombre: res.data.nombre || '',
+        apellido: res.data.apellido || '',
+        cedula: res.data.cedula || '',
+        telefono: res.data.telefono || ''
+      });
     } catch (err) {
       console.error("Error al cargar datos de usuario:", err);
       setError("No se pudieron cargar los detalles de tu perfil.");
@@ -39,34 +36,46 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
     cargarUsuarioMe();
   }, []);
 
-  const guardarTelefono = async () => {
-    if (!prefijo || numero.length !== 7) {
-      if (crearNotificacion) {
-        crearNotificacion("Error de validación", "Selecciona una operadora válida y escribe los 7 dígitos de tu número.", "error");
-      } else {
-        alert("Selecciona una operadora válida y escribe los 7 dígitos de tu número.");
-      }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    try {
+      setGuardando(true);
+      const res = await api.put(`/usuarios/${usuario.id}`, formData);
+      setUsuario(res.data);
+      crearNotificacion("Perfil actualizado", "Tus datos personales fueron guardados.", "success");
+    } catch (err) {
+      crearNotificacion("Error al guardar", err.response?.data?.detail || "No se pudo actualizar el perfil", "error");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const handleFotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 5 * 1024 * 1024) {
+      crearNotificacion("Error", "La imagen no puede pesar más de 5MB", "error");
       return;
     }
 
+    const formData = new FormData();
+    formData.append("file", file);
+
     try {
-      setGuardandoTel(true);
-      const telCompleto = `${prefijo}${numero}`;
-      await api.put('/usuarios/me/profile', { telefono: telCompleto });
-      if (crearNotificacion) {
-        crearNotificacion("Teléfono actualizado", "Tu número de teléfono se ha guardado correctamente.", "success");
-      }
-      setUsuario(prev => ({ ...prev, telefono: telCompleto }));
+      setSubiendoFoto(true);
+      const res = await api.post('/usuarios/me/foto', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setUsuario({ ...usuario, foto_perfil: res.data.foto_perfil });
+      crearNotificacion("¡Excelente!", "Tu foto de perfil se ha actualizado correctamente. (Refresca para ver los cambios en la cabecera)", "success");
     } catch (err) {
-      console.error("Error al guardar teléfono:", err);
-      const detail = err.response?.data?.detail || "No se pudo actualizar tu número de teléfono.";
-      if (crearNotificacion) {
-        crearNotificacion("Error", detail, "error");
-      } else {
-        alert(detail);
-      }
+      crearNotificacion("Error al subir foto", err.response?.data?.detail || "Hubo un problema al subir la imagen.", "error");
     } finally {
-      setGuardandoTel(false);
+      setSubiendoFoto(false);
     }
   };
 
@@ -94,10 +103,24 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
     <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
       
       {/* Cabecera del Panel */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center animate-fade-in-up">
-        <div className="flex items-center space-x-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-valle-green to-valle-green-light rounded-2xl flex items-center justify-center text-valle-gold font-black text-xl shadow-md border-2 border-valle-gold/30">
-            {usuario?.nombre?.charAt(0).toUpperCase()}{usuario?.apellido?.charAt(0).toUpperCase()}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center animate-fade-in-up gap-4">
+        <div className="flex items-center space-x-4 w-full sm:w-auto">
+          <div className="relative group shrink-0">
+            {usuario?.foto_perfil ? (
+              <img 
+                src={usuario.foto_perfil.startsWith('http') ? usuario.foto_perfil : `${api.defaults.baseURL}${usuario.foto_perfil.startsWith('/') ? '' : '/'}${usuario.foto_perfil}`} 
+                alt="Perfil" 
+                className="w-16 h-16 rounded-2xl object-cover shadow-md border-2 border-valle-gold/30" 
+              />
+            ) : (
+              <div className="w-16 h-16 bg-linear-to-br from-valle-green to-valle-green-light rounded-2xl flex items-center justify-center text-valle-gold font-black text-2xl shadow-md border-2 border-valle-gold/30">
+                {usuario?.nombre?.charAt(0).toUpperCase()}{usuario?.apellido?.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <label className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              {subiendoFoto ? <Loader2 className="animate-spin text-white" size={20} /> : <span className="text-[10px] text-white font-bold px-1 text-center leading-tight">Cambiar Foto</span>}
+              <input type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} disabled={subiendoFoto} />
+            </label>
           </div>
           <div>
             <h2 className="text-xl font-black text-valle-black font-display capitalize">
@@ -108,6 +131,16 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
             </p>
           </div>
         </div>
+        {rolUsuario === 'admin' && (
+          <button
+            onClick={handleSave}
+            disabled={guardando}
+            className="w-full sm:w-auto px-6 py-2.5 bg-valle-gold hover:bg-yellow-500 text-valle-black rounded-xl font-black text-sm transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {guardando ? <Loader2 className="animate-spin" size={16} /> : null}
+            Guardar Cambios
+          </button>
+        )}
       </div>
 
       <div className="animate-fade-in-up grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -124,77 +157,98 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Nombre</label>
-                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize cursor-not-allowed shadow-inner select-none">
-                  {usuario?.nombre || 'Cargando...'}
-                </div>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  disabled={rolUsuario !== 'admin'}
+                  className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
+                />
               </div>
               <div>
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">Apellido</label>
-                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize cursor-not-allowed shadow-inner select-none">
-                  {usuario?.apellido || 'Cargando...'}
-                </div>
+                <input
+                  type="text"
+                  name="apellido"
+                  value={formData.apellido}
+                  onChange={handleChange}
+                  disabled={rolUsuario !== 'admin'}
+                  className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 capitalize shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
+                />
               </div>
             </div>
 
-            {/* Correo Electrónico */}
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Mail size={12} /> Correo Electrónico
-              </label>
-              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 cursor-not-allowed shadow-inner select-none">
-                {usuario?.correo || 'Cargando...'}
+            {/* Correo Electrónico y Cédula */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Mail size={12} /> Correo Electrónico
+                </label>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 cursor-not-allowed shadow-inner select-none truncate">
+                  {usuario?.correo || 'Cargando...'}
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
+                  Cédula de Identidad
+                </label>
+                <input
+                  type="text"
+                  name="cedula"
+                  value={formData.cedula}
+                  onChange={handleChange}
+                  disabled={rolUsuario !== 'admin'}
+                  className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 uppercase shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
+                  placeholder="No registrada"
+                />
               </div>
             </div>
             
-            {/* Teléfono con validación de operadora venezolana */}
+            {/* Teléfono de Contacto */}
             <div>
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
                 Teléfono de Contacto
               </label>
-              <div className="flex gap-2 items-center">
-                <CustomSelect
-                  value={prefijo}
-                  onChange={(e) => setPrefijo(e.target.value)}
-                  options={["0424", "0414", "0416", "0426", "0412", "0422"]}
-                  placeholder="Prefijo"
-                  className="w-28 shrink-0"
-                />
-                <input
-                  type="text"
-                  value={numero}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, ''); // Solo números
-                    if (val.length <= 7) setNumero(val);
-                  }}
-                  placeholder="1234567"
-                  className="bg-white border border-slate-200 rounded-lg text-sm px-4 py-2.5 flex-1 focus:outline-none focus:border-valle-green focus:ring-2 focus:ring-valle-green/20 font-bold shadow-sm transition-all"
-                />
-                <button
-                  onClick={guardarTelefono}
-                  disabled={guardandoTel}
-                  className="px-5 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-lg text-xs font-black transition cursor-pointer disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 whitespace-nowrap"
-                >
-                  {guardandoTel ? 'Guardando...' : 'Actualizar'}
-                </button>
-              </div>
-              <p className="text-[10px] text-slate-400 font-bold mt-1.5">Formatos permitidos: 0424, 0414, 0416, 0426, 0412, 0422 seguido de 7 dígitos.</p>
+              <input
+                type="text"
+                name="telefono"
+                value={formData.telefono}
+                onChange={handleChange}
+                disabled={rolUsuario !== 'admin'}
+                className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
+                placeholder="No registrado"
+              />
             </div>
 
             {/* Metadatos (Rol y Fecha) */}
             <div className="grid grid-cols-2 gap-4 mt-2">
-              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2"><Award size={14} /> Rol del Sistema</span>
-                <span className="inline-flex items-center self-start px-3 py-1 rounded-md text-xs font-black bg-valle-green/10 text-valle-green border border-valle-green/20 capitalize shadow-sm">
-                  {usuario?.rol}
+              <div className="bg-linear-to-br from-emerald-50 to-emerald-100/50 border border-emerald-200/60 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:shadow-md hover:border-emerald-300 transition-all">
+                <div className="absolute right-0 top-0 w-16 h-16 bg-linear-to-bl from-emerald-200/40 to-transparent rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
+                <span className="text-[10px] font-extrabold text-emerald-800/70 uppercase tracking-widest flex items-center gap-1.5 mb-2 sm:mb-3 z-10">
+                  <Award size={14} className="text-emerald-500 drop-shadow-sm" /> 
+                  Rol del Sistema
                 </span>
+                <div className="z-10 mt-auto">
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-black bg-emerald-500 text-white shadow-sm shadow-emerald-500/20 capitalize tracking-wide">
+                    {usuario?.rol}
+                  </span>
+                </div>
               </div>
-              <div className="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between shadow-sm">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mb-2"><Calendar size={14} /> Fecha de Registro</span>
-                <span className="font-semibold text-slate-700 text-xs">
-                  {usuario?.fecha_registro ? new Date(usuario.fecha_registro).toLocaleDateString('es-VE', {
-                    day: 'numeric', month: 'short', year: 'numeric'
-                  }) : 'N/A'}
+
+              <div className="bg-linear-to-br from-sky-50 to-sky-100/50 border border-sky-200/60 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group hover:shadow-md hover:border-sky-300 transition-all">
+                <div className="absolute right-0 top-0 w-16 h-16 bg-linear-to-bl from-sky-200/40 to-transparent rounded-bl-full pointer-events-none transition-transform group-hover:scale-110" />
+                <span className="text-[10px] font-extrabold text-sky-800/70 uppercase tracking-widest flex items-center gap-1.5 mb-2 sm:mb-3 z-10">
+                  <Calendar size={14} className="text-sky-500 drop-shadow-sm" /> 
+                  Fecha de Registro
                 </span>
+                <div className="z-10 mt-auto">
+                  <span className="font-black text-sky-950 text-sm sm:text-base tracking-tight">
+                    {usuario?.fecha_registro ? new Date(usuario.fecha_registro).toLocaleDateString('es-VE', {
+                      day: 'numeric', month: 'short', year: 'numeric'
+                    }) : 'N/A'}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

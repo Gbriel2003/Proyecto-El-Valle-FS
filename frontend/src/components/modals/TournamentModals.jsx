@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import {
   X, Save, PlusCircle, Calendar, Award, Sparkles,
-  Loader2, AlertTriangle, ThumbsUp, List
+  Loader2, AlertTriangle, ThumbsUp, List, CheckCircle
 } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 
@@ -109,32 +109,35 @@ export function CrearTorneoModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
       <div
-        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
+        className="bg-white rounded-2xl max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-tournament-title"
       >
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold">
-          <h3 id="modal-tournament-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
-            <PlusCircle className="mr-1.5" size={14} /> Registrar Nuevo Torneo
+        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+          
+          <h3 id="modal-tournament-title" className="font-black text-sm flex items-center tracking-widest uppercase text-white relative z-10 font-display">
+            <PlusCircle className="mr-2.5 text-valle-gold drop-shadow-md" size={16} /> Registrar Nuevo Torneo
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-valle-gold/80 hover:text-white transition cursor-pointer"
+            className="text-valle-gold/80 hover:text-white transition-colors cursor-pointer relative z-10 bg-white/5 hover:bg-white/20 p-1.5 rounded-lg"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+        <form onSubmit={onSubmit} className="p-6 space-y-5 text-xs font-semibold text-slate-700 bg-slate-50/30">
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nombre del Torneo</label>
+            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Nombre del Torneo</label>
             <input
               type="text"
               placeholder="Ej: Liga Universitaria de Futsal"
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850"
+              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 transition-all shadow-sm placeholder:text-slate-300"
               value={nombreTorneo}
               onChange={(e) => setNombreTorneo(e.target.value)}
               required
@@ -142,13 +145,13 @@ export function CrearTorneoModal({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Temporada</label>
+          <div className="grid grid-cols-2 gap-5">
+            <div className="col-span-2">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Temporada</label>
               <input
                 type="text"
                 placeholder="Ej: 2026-I"
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 transition-all shadow-sm placeholder:text-slate-300"
                 value={temporadaTorneo}
                 onChange={(e) => setTemporadaTorneo(e.target.value)}
                 required
@@ -156,22 +159,22 @@ export function CrearTorneoModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha Inicio</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Inicio</label>
               <input
                 type="date"
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850 cursor-pointer"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
                 value={fechaInicioTorneo}
                 onChange={(e) => setFechaInicioTorneo(e.target.value)}
                 required
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha Fin</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Fin</label>
               <input
                 type="date"
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850 cursor-pointer"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
                 value={fechaFinTorneo}
                 onChange={(e) => setFechaFinTorneo(e.target.value)}
                 required
@@ -179,13 +182,15 @@ export function CrearTorneoModal({
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={creandoTorneo}
-            className="w-full py-2.5 bg-valle-green text-valle-gold rounded-xl text-xs font-black hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 flex items-center justify-center cursor-pointer"
-          >
-            {creandoTorneo ? <><Loader2 size={14} className="animate-spin mr-1.5" /> Guardando...</> : 'Crear Torneo'}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={creandoTorneo}
+              className="w-full py-3.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
+            >
+              {creandoTorneo ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : 'Crear Torneo'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -215,33 +220,40 @@ export function ProgramarPartidoModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
       <div
-        className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up"
+        className="bg-white rounded-2xl max-w-md w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-100 overflow-hidden animate-fade-in-up"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-match-title"
       >
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold">
-          <h3 id="modal-match-title" className="font-bold text-xs flex items-center tracking-tight uppercase">
-            <Calendar className="mr-1.5" size={14} /> Programar Nuevo Partido
+        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+
+          <h3 id="modal-match-title" className="font-black text-sm flex items-center tracking-widest uppercase text-white relative z-10 font-display">
+            <Calendar className="mr-2.5 text-valle-gold drop-shadow-md" size={16} /> Programar Nuevo Partido
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-valle-gold/80 hover:text-white transition cursor-pointer"
+            className="text-valle-gold/80 hover:text-white transition-colors cursor-pointer relative z-10 bg-white/5 hover:bg-white/20 p-1.5 rounded-lg"
             aria-label="Cerrar modal"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={onSubmit} className="p-5 space-y-4 text-xs font-semibold text-slate-700">
+        <form onSubmit={onSubmit} className="p-6 space-y-5 text-xs font-semibold text-slate-700 bg-slate-50/30">
           {torneos.length === 0 ? (
-            <div className="text-center py-6 px-4 bg-slate-50 border border-slate-200/50 rounded-xl space-y-3">
-              <p className="text-slate-500 font-bold leading-normal">Debes registrar al menos un Torneo primero.</p>
+            <div className="text-center py-8 px-4 bg-white border border-valle-gold/30 rounded-2xl space-y-4 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-valle-gold to-yellow-500"></div>
+              <div className="w-12 h-12 bg-valle-gold/10 rounded-full flex items-center justify-center mx-auto mb-2 text-valle-gold-dark">
+                <PlusCircle size={24} />
+              </div>
+              <p className="text-slate-600 font-black tracking-wide leading-relaxed">Debes registrar al menos un Torneo primero.</p>
               <button
                 type="button"
                 onClick={onAbrirCrearTorneo}
-                className="px-4 py-2 bg-valle-green hover:bg-valle-green-dark text-valle-gold font-bold rounded-lg text-xs transition cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold font-black rounded-xl text-xs transition-all duration-300 shadow-md shadow-valle-green/20 hover:shadow-lg hover:from-valle-green-dark hover:to-[#1b4321] cursor-pointer"
               >
                 Crear Torneo Ahora
               </button>
@@ -249,31 +261,33 @@ export function ProgramarPartidoModal({
           ) : (
             <>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Torneo Asociado</label>
-                <CustomSelect
-                  value={torneoIdPartido}
-                  onChange={(e) => setTorneoIdPartido(e.target.value)}
-                  options={torneos.map(t => ({ value: t.id, label: `${t.nombre} (${t.temporada})` }))}
-                />
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Torneo Asociado</label>
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 focus-within:border-valle-green focus-within:ring-4 focus-within:ring-valle-green/10 transition-all">
+                  <CustomSelect
+                    value={torneoIdPartido}
+                    onChange={(e) => setTorneoIdPartido(e.target.value)}
+                    options={torneos.map(t => ({ value: t.id, label: `${t.nombre} (${t.temporada})` }))}
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Equipo Local</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Equipo Local</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 transition-all shadow-sm"
                     value={equipoLocalPartido}
                     onChange={(e) => setEquipoLocalPartido(e.target.value)}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Equipo Visitante</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Equipo Visitante</label>
                   <input
                     type="text"
                     placeholder="Ej: Futsal Margarita"
-                    className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850"
+                    className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 transition-all shadow-sm placeholder:text-slate-300"
                     value={equipoVisitantePartido}
                     onChange={(e) => setEquipoVisitantePartido(e.target.value)}
                     required
@@ -282,23 +296,25 @@ export function ProgramarPartidoModal({
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fecha y Hora</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Fecha y Hora</label>
                 <input
                   type="datetime-local"
-                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green text-slate-850 cursor-pointer"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
                   value={fechaHoraPartido}
                   onChange={(e) => setFechaHoraPartido(e.target.value)}
                   required
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={programandoPartido}
-                className="w-full py-2.5 bg-valle-green text-valle-gold rounded-xl text-xs font-black hover:bg-valle-green-dark transition shadow-md disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              >
-                {programandoPartido ? <><Loader2 size={14} className="animate-spin mr-1.5" /> Guardando...</> : 'Programar Partido'}
-              </button>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={programandoPartido}
+                  className="w-full py-3.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
+                >
+                  {programandoPartido ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : 'Programar Partido'}
+                </button>
+              </div>
             </>
           )}
         </form>
@@ -450,24 +466,24 @@ export function ReporteIAModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-xs">
       <div
-        className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-fade-in-up flex flex-col max-h-[85vh]"
+        className="bg-white rounded-2xl max-w-2xl w-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 overflow-hidden animate-fade-in-up flex flex-col max-h-[85vh]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-report-title"
       >
         {/* Cabecera */}
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-valle-green text-valle-gold">
-          <div className="flex items-center gap-2">
+        <div className="p-4 flex justify-between items-center bg-valle-green text-valle-gold">
+          <div className="flex items-center gap-2.5">
             <Sparkles className="animate-pulse text-valle-gold" size={18} />
             <div className="text-left">
               <h3 id="modal-report-title" className="font-bold text-xs tracking-tight uppercase">Análisis Táctico Inteligente (IA)</h3>
-              <p className="text-[9px] text-valle-gold/75 mt-0.5 leading-none">Generado por Gemini a partir de El Valle Stats PDF</p>
+              <p className="text-[9px] text-valle-gold/80 mt-0.5 leading-none font-medium tracking-wide">Generado por Groq a partir de El Valle Stats PDF</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-valle-gold/80 hover:text-white transition cursor-pointer"
+            className="text-valle-gold/80 hover:text-white transition-colors cursor-pointer p-1.5 rounded-lg"
             aria-label="Cerrar modal"
           >
             <X size={20} />
@@ -475,7 +491,7 @@ export function ReporteIAModal({
         </div>
 
         {/* Contenido */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-5">
+        <div className="p-6 overflow-y-auto flex-1 space-y-5 bg-slate-50/30">
           {cargandoReporte ? (
             <div className="flex flex-col items-center justify-center py-16 space-y-3">
               <Loader2 className="animate-spin text-valle-green" size={32} />
@@ -531,56 +547,60 @@ export function ReporteIAModal({
           ) : reporteIA && (
             <>
               {/* Resumen del Partido */}
-              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
-                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Dinámica del Encuentro</h4>
+              <div className="bg-blue-50/30 p-5 rounded-2xl border border-blue-100/60 text-left shadow-[0_2px_10px_-4px_rgba(59,130,246,0.1)]">
+                <h4 className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <List size={12} className="text-blue-500" /> Dinámica del Encuentro
+                </h4>
                 <p className="text-sm font-semibold text-slate-700 leading-relaxed italic">
                   "{reporteIA.analisis_ia?.resumen_partido || 'Análisis de partido no especificado.'}"
                 </p>
               </div>
 
               {/* MVP Destacado */}
-              <div className="bg-amber-50/40 p-5 rounded-2xl border border-amber-100/60 flex items-start gap-4 text-left">
-                <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
+              <div className="bg-amber-50/30 p-5 rounded-2xl border border-amber-100 flex items-start gap-4 text-left shadow-[0_2px_10px_-4px_rgba(245,158,11,0.1)]">
+                <div className="p-3 bg-amber-100/80 text-amber-600 rounded-xl">
                   <Award size={24} />
                 </div>
                 <div>
-                  <h4 className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">Jugador Destacado (MVP)</h4>
+                  <h4 className="text-[10px] font-bold text-amber-700 uppercase tracking-widest mb-1">
+                    Jugador Destacado (MVP)
+                  </h4>
                   <p className="text-sm font-black text-slate-800">
                     {reporteIA.analisis_ia?.mvp ? reporteIA.analisis_ia.mvp.split(' - ')[0] : 'No asignado'}
                   </p>
-                  <p className="text-xs text-slate-600 font-semibold mt-1">
-                    {reporteIA.analisis_ia?.mvp && reporteIA.analisis_ia.mvp.includes(' - ')
-                      ? reporteIA.analisis_ia.mvp.split(' - ').slice(1).join(' - ')
-                      : reporteIA.analisis_ia?.mvp || ''}
-                  </p>
+                  {reporteIA.analisis_ia?.mvp && reporteIA.analisis_ia.mvp.includes(' - ') && (
+                    <p className="text-xs text-slate-500 font-medium mt-1">
+                      {reporteIA.analisis_ia.mvp.split(' - ').slice(1).join(' - ')}
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* Puntos Fuertes vs Mejorar */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                <div className="bg-emerald-50/20 p-5 rounded-2xl border border-emerald-100/40">
-                  <h4 className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <div className="bg-emerald-50/20 p-5 rounded-2xl border border-emerald-100/50 shadow-[0_2px_10px_-4px_rgba(16,185,129,0.05)]">
+                  <h4 className="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <ThumbsUp size={12} /> Fortalezas del Equipo
                   </h4>
-                  <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                  <ul className="space-y-2.5 text-xs font-medium text-slate-600">
                     {Array.isArray(reporteIA.analisis_ia?.puntos_fuertes) && reporteIA.analisis_ia.puntos_fuertes.map((pf, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                        <span>{pf}</span>
+                        <span className="leading-relaxed">{pf}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="bg-red-50/15 p-5 rounded-2xl border border-red-100/25">
-                  <h4 className="text-[10px] font-bold text-red-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <div className="bg-red-50/15 p-5 rounded-2xl border border-red-100/40 shadow-[0_2px_10px_-4px_rgba(239,68,68,0.05)]">
+                  <h4 className="text-[10px] font-bold text-red-700 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                     <AlertTriangle size={12} /> Áreas a Corregir
                   </h4>
-                  <ul className="space-y-2 text-xs font-semibold text-slate-600">
+                  <ul className="space-y-2.5 text-xs font-medium text-slate-600">
                     {Array.isArray(reporteIA.analisis_ia?.puntos_a_mejorar) && reporteIA.analisis_ia.puntos_a_mejorar.map((pam, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
-                        <span>{pam}</span>
+                        <span className="leading-relaxed">{pam}</span>
                       </li>
                     ))}
                   </ul>
@@ -589,11 +609,11 @@ export function ReporteIAModal({
 
               {/* Análisis Táctico e Individual */}
               {reporteIA.analisis_ia?.analisis_individual && (
-                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left">
-                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <List size={12} /> Análisis de Desempeño y Recomendación Táctica
+                <div className="bg-indigo-50/30 p-5 rounded-2xl border border-indigo-100/60 text-left shadow-[0_2px_10px_-4px_rgba(99,102,241,0.1)]">
+                  <h4 className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <List size={12} className="text-indigo-500" /> Análisis de Desempeño y Recomendación Táctica
                   </h4>
-                  <p className="text-xs font-semibold text-slate-600 leading-relaxed">
+                  <p className="text-xs font-medium text-slate-700 leading-relaxed">
                     {reporteIA.analisis_ia.analisis_individual}
                   </p>
                 </div>

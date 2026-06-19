@@ -74,7 +74,7 @@ export default function CustomSelect({
 
       {abierto && (
         <div 
-          className={`absolute z-[100] mt-1.5 min-w-full w-max max-w-[280px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ring-1 ring-black/5 max-h-60 overflow-y-auto scrollbar-thin animate-fade-in ${alignRight ? 'right-0 origin-top-right' : 'left-0 origin-top-left'}`}
+          className={`absolute z-100 mt-1.5 min-w-full w-max max-w-[280px] rounded-xl border border-slate-200 bg-white p-1.5 shadow-xl ring-1 ring-black/5 max-h-60 overflow-y-auto scrollbar-thin animate-fade-in ${alignRight ? 'right-0 origin-top-right' : 'left-0 origin-top-left'}`}
           style={{
             animation: 'slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards'
           }}

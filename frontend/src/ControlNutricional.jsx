@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import api from './api';
 import {
   Apple, Scale, Droplet, Moon, Search, Activity, User,
@@ -51,6 +52,12 @@ export default function ControlNutricional({ crearNotificacion = null }) {
       const res = await api.get('/atletas/');
       if (Array.isArray(res.data)) {
         setJugadores(res.data);
+        setAtletaSeleccionado(prev => {
+          if (prev) {
+            return res.data.find(j => j.atleta_id === prev.atleta_id) || prev;
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error("Error al cargar atletas:", err);
@@ -503,12 +510,12 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 z-30">
-                    <div className="w-20 h-20 bg-white/10 rounded-full border-2 border-valle-gold/50 flex items-center justify-center text-white font-black text-2xl font-display uppercase shadow-inner">
+                  <div className="flex items-center space-x-3 sm:space-x-4 z-30">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white/10 rounded-full border-2 border-valle-gold/50 flex items-center justify-center text-white font-black text-xl sm:text-2xl font-display uppercase shadow-inner">
                       {atletaSeleccionado.nombre.charAt(0)}{atletaSeleccionado.apellido.charAt(0)}
                     </div>
-                    <div>
-                      <h3 className="font-extrabold text-2xl tracking-tight font-display">{atletaSeleccionado.nombre} {atletaSeleccionado.apellido}</h3>
+                    <div className="min-w-0">
+                      <h3 className="font-extrabold text-xl sm:text-2xl tracking-tight font-display truncate">{atletaSeleccionado.nombre} {atletaSeleccionado.apellido}</h3>
                       <p className="text-xs text-valle-gold font-bold tracking-wider uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
                       <div className="mt-2.5 flex items-center gap-2">
                         <span className="text-xs text-white/95 font-bold uppercase tracking-wider">Dieta:</span>
@@ -517,7 +524,8 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                           disabled={asignandoDieta}
                           onChange={(e) => handleAsignarDieta(e.target.value)}
                           variant="dark"
-                          className="max-w-xs inline-block"
+                          className="w-full sm:max-w-xs"
+                          alignRight={true}
                           placeholder="Sin dieta asignada"
                           options={[
                             { value: "", label: "Sin dieta asignada" },
@@ -597,7 +605,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                         <div className="bg-linear-to-r from-slate-50 to-slate-100/50 rounded-xl border border-slate-200/80 p-3.5 shadow-sm flex items-center justify-between relative overflow-hidden group">
                           <div className="absolute right-0 top-0 h-full w-1/3 bg-linear-to-l from-white/40 to-transparent pointer-events-none" />
                           <div className="z-10">
-                            <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1 flex items-center gap-1.5">
                               <Activity size={12} className="text-valle-green" /> 
                               Índice de Masa Corporal
                             </span>
@@ -1057,9 +1065,9 @@ export default function ControlNutricional({ crearNotificacion = null }) {
       )}
 
       {/* MODAL DETALLE DE DIETA */}
-      {dietaDetalleModal && (
-        <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-scale-up">
+      {dietaDetalleModal && createPortal(
+        <div className="fixed inset-0 bg-black/55 backdrop-blur-xs flex items-center justify-center z-100 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 animate-scale-up max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <Apple className="text-valle-green" size={20} />
@@ -1088,7 +1096,8 @@ export default function ControlNutricional({ crearNotificacion = null }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

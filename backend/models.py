@@ -22,6 +22,8 @@ class Usuario(Base):
     reset_token = Column(String(255), nullable=True)
     reset_token_expiration = Column(DateTime, nullable=True)
     telefono = Column(String(20), nullable=True)
+    cedula = Column(String(20), unique=True, nullable=True)
+    foto_perfil = Column(String(255), nullable=True)
 
     # Relación uno a uno con el perfil del atleta
     perfil = relationship("PerfilAtleta", back_populates="usuario", uselist=False)
@@ -174,8 +176,9 @@ class Torneo(Base):
     temporada = Column(String)          
     fecha_inicio = Column(Date)
     fecha_fin = Column(Date)
+    estado = Column(String, default="Activo")
 
-    partidos = relationship("Partido", back_populates="torneo")
+    partidos = relationship("Partido", back_populates="torneo", cascade="all, delete-orphan")
 
 class EventoPartido(Base):
     __tablename__ = "eventos_partido"
@@ -233,3 +236,13 @@ class PropuestaDieta(Base):
     descripcion = Column(Text, nullable=False)
     calorias = Column(Integer, nullable=True)
     fecha_actualizacion = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+class SolicitudPassword(Base):
+    __tablename__ = "solicitudes_password"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    estado = Column(String(20), default="Pendiente")  # Pendiente, Aprobada, Rechazada
+    fecha_solicitud = Column(DateTime, server_default=func.now())
+    
+    usuario = relationship("Usuario")

@@ -132,7 +132,7 @@ select.bg-slate-900,
 select.bg-white\/10,
 select.text-white,
 .bg-slate-900 select,
-.bg-gradient-to-br select {
+.bg-linear-to-br select {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
   color: #ffffff !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
@@ -144,7 +144,7 @@ select.bg-slate-800:hover,
 select.bg-slate-900:hover,
 select.bg-white\/10:hover,
 .bg-slate-900 select:hover,
-.bg-gradient-to-br select:hover {
+.bg-linear-to-br select:hover {
   background-color: rgba(255, 255, 255, 0.12) !important;
   border-color: rgba(255, 255, 255, 0.35) !important;
 }
@@ -153,7 +153,7 @@ select.bg-slate-800:focus,
 select.bg-slate-900:focus,
 select.bg-white\/10:focus,
 .bg-slate-900 select:focus,
-.bg-gradient-to-br select:focus {
+.bg-linear-to-br select:focus {
   background-color: rgba(255, 255, 255, 0.15) !important;
   border-color: #B49650 !important; /* Valle Gold */
   box-shadow: 0 0 0 3px rgba(180, 150, 80, 0.35) !important;

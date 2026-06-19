@@ -52,6 +52,28 @@ def crear_torneo(
 def listar_torneos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return crud_partidos.listar_torneos(db, skip, limit)
 
+@router.delete("/torneos/{torneo_id}")
+def eliminar_torneo(
+    torneo_id: int, 
+    db: Session = Depends(get_db), 
+    admin: models.Usuario = Depends(verificar_admin)
+):
+    torneo = crud_partidos.eliminar_torneo(db, torneo_id)
+    if not torneo:
+        raise HTTPException(status_code=404, detail="Torneo no encontrado")
+    return {"mensaje": "Torneo eliminado correctamente"}
+
+@router.put("/torneos/{torneo_id}/finalizar", response_model=schemas.TorneoResponse)
+def finalizar_torneo(
+    torneo_id: int, 
+    db: Session = Depends(get_db), 
+    admin: models.Usuario = Depends(verificar_admin)
+):
+    torneo = crud_partidos.finalizar_torneo(db, torneo_id)
+    if not torneo:
+        raise HTTPException(status_code=404, detail="Torneo no encontrado")
+    return torneo
+
 @router.post("/partidos/", response_model=schemas.PartidoResponse)
 def crear_partido(
     partido: schemas.PartidoCreate, 

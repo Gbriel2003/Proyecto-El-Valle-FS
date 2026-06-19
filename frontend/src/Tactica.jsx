@@ -16,6 +16,7 @@ import {
   FinalizarPartidoModal, 
   ReporteIAModal 
 } from './components/modals/TournamentModals';
+import ConfirmModal from './components/modals/ConfirmModal';
 
 const initialTokens = [
   // El Valle F.S. (Verde / Borde Oro)
@@ -57,6 +58,7 @@ export default function Tactica({
     const [plantillaAtletas, setPlantillaAtletas] = useState([]);
     
     // Modales
+    const [confirmacion, setConfirmacion] = useState(null);
     const [mostrarCrearTorneo, setMostrarCrearTorneo] = useState(false);
     const [mostrarProgramarPartido, setMostrarProgramarPartido] = useState(false);
     const [mostrarFinalizarPartido, setMostrarFinalizarPartido] = useState(null); // guardará el partido
@@ -337,16 +339,67 @@ export default function Tactica({
         xhr.send(formData);
     };
 
-    const manejarEliminarPartido = async (partidoId) => {
-        if (!window.confirm('¿Eliminar este partido del calendario?')) return;
-        try {
-            const partidoEliminado = partidos.find(p => p.id === partidoId);
-            await api.delete(`/partidos/${partidoId}`);
-            agregarToast("Partido eliminado", `El partido contra ${partidoEliminado?.equipo_visitante || 'Rival'} fue eliminado.`, "info");
-            await cargarPartidos();
-        } catch (err) {
-            console.error('Error al eliminar partido:', err);
-        }
+    const pedirConfirmacion = (opciones) => {
+        setConfirmacion(opciones);
+    };
+
+    const manejarEliminarPartido = (partidoId) => {
+        pedirConfirmacion({
+            title: '¿Eliminar partido?',
+            message: '¿Estás seguro de que deseas eliminar este partido del calendario?',
+            variant: 'danger',
+            confirmText: 'Eliminar Partido',
+            onConfirm: async () => {
+                try {
+                    const partidoEliminado = partidos.find(p => p.id === partidoId);
+                    await api.delete(`/partidos/${partidoId}`);
+                    agregarToast("Partido eliminado", `El partido contra ${partidoEliminado?.equipo_visitante || 'Rival'} fue eliminado.`, "info");
+                    await cargarPartidos();
+                } catch (err) {
+                    console.error('Error al eliminar partido:', err);
+                }
+            }
+        });
+    };
+
+    const manejarEliminarTorneo = (torneoId) => {
+        pedirConfirmacion({
+            title: '¿Eliminar Torneo?',
+            message: 'Esta acción borrará el torneo y TODOS los partidos, reportes y estadísticas asociados a él. Esta acción es irreversible.\n\n¿Estás seguro?',
+            variant: 'danger',
+            confirmText: 'Sí, eliminar todo',
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/torneos/${torneoId}`);
+                    agregarToast("Torneo eliminado", "El torneo y sus partidos han sido eliminados correctamente.", "info");
+                    setTorneoIdPartido('');
+                    await cargarTorneos();
+                    await cargarPartidos();
+                } catch (err) {
+                    console.error('Error al eliminar torneo:', err);
+                    agregarToast("Error", "No se pudo eliminar el torneo.", "error");
+                }
+            }
+        });
+    };
+
+    const manejarFinalizarTorneo = (torneoId) => {
+        pedirConfirmacion({
+            title: '¿Finalizar Torneo?',
+            message: '¿Estás seguro de que deseas marcar este torneo como finalizado?',
+            variant: 'info',
+            confirmText: 'Finalizar Torneo',
+            onConfirm: async () => {
+                try {
+                    await api.put(`/torneos/${torneoId}/finalizar`);
+                    agregarToast("Torneo finalizado", "El torneo ha sido marcado como finalizado.", "success");
+                    await cargarTorneos();
+                } catch (err) {
+                    console.error('Error al finalizar torneo:', err);
+                    agregarToast("Error", "No se pudo finalizar el torneo.", "error");
+                }
+            }
+        });
     };
 
     const manejarCrearTorneo = async (e) => {
@@ -492,15 +545,22 @@ export default function Tactica({
         }
     };
 
-    const eliminarJugada = async (id) => {
-        if (!window.confirm("¿Seguro que deseas eliminar esta jugada?")) return;
-        try {
-            await api.delete(`/jugadas/${id}`);
-            agregarToast("Jugada eliminada", `La jugada táctica fue eliminada.`, "info");
-            cargarJugadas();
-        } catch (err) {
-            console.error("Error al eliminar jugada:", err);
-        }
+    const eliminarJugada = (id) => {
+        pedirConfirmacion({
+            title: '¿Eliminar jugada?',
+            message: '¿Seguro que deseas eliminar esta jugada táctica?',
+            variant: 'danger',
+            confirmText: 'Sí, eliminar',
+            onConfirm: async () => {
+                try {
+                    await api.delete(`/jugadas/${id}`);
+                    agregarToast("Jugada eliminada", `La jugada táctica fue eliminada.`, "info");
+                    cargarJugadas();
+                } catch (err) {
+                    console.error("Error al eliminar jugada:", err);
+                }
+            }
+        });
     };
 
     const aplicarFormacion = (equipo, tipo) => {
@@ -622,6 +682,8 @@ export default function Tactica({
                     setGolesVisitantePartido={setGolesVisitantePartido}
                     setJugadoresSeleccionados={setJugadoresSeleccionados}
                     manejarEliminarPartido={manejarEliminarPartido}
+                    manejarEliminarTorneo={manejarEliminarTorneo}
+                    manejarFinalizarTorneo={manejarFinalizarTorneo}
                     archivoSeleccionado={archivoSeleccionado}
                     mensajeSubida={mensajeSubida}
                     subiendo={subiendo}
@@ -737,6 +799,12 @@ export default function Tactica({
                 cargandoReporte={cargandoReporte}
                 errorReporte={errorReporte}
                 onRetry={() => abrirReporteIA(mostrarReporteModal)}
+            />
+
+            <ConfirmModal
+                isOpen={!!confirmacion}
+                onClose={() => setConfirmacion(null)}
+                {...confirmacion}
             />
         </div>
     );

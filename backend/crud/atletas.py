@@ -51,6 +51,19 @@ def registrar_biometria(db: Session, atleta_id: int, biometria: schemas.Registro
         imc=imc_calculado
     )
     db.add(nuevo_registro)
+    
+    perfil = obtener_perfil_atleta(db, atleta_id)
+    if perfil:
+        modificado = False
+        if not perfil.peso_base:
+            perfil.peso_base = biometria.peso_kg
+            modificado = True
+        if not perfil.altura_cm:
+            perfil.altura_cm = biometria.altura_cm
+            modificado = True
+        if modificado:
+            db.add(perfil)
+
     db.commit()
     db.refresh(nuevo_registro)
     return nuevo_registro

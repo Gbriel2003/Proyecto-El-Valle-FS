@@ -72,6 +72,18 @@ def actualizar_perfil_atleta(
     db: Session = Depends(get_db), 
     admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
 ):
+    # Validar que el dorsal no esté duplicado
+    if perfil_actualizado.numero_camisa is not None:
+        dorsal_existente = db.query(models.PerfilAtleta).filter(
+            models.PerfilAtleta.numero_camisa == perfil_actualizado.numero_camisa,
+            models.PerfilAtleta.atleta_id != atleta_id
+        ).first()
+        if dorsal_existente:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"El dorsal #{perfil_actualizado.numero_camisa} ya está asignado a otro jugador"
+            )
+
     perfil = crud_atletas.actualizar_perfil_atleta(db, atleta_id, perfil_actualizado)
     if not perfil:
         raise HTTPException(status_code=404, detail="Ficha deportiva no encontrada")

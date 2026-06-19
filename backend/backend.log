@@ -49,3 +49,606 @@ ValueError: I/O operation on closed file.
 [2026-05-22 13:35:59,021] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
 [2026-05-22 19:38:23,482] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
 [2026-06-15 15:30:40,507] INFO [el-valle-fs:36] Consulta al estado de salud del servidor realizada.
+[2026-06-15 20:37:01,305] INFO [el-valle-fs:27] [IA] Reporte del partido 1 procesado correctamente.
+[2026-06-15 21:13:48,063] INFO [el-valle-fs:27] [IA] Reporte del partido 4 procesado correctamente.
+[2026-06-16 08:40:34,598] ERROR [el-valle-fs:10] Error de Base de Datos en GET /partidos/: (psycopg2.errors.UndefinedColumn) column torneos.estado does not exist
+LINE 1: ...a_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.es...
+                                                             ^
+
+[SQL: SELECT torneos.id AS torneos_id, torneos.nombre AS torneos_nombre, torneos.temporada AS torneos_temporada, torneos.fecha_inicio AS torneos_fecha_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.estado AS torneos_estado 
+FROM torneos 
+WHERE torneos.id = %(pk_1)s]
+[parameters: {'pk_1': 2}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-16 08:42:30,314] ERROR [el-valle-fs:10] Error de Base de Datos en GET /partidos/: (psycopg2.errors.UndefinedColumn) column torneos.estado does not exist
+LINE 1: ...a_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.es...
+                                                             ^
+
+[SQL: SELECT torneos.id AS torneos_id, torneos.nombre AS torneos_nombre, torneos.temporada AS torneos_temporada, torneos.fecha_inicio AS torneos_fecha_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.estado AS torneos_estado 
+FROM torneos 
+WHERE torneos.id = %(pk_1)s]
+[parameters: {'pk_1': 2}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-16 08:42:30,322] ERROR [el-valle-fs:10] Error de Base de Datos en GET /partidos/: (psycopg2.errors.UndefinedColumn) column torneos.estado does not exist
+LINE 1: ...a_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.es...
+                                                             ^
+
+[SQL: SELECT torneos.id AS torneos_id, torneos.nombre AS torneos_nombre, torneos.temporada AS torneos_temporada, torneos.fecha_inicio AS torneos_fecha_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.estado AS torneos_estado 
+FROM torneos 
+WHERE torneos.id = %(pk_1)s]
+[parameters: {'pk_1': 2}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-16 08:42:30,366] ERROR [el-valle-fs:10] Error de Base de Datos en GET /torneos/: (psycopg2.errors.UndefinedColumn) column torneos.estado does not exist
+LINE 1: ...a_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.es...
+                                                             ^
+
+[SQL: SELECT torneos.id AS torneos_id, torneos.nombre AS torneos_nombre, torneos.temporada AS torneos_temporada, torneos.fecha_inicio AS torneos_fecha_inicio, torneos.fecha_fin AS torneos_fecha_fin, torneos.estado AS torneos_estado 
+FROM torneos 
+ LIMIT %(param_1)s OFFSET %(param_2)s]
+[parameters: {'param_1': 100, 'param_2': 0}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 09:28:55,618] ERROR [el-valle-fs:21] Error inesperado no controlado en POST /usuarios/solicitud-password: module 'models' has no attribute 'SolicitudPassword'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 66, in solicitar_recuperacion
+    crud_usuarios.crear_solicitud_password(db, usuario.id)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 74, in crear_solicitud_password
+    existente = db.query(models.SolicitudPassword).filter(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'models' has no attribute 'SolicitudPassword'
+[2026-06-17 09:29:05,613] ERROR [el-valle-fs:21] Error inesperado no controlado en POST /usuarios/solicitud-password: module 'models' has no attribute 'SolicitudPassword'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 66, in solicitar_recuperacion
+    crud_usuarios.crear_solicitud_password(db, usuario.id)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 74, in crear_solicitud_password
+    existente = db.query(models.SolicitudPassword).filter(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'models' has no attribute 'SolicitudPassword'
+[2026-06-17 09:36:48,630] ERROR [el-valle-fs:21] Error inesperado no controlado en POST /usuarios/solicitud-password: module 'models' has no attribute 'SolicitudPassword'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 66, in solicitar_recuperacion
+    crud_usuarios.crear_solicitud_password(db, usuario.id)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 74, in crear_solicitud_password
+    existente = db.query(models.SolicitudPassword).filter(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'models' has no attribute 'SolicitudPassword'
+[2026-06-17 10:55:56,139] ERROR [el-valle-fs:21] Error inesperado no controlado en POST /usuarios/solicitud-password: module 'models' has no attribute 'SolicitudPassword'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 66, in solicitar_recuperacion
+    crud_usuarios.crear_solicitud_password(db, usuario.id)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 74, in crear_solicitud_password
+    existente = db.query(models.SolicitudPassword).filter(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'models' has no attribute 'SolicitudPassword'
+[2026-06-17 12:11:36,646] INFO [el-valle-fs:27] [IA] Reporte del partido 4 procesado correctamente.
+[2026-06-17 19:03:50,708] INFO [el-valle-fs:27] [IA] Reporte del partido 4 procesado correctamente.
+[2026-06-17 19:30:35,146] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:31:05,146] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:31:35,150] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:32:05,091] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:32:35,109] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:33:05,091] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:33:35,092] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:34:05,091] ERROR [el-valle-fs:10] Error de Base de Datos en GET /usuarios/solicitudes-password: (psycopg2.errors.UndefinedColumn) column usuarios.foto_perfil does not exist
+LINE 1: ...ios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.f...
+                                                             ^
+
+[SQL: SELECT usuarios.id AS usuarios_id, usuarios.nombre AS usuarios_nombre, usuarios.apellido AS usuarios_apellido, usuarios.correo AS usuarios_correo, usuarios.password_hash AS usuarios_password_hash, usuarios.rol AS usuarios_rol, usuarios.fecha_registro AS usuarios_fecha_registro, usuarios.debe_cambiar_password AS usuarios_debe_cambiar_password, usuarios.reset_token AS usuarios_reset_token, usuarios.reset_token_expiration AS usuarios_reset_token_expiration, usuarios.telefono AS usuarios_telefono, usuarios.cedula AS usuarios_cedula, usuarios.foto_perfil AS usuarios_foto_perfil 
+FROM usuarios 
+WHERE usuarios.correo = %(correo_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'correo_1': 'administrador.elvallefs@gmail.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+[2026-06-17 19:57:52,574] ERROR [el-valle-fs:21] Error inesperado no controlado en DELETE /usuarios/6: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba618818e0>'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 190, in eliminar_usuario
+    usuario = crud_usuarios.eliminar_usuario(db, usuario_id)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 51, in eliminar_usuario
+    db.commit()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    self.dependency_processor.process_deletes(uow, states)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 565, in process_deletes
+    self._synchronize(
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 623, in _synchronize
+    sync.clear(dest, self.mapper, self.prop.synchronize_pairs)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\sync.py", line 88, in clear
+    raise AssertionError(
+AssertionError: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba618818e0>'
+[2026-06-17 19:58:23,371] ERROR [el-valle-fs:21] Error inesperado no controlado en DELETE /usuarios/6: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba61ba9670>'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 190, in eliminar_usuario
+    usuario = crud_usuarios.eliminar_usuario(db, usuario_id)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 51, in eliminar_usuario
+    db.commit()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    self.dependency_processor.process_deletes(uow, states)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 565, in process_deletes
+    self._synchronize(
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 623, in _synchronize
+    sync.clear(dest, self.mapper, self.prop.synchronize_pairs)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\sync.py", line 88, in clear
+    raise AssertionError(
+AssertionError: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba61ba9670>'
+[2026-06-17 19:59:04,511] ERROR [el-valle-fs:21] Error inesperado no controlado en DELETE /usuarios/6: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba618a0d40>'
+Traceback (most recent call last):
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 96, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\cors.py", line 154, in simple_response
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\fastapi\routing.py", line 330, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\starlette\concurrency.py", line 32, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\anyio\_backends\_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\usuarios.py", line 190, in eliminar_usuario
+    usuario = crud_usuarios.eliminar_usuario(db, usuario_id)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\crud\usuarios.py", line 51, in eliminar_usuario
+    db.commit()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 589, in execute
+    self.dependency_processor.process_deletes(uow, states)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 565, in process_deletes
+    self._synchronize(
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\dependency.py", line 623, in _synchronize
+    sync.clear(dest, self.mapper, self.prop.synchronize_pairs)
+  File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\venv\Lib\site-packages\sqlalchemy\orm\sync.py", line 88, in clear
+    raise AssertionError(
+AssertionError: Dependency rule on column 'usuarios.id' tried to blank-out primary key column 'perfil_atleta.atleta_id' on instance '<PerfilAtleta at 0x1ba618a0d40>'
+[2026-06-18 09:31:19,513] INFO [el-valle-fs:27] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-19 11:21:11,232] INFO [el-valle-fs:27] [IA] Reporte del partido 5 procesado correctamente.
