@@ -1,9 +1,9 @@
 import { 
-  Calendar, Clock, MapPin, Shield, FileText, 
+  Calendar, Clock, Shield, FileText, 
   Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight,
-  MoreVertical, CheckCircle, Pencil
+  CheckCircle, Pencil
 } from 'lucide-react';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function MatchCalendar({
   partidos,
@@ -347,7 +347,7 @@ export default function MatchCalendar({
       <div className="lg:col-span-4 space-y-4">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden relative">
           {/* Header con colores del club */}
-          <div className="px-5 py-5 bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+          <div className="px-5 py-5 bg-linear-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
             {/* Elemento decorativo de fondo */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
@@ -373,7 +373,7 @@ export default function MatchCalendar({
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shadow-sm transition-colors ${
-                    torneoFiltro === null ? 'bg-gradient-to-br from-valle-gold to-yellow-600 text-white' : 'bg-slate-100 text-slate-400'
+                    torneoFiltro === null ? 'bg-linear-to-br from-valle-gold to-yellow-600 text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
                     <Filter size={14} />
                   </div>
@@ -409,7 +409,7 @@ export default function MatchCalendar({
                       className="flex items-start gap-3 min-w-0 flex-1 hover:opacity-80 transition cursor-pointer text-left"
                     >
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 shadow-sm transition-colors ${
-                        isActive ? 'bg-gradient-to-br from-valle-green to-valle-green-dark text-valle-gold' : 'bg-slate-100 text-slate-400'
+                        isActive ? 'bg-linear-to-br from-valle-green to-valle-green-dark text-valle-gold' : 'bg-slate-100 text-slate-400'
                       }`}>
                         <Trophy size={14} />
                       </div>
@@ -464,7 +464,7 @@ export default function MatchCalendar({
                       </div>
                       <div className="w-full bg-slate-100/80 rounded-full h-2 overflow-hidden shadow-inner">
                         <div 
-                          className={`h-full rounded-full transition-all duration-500 shadow-sm ${torneo.estado === 'Finalizado' ? 'bg-slate-400' : 'bg-gradient-to-r from-valle-green to-valle-green-dark'}`}
+                          className={`h-full rounded-full transition-all duration-500 shadow-sm ${torneo.estado === 'Finalizado' ? 'bg-slate-400' : 'bg-linear-to-r from-valle-green to-valle-green-dark'}`}
                           style={{ width: `${progreso}%` }}
                         />
                       </div>

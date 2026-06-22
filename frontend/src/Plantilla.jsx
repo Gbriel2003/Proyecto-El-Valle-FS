@@ -310,7 +310,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                             </div>
                                             
                                             {mostrarDropdownPosicion && (
-                                                <div className="absolute z-[60] w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-y-auto overflow-x-hidden max-h-24 animate-fade-in-up">
+                                                <div className="absolute z-60 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl overflow-y-auto overflow-x-hidden max-h-24 animate-fade-in-up">
                                                     {opcionesPosicion.map((opcion) => {
                                                         const Icono = opcion.icon;
                                                         const isSelected = nuevaPosicion === opcion.value;

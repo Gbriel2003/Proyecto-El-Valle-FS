@@ -108,7 +108,7 @@ export default function TacticalCanvas({
     }>
       {/* Overlay para forzar modo horizontal en móviles */}
       {isFullscreen && (
-        <div className="hidden portrait:flex fixed inset-0 z-[1000] bg-[#0c160e] text-white flex-col items-center justify-center p-6 text-center animate-fade-in">
+        <div className="hidden portrait:flex fixed inset-0 z-1000 bg-[#0c160e] text-white flex-col items-center justify-center p-6 text-center animate-fade-in">
           <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-lg border border-slate-700 animate-pulse">
             <Smartphone size={40} className="text-valle-gold rotate-90 transition-transform duration-1000" />
           </div>

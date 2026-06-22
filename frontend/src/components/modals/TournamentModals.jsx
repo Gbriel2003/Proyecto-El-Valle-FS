@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import {
   X, Save, PlusCircle, Calendar, Award, Sparkles,
-  Loader2, AlertTriangle, ThumbsUp, List, CheckCircle
+  Loader2, AlertTriangle, ThumbsUp, List
 } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 
@@ -114,7 +114,7 @@ export function CrearTorneoModal({
         aria-modal="true"
         aria-labelledby="modal-tournament-title"
       >
-        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
+        <div className="p-5 flex justify-between items-center bg-linear-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
           
@@ -161,7 +161,7 @@ export function CrearTorneoModal({
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Inicio</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Inicio</label>
               <input
                 type="date"
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
@@ -171,7 +171,7 @@ export function CrearTorneoModal({
               />
             </div>
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Fin</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex items-center gap-1.5"><Calendar size={11} className="text-valle-gold" /> Fecha Fin</label>
               <input
                 type="date"
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
@@ -186,7 +186,7 @@ export function CrearTorneoModal({
             <button
               type="submit"
               disabled={creandoTorneo}
-              className="w-full py-3.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
+              className="w-full py-3.5 bg-linear-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
             >
               {creandoTorneo ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : 'Crear Torneo'}
             </button>
@@ -248,7 +248,7 @@ export function ProgramarPartidoModal({
         aria-modal="true"
         aria-labelledby="modal-match-title"
       >
-        <div className="p-5 flex justify-between items-center bg-gradient-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden rounded-t-2xl">
+        <div className="p-5 flex justify-between items-center bg-linear-to-br from-valle-green-dark via-valle-green to-[#1b4321] relative overflow-hidden rounded-t-2xl">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
 
@@ -268,7 +268,7 @@ export function ProgramarPartidoModal({
         <form onSubmit={onSubmit} className="p-6 space-y-5 text-xs font-semibold text-slate-700 bg-slate-50/30">
           {torneos.length === 0 ? (
             <div className="text-center py-8 px-4 bg-white border border-valle-gold/30 rounded-2xl space-y-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-valle-gold to-yellow-500"></div>
+              <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-valle-gold to-yellow-500"></div>
               <div className="w-12 h-12 bg-valle-gold/10 rounded-full flex items-center justify-center mx-auto mb-2 text-valle-gold-dark">
                 <PlusCircle size={24} />
               </div>
@@ -276,7 +276,7 @@ export function ProgramarPartidoModal({
               <button
                 type="button"
                 onClick={onAbrirCrearTorneo}
-                className="px-6 py-2.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold font-black rounded-xl text-xs transition-all duration-300 shadow-md shadow-valle-green/20 hover:shadow-lg hover:from-valle-green-dark hover:to-[#1b4321] cursor-pointer"
+                className="px-6 py-2.5 bg-linear-to-r from-valle-green to-valle-green-dark text-valle-gold font-black rounded-xl text-xs transition-all duration-300 shadow-md shadow-valle-green/20 hover:shadow-lg hover:from-valle-green-dark hover:to-[#1b4321] cursor-pointer"
               >
                 Crear Torneo Ahora
               </button>
@@ -333,7 +333,7 @@ export function ProgramarPartidoModal({
 
                 {/* Plantilla / Jugadores Convocados */}
                 <div>
-                  <h4 className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex justify-between">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 flex justify-between">
                     <span>Convocados del Partido</span>
                   </h4>
                   <div ref={dropdownRef} className="relative">
@@ -346,7 +346,7 @@ export function ProgramarPartidoModal({
                           ? "Seleccionar atletas..." 
                           : `${jugadoresSeleccionados.length} convocado(s)`}
                       </span>
-                      <svg className={`w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0 ml-2 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      <svg className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ml-2 ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                     
                     {dropdownOpen && (
@@ -380,7 +380,7 @@ export function ProgramarPartidoModal({
                                     >
                                       <input
                                         type="checkbox"
-                                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 cursor-pointer flex-shrink-0"
+                                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 cursor-pointer shrink-0"
                                         checked={seleccionado}
                                         onChange={() => {
                                           if (seleccionado) {
@@ -413,7 +413,7 @@ export function ProgramarPartidoModal({
                 <button
                   type="submit"
                   disabled={programandoPartido}
-                  className="w-full py-3.5 bg-gradient-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
+                  className="w-full py-3.5 bg-linear-to-r from-valle-green to-valle-green-dark text-valle-gold rounded-xl text-sm font-black hover:from-valle-green-dark hover:to-[#1b4321] transition-all duration-300 shadow-[0_8px_20px_-6px_rgba(27,67,33,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(27,67,33,0.6)] disabled:opacity-50 flex items-center justify-center cursor-pointer tracking-wide"
                 >
                   {programandoPartido ? <><Loader2 size={16} className="animate-spin mr-2" /> Guardando...</> : (editandoPartidoId ? 'Guardar Cambios' : 'Programar Partido')}
                 </button>

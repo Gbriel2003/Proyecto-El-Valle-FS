@@ -540,7 +540,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                     jugadoresFiltradosAsistencia.map(j => (
                                         <div key={j.atleta_id} className="flex items-center justify-between p-2 rounded-lg border border-slate-100 hover:bg-slate-50 transition-colors">
                                             <div className="flex items-center space-x-2.5">
-                                                <div className="w-7 h-7 rounded-full bg-valle-green/10 flex items-center justify-center font-bold text-[10px] text-valle-green-dark border border-valle-green/20 font-black shrink-0">
+                                                <div className="w-7 h-7 rounded-full bg-valle-green/10 flex items-center justify-center text-[10px] text-valle-green-dark border border-valle-green/20 font-black shrink-0">
                                                     {j.nombre.charAt(0)}{j.apellido.charAt(0)}
                                                 </div>
                                                 <div>

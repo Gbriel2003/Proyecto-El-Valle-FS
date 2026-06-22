@@ -424,7 +424,7 @@ export default function App() {
   // Clases CSS reutilizables para el menú con colores de marca y diseño premium
   const navItemClass = (menuName) => `w-full flex items-center px-4 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 relative overflow-hidden group cursor-pointer focus:outline-none focus:ring-2 focus:ring-valle-green/20 ${
     menuActivo === menuName 
-      ? 'bg-gradient-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-bold border-l-4 border-valle-green pl-3' 
+      ? 'bg-linear-to-r from-valle-green/8 to-valle-green/4 text-valle-green font-bold border-l-4 border-valle-green pl-3' 
       : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-4 border-transparent pl-3'
   }`;
 
@@ -640,7 +640,7 @@ export default function App() {
               {/* Panel Dropdown */}
               {notifDropdownAbierto && (
                 <div className="absolute -right-12 sm:right-0 mt-3 w-72 sm:w-80 bg-white border-2 border-valle-gold/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-fade-in-up">
-                  <div className="px-4 sm:px-5 py-4 border-b border-valle-gold/20 flex justify-between items-center bg-gradient-to-r from-valle-gold/10 via-transparent to-valle-green/5">
+                  <div className="px-4 sm:px-5 py-4 border-b border-valle-gold/20 flex justify-between items-center bg-linear-to-r from-valle-gold/10 via-transparent to-valle-green/5">
                     <span className="text-xs font-bold text-slate-800 flex items-center tracking-tight font-display">
                       <Bell className="mr-2 text-valle-gold drop-shadow-sm" size={14} /> Actividad del Club
                     </span>
