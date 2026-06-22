@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from './api';
 import Login from './Login';
 import AtletaDashboard from './AtletaDashboard';
@@ -86,6 +86,9 @@ export default function App() {
     }
   });
   const [notifDropdownAbierto, setNotifDropdownAbierto] = useState(false);
+  
+  // Referencia para evitar repetir toasts de alertas de partidos caducados en la misma sesión
+  const toastsMostradosRef = useRef(new Set());
 
   // Guardar notificaciones en localStorage
   useEffect(() => {
@@ -197,6 +200,18 @@ export default function App() {
           leido: n.leido,
           accionMenu: null // Por si queremos agragar acciones luego
         })));
+
+        // Mostrar toasts para notificaciones de partidos caducados que no han sido leídas
+        setTimeout(() => {
+          res.data.forEach(n => {
+            if ((n.tipo === 'warning' || (n.mensaje && n.mensaje.includes('no se le ha cargado el resultado ni el reporte'))) && !n.leido) {
+              if (!toastsMostradosRef.current.has(n.id)) {
+                toastsMostradosRef.current.add(n.id);
+                agregarToast("Pendiente de registro", n.mensaje, "warning");
+              }
+            }
+          });
+        }, 1000);
       } catch (error) {
         // Ignorar
       }
@@ -206,6 +221,16 @@ export default function App() {
     const intervalo = setInterval(cargarNotificacionesBackend, 30000);
     return () => clearInterval(intervalo);
   }, [autenticado]);
+
+  // Mostrar alerta de partidos caducados cada vez que se entra al módulo de partidos
+  useEffect(() => {
+    if (menuActivo === 'partidos' || menuActivo === 'mis_partidos') {
+      const caducadas = notificaciones.filter(n => !n.leido && (n.tipo === 'warning' || (n.mensaje && n.mensaje.toLowerCase().includes('no se le ha cargado el resultado'))));
+      caducadas.forEach(n => {
+        agregarToast("Acción Requerida", n.mensaje, "warning");
+      });
+    }
+  }, [menuActivo]); // Solo depende de menuActivo para que aparezca al entrar al módulo
 
   const unreadCount = notificaciones.filter(n => !n.leido).length;
 
@@ -396,12 +421,21 @@ export default function App() {
     localStorage.removeItem('rol_usuario');
     localStorage.removeItem('valle_notificaciones');
     setNotificaciones([]);
+    if (toastsMostradosRef.current) toastsMostradosRef.current.clear();
     setAutenticado(false);
   };
 
   const handleNavClick = (menu) => {
     setMenuActivo(menu);
     setMenuAbierto(false); // Cierra el menú en móvil al hacer clic
+
+    if (menu === 'partidos') {
+      notificaciones.forEach(n => {
+        if ((n.tipo === 'warning' || (n.mensaje && n.mensaje.includes('no se le ha cargado el resultado ni el reporte'))) && !n.leido) {
+          agregarToast("Pendiente de registro", n.mensaje, "warning");
+        }
+      });
+    }
   };
 
   if (tokenRestablecer) {
@@ -453,7 +487,7 @@ export default function App() {
         {/* Cabecera del menú */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
           <div className="flex items-center">
-            <img src="/logo.png" alt="El Valle F.S." className="w-11 h-11 object-contain mr-3" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            <img src="/logo.png" alt="El Valle F.S." className="w-14 h-14 object-contain mr-3" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
             <div className="w-11 h-11 bg-valle-green rounded-lg hidden items-center justify-center mr-3">
               <TrendingUp size={22} className="text-white" />
             </div>

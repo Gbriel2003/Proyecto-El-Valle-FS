@@ -171,7 +171,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                         return (
                             <div
                                 key={jugador.atleta_id || index}
-                                className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up"
+                                className={`bg-white rounded-2xl shadow-sm border-y border-r border-slate-200/80 border-l-4 ${jugador.lesionado ? 'border-l-rose-500' : 'border-l-emerald-500'} overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up`}
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setSelectedAtletaId(jugador.atleta_id)}
                             >
@@ -197,7 +197,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                         </span>
                                     )}
 
-                                    <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center mb-3 border border-slate-100 text-slate-700 font-bold text-base group-hover:bg-valle-green group-hover:text-white transition duration-300 shadow-sm font-display">
+                                    <div className={`w-14 h-14 ${jugador.lesionado ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-700'} rounded-full flex items-center justify-center mb-3 border font-bold text-base group-hover:bg-valle-green group-hover:text-white group-hover:border-transparent transition duration-300 shadow-sm font-display`}>
                                         {iniciales}
                                     </div>
 
@@ -237,17 +237,13 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                     )}
                                 </div>
 
-                                <div className="bg-slate-50 group-hover:bg-valle-green group-hover:text-white px-4 py-2.5 border-t border-slate-100 flex justify-between items-center text-xs transition-all duration-200">
+                                <div className={`px-4 py-2.5 border-t flex justify-between items-center text-xs transition-all duration-200 ${jugador.lesionado ? 'bg-rose-50 border-rose-100 group-hover:bg-rose-500 group-hover:text-white' : 'bg-slate-50 border-slate-100 group-hover:bg-valle-green group-hover:text-white'}`}>
                                     <span className="font-bold flex items-center">
                                         <Eye size={12} className="mr-1" /> Ver Ficha
                                     </span>
-                                    <span className={`font-bold flex items-center gap-1.5 ${(jugador.estado_actual || 'Activo') === 'Activo' ? 'text-emerald-600' : 'text-rose-600'} group-hover:text-white`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${
-                                            (jugador.estado_actual || 'Activo') === 'Activo'
-                                                ? 'bg-emerald-500 group-hover:bg-white'
-                                                : 'bg-rose-500 group-hover:bg-white'
-                                        }`}></span>
-                                        {jugador.estado_actual || 'Activo'}
+                                    <span className={`font-bold flex items-center gap-1.5 ${jugador.lesionado ? 'text-rose-600 group-hover:text-white' : 'text-emerald-600 group-hover:text-white'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${jugador.lesionado ? 'bg-rose-500 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-white'}`}></span>
+                                        {jugador.lesionado ? 'Lesionado' : 'Disponible'}
                                     </span>
                                 </div>
                             </div>

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime
 import models, schemas
 from dependencies import get_db, obtener_usuario_actual
 
@@ -8,6 +9,32 @@ router = APIRouter(tags=["Notificaciones"])
 
 @router.get("/notificaciones/mis-notificaciones", response_model=List[schemas.NotificacionResponse])
 def obtener_mis_notificaciones(db: Session = Depends(get_db), usuario_actual: models.Usuario = Depends(obtener_usuario_actual)):
+    # Generar alertas de partidos pasados para el entrenador/admin
+    if usuario_actual.rol and usuario_actual.rol.lower() in ["admin", "entrenador"]:
+        partidos_pendientes = db.query(models.Partido).filter(
+            models.Partido.estado == "Programado",
+            models.Partido.fecha_hora < datetime.now()
+        ).all()
+        
+        for partido in partidos_pendientes:
+            fecha_str = partido.fecha_hora.strftime("%d/%m/%Y")
+            mensaje = f"Al partido {partido.equipo_local} vs {partido.equipo_visitante} del día {fecha_str} no se le ha cargado el resultado ni el reporte."
+            
+            # Evitar duplicar la misma notificación
+            notif_existente = db.query(models.Notificacion).filter(
+                models.Notificacion.usuario_id == usuario_actual.id,
+                models.Notificacion.mensaje == mensaje
+            ).first()
+            
+            if not notif_existente:
+                nueva_notif = models.Notificacion(
+                    usuario_id=usuario_actual.id,
+                    mensaje=mensaje,
+                    tipo="warning"
+                )
+                db.add(nueva_notif)
+        db.commit()
+
     notificaciones = db.query(models.Notificacion).filter(
         models.Notificacion.usuario_id == usuario_actual.id
     ).order_by(models.Notificacion.fecha_creacion.desc()).limit(20).all()

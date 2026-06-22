@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Eye, EyeOff, RefreshCw, Maximize2, Minimize2, Save, Smartphone } from 'lucide-react';
+import { Trash2, Eye, EyeOff, RefreshCw, Maximize2, Minimize2, Save, Smartphone, Eraser } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 
 export default function TacticalCanvas({
@@ -41,8 +41,14 @@ export default function TacticalCanvas({
     
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = grosor;
+    if (color === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = grosor * 3;
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = grosor;
+    }
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     setIsDrawing(true);
@@ -142,18 +148,22 @@ export default function TacticalCanvas({
                 { hex: '#ffffff', name: 'Blanco' },
                 { hex: '#fbbf24', name: 'Oro' },
                 { hex: '#f87171', name: 'Rojo' },
-                { hex: '#60a5fa', name: 'Azul' }
+                { hex: '#60a5fa', name: 'Azul' },
+                { hex: 'eraser', name: 'Borrador' }
               ].map(c => (
                 <button
                   key={c.hex}
                   type="button"
                   onClick={() => setColor(c.hex)}
-                  className={`w-5 h-5 rounded-full border transition transform active:scale-95 cursor-pointer ${
+                  className={`w-5 h-5 rounded-full border transition transform active:scale-95 cursor-pointer flex items-center justify-center ${
                     color === c.hex ? 'ring-2 ring-valle-green border-transparent scale-110 shadow' : 'border-slate-700'
                   }`}
-                  style={{ backgroundColor: c.hex }}
+                  style={c.hex === 'eraser' ? { backgroundColor: '#475569' } : { backgroundColor: c.hex }}
                   aria-label={c.name}
-                />
+                  title={c.name}
+                >
+                  {c.hex === 'eraser' && <Eraser size={10} className="text-white" />}
+                </button>
               ))}
             </div>
 
@@ -211,18 +221,22 @@ export default function TacticalCanvas({
                     { hex: '#ffffff', name: 'Blanco' },
                     { hex: '#fbbf24', name: 'Oro/Amarillo' },
                     { hex: '#f87171', name: 'Rojo' },
-                    { hex: '#60a5fa', name: 'Azul' }
+                    { hex: '#60a5fa', name: 'Azul' },
+                    { hex: 'eraser', name: 'Borrador' }
                   ].map(c => (
                     <button
                       key={c.hex}
                       type="button"
                       onClick={() => setColor(c.hex)}
-                      className={`w-7 h-7 rounded-full border transition duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-valle-green focus:ring-offset-1 cursor-pointer ${
+                      className={`w-7 h-7 rounded-full border transition duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-valle-green focus:ring-offset-1 cursor-pointer flex items-center justify-center ${
                         color === c.hex ? 'ring-2 ring-valle-green scale-105 border-transparent shadow-md' : 'border-slate-200'
                       }`}
-                      style={{ backgroundColor: c.hex }}
+                      style={c.hex === 'eraser' ? { backgroundColor: '#94a3b8' } : { backgroundColor: c.hex }}
                       aria-label={`Color ${c.name}`}
-                    />
+                      title={c.name}
+                    >
+                      {c.hex === 'eraser' && <Eraser size={14} className="text-white" />}
+                    </button>
                   ))}
                 </div>
               </div>
