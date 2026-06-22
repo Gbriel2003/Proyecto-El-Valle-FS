@@ -105,7 +105,7 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
       {/* Cabecera del Panel */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-center animate-fade-in-up gap-4">
         <div className="flex items-center space-x-4 w-full sm:w-auto">
-          <div className="relative group shrink-0">
+          <div className="shrink-0">
             {usuario?.foto_perfil ? (
               <img 
                 src={usuario.foto_perfil.startsWith('http') ? usuario.foto_perfil : `${api.defaults.baseURL}${usuario.foto_perfil.startsWith('/') ? '' : '/'}${usuario.foto_perfil}`} 
@@ -117,18 +117,19 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
                 {usuario?.nombre?.charAt(0).toUpperCase()}{usuario?.apellido?.charAt(0).toUpperCase()}
               </div>
             )}
-            <label className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-              {subiendoFoto ? <Loader2 className="animate-spin text-white" size={20} /> : <span className="text-[10px] text-white font-bold px-1 text-center leading-tight">Cambiar Foto</span>}
-              <input type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} disabled={subiendoFoto} />
-            </label>
           </div>
           <div>
             <h2 className="text-xl font-black text-valle-black font-display capitalize">
               {usuario?.nombre} {usuario?.apellido}
             </h2>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 mb-2">
               Rol de Acceso: <span className="text-valle-green font-black">{usuario?.rol}</span>
             </p>
+            <label className="inline-flex items-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wide rounded-lg cursor-pointer transition-colors border border-slate-200 shadow-sm active:scale-95">
+              {subiendoFoto ? <Loader2 className="animate-spin mr-1.5" size={12} /> : null}
+              {subiendoFoto ? "Subiendo..." : "Cambiar Foto"}
+              <input type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} disabled={subiendoFoto} />
+            </label>
           </div>
         </div>
         {rolUsuario === 'admin' && (

@@ -241,7 +241,14 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                     <span className="font-bold flex items-center">
                                         <Eye size={12} className="mr-1" /> Ver Ficha
                                     </span>
-                                    <span className="font-bold">{jugador.estado_actual || 'Activo'}</span>
+                                    <span className={`font-bold flex items-center gap-1.5 ${(jugador.estado_actual || 'Activo') === 'Activo' ? 'text-emerald-600' : 'text-rose-600'} group-hover:text-white`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${
+                                            (jugador.estado_actual || 'Activo') === 'Activo'
+                                                ? 'bg-emerald-500 group-hover:bg-white'
+                                                : 'bg-rose-500 group-hover:bg-white'
+                                        }`}></span>
+                                        {jugador.estado_actual || 'Activo'}
+                                    </span>
                                 </div>
                             </div>
                         );

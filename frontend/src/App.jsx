@@ -453,9 +453,9 @@ export default function App() {
         {/* Cabecera del menú */}
         <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100">
           <div className="flex items-center">
-            <img src="/logo.png" alt="El Valle F.S." className="w-8 h-8 object-contain mr-3" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-            <div className="w-8 h-8 bg-valle-green rounded-lg hidden items-center justify-center mr-3">
-              <TrendingUp size={18} className="text-white" />
+            <img src="/logo.png" alt="El Valle F.S." className="w-11 h-11 object-contain mr-3" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            <div className="w-11 h-11 bg-valle-green rounded-lg hidden items-center justify-center mr-3">
+              <TrendingUp size={22} className="text-white" />
             </div>
             <span className="text-slate-900 font-bold text-lg tracking-tight">El Valle F.S.</span>
           </div>
