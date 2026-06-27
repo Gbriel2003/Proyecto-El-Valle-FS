@@ -83,7 +83,7 @@ def obtener_dashboard_atleta(
 @router.get("/atletas/{atleta_id}/analisis-ia")
 def obtener_analisis_ia(
     atleta_id: int,
-    temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    temporalidad: str = Query("diario", pattern="^(diario|semanal|mensual|anual)$"),
     forzar: bool = Query(False),
     db: Session = Depends(get_db),
     usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
@@ -297,7 +297,7 @@ def obtener_analisis_ia(
 
 @router.get("/mi-dashboard/analisis-ia")
 def obtener_mi_analisis_ia(
-    temporalidad: str = Query("diario", regex="^(diario|semanal|mensual|anual)$"),
+    temporalidad: str = Query("diario", pattern="^(diario|semanal|mensual|anual)$"),
     forzar: bool = Query(False),
     db: Session = Depends(get_db),
     usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
