@@ -913,3 +913,8 @@ fastapi.exceptions.ResponseValidationError: 1 validation error:
   File "C:\Users\gabri\Music\Proyecto-El-Valle-FS\backend\routers\atletas.py", line 68, in actualizar_perfil_atleta
     PUT /atletas/{atleta_id}
 [2026-06-19 19:49:27,489] INFO [el-valle-fs:44] Consulta al estado de salud del servidor realizada.
+[2026-06-28 13:46:10,501] INFO [el-valle-fs:58] [IA] Estadísticas individuales actualizadas para el partido 5.
+[2026-06-28 13:46:10,510] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-28 13:47:47,566] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
+[2026-06-28 13:48:12,444] INFO [el-valle-fs:58] [IA] Estadísticas individuales actualizadas para el partido 5.
+[2026-06-28 13:48:12,455] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.

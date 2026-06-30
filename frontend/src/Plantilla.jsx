@@ -197,9 +197,17 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                         </span>
                                     )}
 
-                                    <div className={`w-14 h-14 ${jugador.lesionado ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-700'} rounded-full flex items-center justify-center mb-3 border font-bold text-base group-hover:bg-valle-green group-hover:text-white group-hover:border-transparent transition duration-300 shadow-sm font-display`}>
-                                        {iniciales}
-                                    </div>
+                                    {jugador.usuario?.foto_perfil ? (
+                                        <img 
+                                            src={jugador.usuario.foto_perfil.startsWith('http') ? jugador.usuario.foto_perfil : `${api.defaults.baseURL}${jugador.usuario.foto_perfil.startsWith('/') ? '' : '/'}${jugador.usuario.foto_perfil}`}
+                                            alt={`Foto de ${nombreReal}`}
+                                            className={`w-14 h-14 object-cover rounded-full mb-3 shadow-sm border-2 ${jugador.lesionado ? 'border-rose-400' : 'border-slate-200'} group-hover:border-valle-green transition duration-300`}
+                                        />
+                                    ) : (
+                                        <div className={`w-14 h-14 ${jugador.lesionado ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-700'} rounded-full flex items-center justify-center mb-3 border font-bold text-base group-hover:bg-valle-green group-hover:text-white group-hover:border-transparent transition duration-300 shadow-sm font-display`}>
+                                            {iniciales}
+                                        </div>
+                                    )}
 
                                     <h4 className="font-bold text-slate-800 text-sm tracking-tight capitalize font-display">
                                         {nombreReal} {apellidoReal}

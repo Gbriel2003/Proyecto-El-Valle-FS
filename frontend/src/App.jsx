@@ -249,16 +249,16 @@ export default function App() {
   };
 
   const eliminarNotificacion = async (id) => {
+    setNotificaciones(prev => prev.filter(n => n.id !== id));
     try {
       await api.delete(`/notificaciones/${id}`);
-      setNotificaciones(prev => prev.filter(n => n.id !== id));
     } catch (e) { console.error(e); }
   };
 
   const limpiarNotificaciones = async () => {
+    setNotificaciones([]);
     try {
       await api.delete('/notificaciones/limpiar-todas');
-      setNotificaciones([]);
     } catch (e) { console.error(e); }
   };
 

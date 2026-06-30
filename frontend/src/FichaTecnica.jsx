@@ -171,16 +171,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
     if (!cargando && datos && crearNotificacion && !notificacionInicialMostrada) {
       const hoyStr = new Date().toLocaleDateString('sv');
       const completado = habitos.some(h => h.fecha === hoyStr);
-      if (completado) {
-        crearNotificacion(
-          "Hábitos al Día ✅",
-          !esCuerpoTecnico && !atletaId 
-            ? "Usted ha registrado sus hábitos el día de hoy."
-            : "El atleta ha registrado sus hábitos el día de hoy.",
-          "success",
-          (!esCuerpoTecnico && !atletaId) ? "mi_perfil" : "jugadores"
-        );
-      } else {
+      if (!completado) {
         crearNotificacion(
           "Hábitos Pendientes ⚠️",
           !esCuerpoTecnico && !atletaId 
@@ -671,7 +662,7 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                       <span className={`font-bold px-2 py-0.5 rounded text-xs ${h.calidad_descanso >= 8 ? 'bg-valle-green-light/20 text-valle-green-dark' :
                           h.calidad_descanso >= 5 ? 'bg-amber-100 text-amber-700' :
                             'bg-red-100 text-red-700'
-                        }`}>{h.calidad_descanso} / 10</span>
+                        }`}>{h.calidad_descanso}h</span>
                     </td>
                     <td className="py-3 px-4 text-slate-500 font-medium">{h.suplementacion || 'Ninguna'}</td>
                   </tr>
@@ -729,14 +720,22 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                   <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px] sm:text-xs font-bold">
                     Hidratación (Litros)
                   </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="10"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium"
+                  <CustomSelect
                     value={hidratacion}
-                    onChange={(e) => setHidratacion(parseFloat(e.target.value) || 0)}
+                    onChange={(e) => setHidratacion(parseFloat(e.target.value))}
+                    options={[
+                      { value: 0, label: "0 Litros" },
+                      { value: 0.5, label: "0.5 Litros" },
+                      { value: 1.0, label: "1.0 Litros" },
+                      { value: 1.5, label: "1.5 Litros" },
+                      { value: 2.0, label: "2.0 Litros" },
+                      { value: 2.5, label: "2.5 Litros" },
+                      { value: 3.0, label: "3.0 Litros" },
+                      { value: 3.5, label: "3.5 Litros" },
+                      { value: 4.0, label: "4.0 Litros" },
+                      { value: 4.5, label: "4.5 Litros" },
+                      { value: 5.0, label: "5.0+ Litros" }
+                    ]}
                   />
                   <p className="text-[10px] text-slate-400 mt-1 font-medium leading-tight">Ej: 2.5 o 3.0 al día.</p>
                 </div>
@@ -744,18 +743,14 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
                 {/* Calidad del descanso */}
                 <div>
                   <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-[10px] sm:text-xs font-bold">
-                    Descanso (1 al 10)
+                    Horas de Sueño
                   </label>
                   <CustomSelect
                     value={calidadDescanso}
                     onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
                     options={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => ({
                       value: num,
-                      label: `${num} - ${num <= 4 ? 'Bajo' :
-                          num <= 6 ? 'Regular' :
-                            num <= 8 ? 'Bueno' :
-                              'Excelente'
-                        }`
+                      label: num === 10 ? '10+ horas' : num === 1 ? '1 hora' : `${num} horas`
                     }))}
                   />
                 </div>

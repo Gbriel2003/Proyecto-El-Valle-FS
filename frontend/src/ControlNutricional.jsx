@@ -672,13 +672,13 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     <form onSubmit={handleGuardarHabitos} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descanso (1-10)</label>
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Horas de Sueño</label>
                           <CustomSelect
                             value={calidadDescanso}
                             onChange={(e) => setCalidadDescanso(parseInt(e.target.value))}
                             options={[...Array(10)].map((_, i) => ({
                               value: i + 1,
-                              label: `${i + 1} - ${i + 1 <= 4 ? 'Malo' : i + 1 <= 7 ? 'Regular' : 'Excelente'}`
+                              label: i + 1 === 10 ? '10+ horas' : i + 1 === 1 ? '1 hora' : `${i + 1} horas`
                             }))}
                           />
                         </div>
@@ -888,7 +888,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                                   <td className="py-3">{h.frecuencia_comidas} al día</td>
                                   <td className="py-3 whitespace-nowrap">
                                     <span className={`font-black ${h.calidad_descanso >= 7 ? 'text-emerald-600' : h.calidad_descanso >= 5 ? 'text-amber-500' : 'text-rose-500'}`}>
-                                      {h.calidad_descanso}/10
+                                      {h.calidad_descanso}h
                                     </span>
                                   </td>
                                   <td className="py-3 font-bold text-slate-600">{h.hidratacion_litros} Litros</td>

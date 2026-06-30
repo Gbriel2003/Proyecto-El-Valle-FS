@@ -80,6 +80,16 @@ def actualizar_usuario(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario
 
+@router.delete("/usuarios/me/foto")
+def eliminar_foto_perfil(
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual),
+    db: Session = Depends(get_db)
+):
+    usuario_actual.foto_perfil = None
+    db.commit()
+    db.refresh(usuario_actual)
+    return {"mensaje": "Foto de perfil eliminada exitosamente", "foto_perfil": None}
+
 @router.post("/usuarios/me/foto")
 def subir_foto_perfil(
     file: UploadFile = File(...),
