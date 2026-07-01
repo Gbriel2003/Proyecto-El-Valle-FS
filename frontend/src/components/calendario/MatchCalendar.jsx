@@ -1,9 +1,10 @@
 import { 
   Calendar, Clock, Shield, FileText, 
   Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight,
-  CheckCircle, Pencil
+  CheckCircle, Pencil, Download
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { generatePDFReport } from '../../utils/reportGenerator';
 
 export default function MatchCalendar({
   partidos,
@@ -64,6 +65,40 @@ export default function MatchCalendar({
     });
     return stats;
   }, [partidos]);
+
+  const exportarPartidosPDF = async () => {
+    let listToExport = partidos;
+    if (torneoFiltro) {
+      listToExport = listToExport.filter(p => p.torneo_id === torneoFiltro);
+    }
+    
+    // Sort by date desc
+    const sortedList = [...listToExport].sort((a, b) => new Date(b.fecha_hora) - new Date(a.fecha_hora));
+
+    const data = sortedList.map(p => {
+      const fecha = new Date(p.fecha_hora).toLocaleDateString();
+      const hora = new Date(p.fecha_hora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const resultado = p.estado === 'Finalizado' ? `${p.goles_local} - ${p.goles_visitante}` : 'Por jugar';
+      return [
+        p.torneo_nombre || 'Sin Torneo',
+        `${fecha} ${hora}`,
+        p.equipo_local,
+        p.equipo_visitante,
+        p.estado,
+        resultado
+      ];
+    });
+
+    const columns = ['Torneo', 'Fecha/Hora', 'Local', 'Visitante', 'Estado', 'Resultado'];
+
+    await generatePDFReport({
+      title: 'Reporte de Partidos',
+      filename: 'reporte_partidos',
+      columns,
+      data,
+      extraInfo: torneoFiltro ? `Filtrado por torneo seleccionado.` : 'Todos los partidos registrados.'
+    });
+  };
 
   if (cargando) {
     return (
@@ -352,11 +387,24 @@ export default function MatchCalendar({
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
             
-            <h3 className="text-base font-black text-white flex items-center relative z-10 tracking-wide font-display">
-              <Trophy size={18} className="mr-2.5 text-valle-gold drop-shadow-md" />
-              Torneos Activos
-            </h3>
-            <p className="text-xs text-valle-gold/90 mt-1.5 relative z-10 font-semibold tracking-wide">Selecciona un torneo para filtrar los partidos</p>
+            <div className="flex justify-between items-center relative z-10">
+              <div>
+                <h3 className="text-base font-black text-white flex items-center tracking-wide font-display">
+                  <Trophy size={18} className="mr-2.5 text-valle-gold drop-shadow-md" />
+                  Torneos Activos
+                </h3>
+                <p className="text-xs text-valle-gold/90 mt-1.5 font-semibold tracking-wide">Selecciona un torneo para filtrar los partidos</p>
+              </div>
+              <button
+                type="button"
+                onClick={exportarPartidosPDF}
+                className="px-3 py-1.5 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold border border-valle-gold/30 rounded-lg text-xs font-bold transition flex items-center cursor-pointer backdrop-blur-sm shadow-sm whitespace-nowrap"
+                title="Descargar PDF de partidos"
+              >
+                <Download size={14} className="mr-1.5" />
+                Exportar PDF
+              </button>
+            </div>
           </div>
 
           <div className="p-4 bg-slate-50/30 space-y-3">

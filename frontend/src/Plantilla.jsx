@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Users, User, Shield, Target, Award, Search, Loader2, Eye, Pencil, X, ChevronDown } from 'lucide-react';
+import { Users, User, Shield, Target, Award, Search, Loader2, Eye, Pencil, X, ChevronDown, Download } from 'lucide-react';
 import FichaTecnica from './FichaTecnica';
+import { generatePDFReport } from './utils/reportGenerator';
 
 export default function Plantilla({ crearNotificacion = null, rolUsuario = '' }) {
     const [jugadores, setJugadores] = useState([]);
@@ -118,6 +119,31 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
         return `${inicialNombre}${inicialApellido}`;
     };
 
+    const exportarLesionadosPDF = async () => {
+        const lesionados = jugadores.filter(j => j.estado_actual === 'Lesionado' || j.lesionado);
+        
+        const data = lesionados.map(j => {
+            const imcStr = j.imc_actual ? parseFloat(j.imc_actual).toFixed(2) : 'N/A';
+            return [
+                `${j.nombre} ${j.apellido}`,
+                j.numero_camisa || '-',
+                j.posicion_especifica || '-',
+                j.lesion_tipo || 'No especificada',
+                imcStr
+            ];
+        });
+
+        const columns = ['Nombre Completo', 'Dorsal', 'Posición', 'Tipo de Lesión', 'IMC Actual'];
+
+        await generatePDFReport({
+            title: 'Reporte de Atletas Lesionados',
+            filename: 'reporte_lesionados',
+            columns,
+            data,
+            extraInfo: `Total de atletas inactivos por lesión: ${lesionados.length}`
+        });
+    };
+
     if (selectedAtletaId) {
         return <FichaTecnica atletaId={selectedAtletaId} onBack={() => setSelectedAtletaId(null)} crearNotificacion={crearNotificacion} />;
     }
@@ -125,19 +151,30 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
     return (
         <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
 
-            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in-up">
-                <div className="flex items-center space-x-3 text-valle-black">
-                    <div className="w-10 h-10 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20">
-                        <Users size={20} className="text-valle-gold" />
+            <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4 animate-fade-in-up">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex items-center space-x-3 text-valle-black">
+                        <div className="w-10 h-10 rounded-xl bg-valle-green flex items-center justify-center shadow-md border border-valle-gold/20 shrink-0">
+                            <Users size={20} className="text-valle-gold" />
+                        </div>
+                        <div>
+                            <span className="font-bold text-sm font-display block">Fichas Técnicas de la Plantilla</span>
+                            {rolUsuario === 'nutricionista' && (
+                                <span className="text-xs text-valle-green font-bold uppercase tracking-wider block">Vista de Control Biométrico</span>
+                            )}
+                        </div>
                     </div>
-                    <div>
-                        <span className="font-bold text-sm font-display block">Fichas Técnicas de la Plantilla</span>
-                        {rolUsuario === 'nutricionista' && (
-                            <span className="text-xs text-valle-green font-bold uppercase tracking-wider block">Vista de Control Biométrico</span>
-                        )}
-                    </div>
+                    <button
+                        type="button"
+                        onClick={exportarLesionadosPDF}
+                        className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
+                        title="Descargar Reporte de Lesionados"
+                    >
+                        <Download size={14} className="mr-1.5" />
+                        PDF Lesionados
+                    </button>
                 </div>
-                <div className="relative w-full sm:w-72">
+                <div className="relative w-full lg:w-72 shrink-0">
                     <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
                     <input
                         type="text"

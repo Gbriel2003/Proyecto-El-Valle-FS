@@ -104,6 +104,12 @@ export function CrearTorneoModal({
   onSubmit
 }) {
   useEscapeKey(onClose);
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDateString = tomorrow.toISOString().split('T')[0];
+  const minFinDateString = fechaInicioTorneo || minDateString;
+
   if (!isOpen) return null;
 
   return (
@@ -167,6 +173,7 @@ export function CrearTorneoModal({
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
                 value={fechaInicioTorneo}
                 onChange={(e) => setFechaInicioTorneo(e.target.value)}
+                min={minDateString}
                 required
               />
             </div>
@@ -177,6 +184,7 @@ export function CrearTorneoModal({
                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10 text-slate-800 cursor-pointer transition-all shadow-sm"
                 value={fechaFinTorneo}
                 onChange={(e) => setFechaFinTorneo(e.target.value)}
+                min={minFinDateString}
                 required
               />
             </div>
@@ -370,19 +378,22 @@ export function ProgramarPartidoModal({
                                 .filter(a => `${a.nombre} ${a.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()))
                                 .map(atleta => {
                                   const seleccionado = jugadoresSeleccionados.includes(atleta.atleta_id);
+                                  const isLesionado = atleta.lesionado || atleta.estado_actual === 'Lesionado';
                                   return (
                                     <label
                                       key={atleta.atleta_id}
-                                      className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-colors ${seleccionado
+                                      className={`flex items-center gap-3 p-2.5 rounded-lg transition-colors ${isLesionado ? 'opacity-60 cursor-not-allowed bg-red-50 border border-red-100' : 'cursor-pointer'} ${!isLesionado && seleccionado
                                           ? 'bg-valle-green/10 text-valle-green-dark border border-valle-green/20'
-                                          : 'bg-transparent border border-transparent text-slate-600 hover:bg-slate-50'
+                                          : !isLesionado ? 'bg-transparent border border-transparent text-slate-600 hover:bg-slate-50' : ''
                                         }`}
                                     >
                                       <input
                                         type="checkbox"
-                                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 cursor-pointer shrink-0"
+                                        className="rounded text-valle-green focus:ring-valle-green border-slate-300 w-4 h-4 shrink-0 disabled:opacity-50"
                                         checked={seleccionado}
+                                        disabled={isLesionado}
                                         onChange={() => {
+                                          if (isLesionado) return;
                                           if (seleccionado) {
                                             setJugadoresSeleccionados(prev => prev.filter(id => id !== atleta.atleta_id));
                                           } else {
@@ -391,7 +402,10 @@ export function ProgramarPartidoModal({
                                         }}
                                       />
                                       <div className="text-left flex-1 min-w-0">
-                                        <p className="text-xs font-bold leading-tight truncate">{atleta.nombre} {atleta.apellido}</p>
+                                        <p className="text-xs font-bold leading-tight truncate flex items-center gap-2">
+                                          {atleta.nombre} {atleta.apellido}
+                                          {isLesionado && <span className="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-700 rounded-md uppercase tracking-wider font-black">Lesionado</span>}
+                                        </p>
                                         <p className="text-[10px] text-slate-500 leading-none mt-1">{atleta.posicion}</p>
                                       </div>
                                     </label>

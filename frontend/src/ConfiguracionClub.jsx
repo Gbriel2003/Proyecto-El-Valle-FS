@@ -364,7 +364,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
                     <td className="p-4 text-right flex items-center justify-end gap-1">
                       <button 
                         onClick={() => setEditandoUsuario({...u})} 
-                        className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition" 
+                        className="p-2 text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-700 rounded-lg transition shadow-xs" 
                         title="Editar usuario"
                       >
                         <Pencil size={18} />
@@ -374,12 +374,12 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
                           setRestableciendoUsuario(u);
                           setNuevaPasswordUsuario('');
                         }} 
-                        className="p-2 text-slate-400 hover:text-valle-green hover:bg-slate-50 rounded-lg transition" 
+                        className="p-2 text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 rounded-lg transition shadow-xs" 
                         title="Restablecer contraseña"
                       >
                         <Lock size={18} />
                       </button>
-                      <button onClick={() => setUsuarioAEliminar(u)} className="p-2 text-slate-400 hover:text-red-650 hover:bg-red-50 rounded-lg transition" title="Eliminar acceso">
+                      <button onClick={() => setUsuarioAEliminar(u)} className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 hover:text-rose-700 rounded-lg transition shadow-xs" title="Eliminar acceso">
                         <Trash2 size={18} />
                       </button>
                     </td>

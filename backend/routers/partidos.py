@@ -78,8 +78,12 @@ def procesar_reporte_ia_background(file_path: str, partido_id: int):
 def crear_torneo(
     torneo: schemas.TorneoCreate, 
     db: Session = Depends(get_db), 
-    admin: models.Usuario = Depends(verificar_admin)
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
 ):
+    if torneo.fecha_inicio <= datetime.now().date():
+        raise HTTPException(status_code=400, detail="La fecha de inicio debe ser a partir de mañana.")
+    if torneo.fecha_fin < torneo.fecha_inicio:
+        raise HTTPException(status_code=400, detail="La fecha de fin no puede ser anterior a la fecha de inicio.")
     return crud_partidos.crear_torneo(db, torneo)
 
 @router.get("/torneos/", response_model=list[schemas.TorneoResponse])
@@ -90,7 +94,7 @@ def listar_torneos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
 def eliminar_torneo(
     torneo_id: int, 
     db: Session = Depends(get_db), 
-    admin: models.Usuario = Depends(verificar_admin)
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
 ):
     torneo = crud_partidos.eliminar_torneo(db, torneo_id)
     if not torneo:
@@ -101,7 +105,7 @@ def eliminar_torneo(
 def finalizar_torneo(
     torneo_id: int, 
     db: Session = Depends(get_db), 
-    admin: models.Usuario = Depends(verificar_admin)
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
 ):
     torneo = crud_partidos.finalizar_torneo(db, torneo_id)
     if not torneo:
@@ -112,7 +116,7 @@ def finalizar_torneo(
 def crear_partido(
     partido: schemas.PartidoCreate, 
     db: Session = Depends(get_db), 
-    admin: models.Usuario = Depends(verificar_admin)
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
 ):
     torneo_existente = crud_partidos.obtener_torneo_por_id(db, partido.torneo_id)
     if not torneo_existente:

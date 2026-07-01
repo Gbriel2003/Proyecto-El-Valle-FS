@@ -1,4 +1,5 @@
-import { FolderOpen, Save, Trash2, Loader2 } from 'lucide-react';
+import { FolderOpen, Save, Trash2, Loader2, Download } from 'lucide-react';
+import { generatePDFReport } from '../../utils/reportGenerator';
 
 export default function PlaybookManager({
   cargandoJugadas,
@@ -7,6 +8,24 @@ export default function PlaybookManager({
   eliminarJugada,
   setMostrarGuardarModal
 }) {
+  const exportarPlaybookPDF = async () => {
+    const data = jugadas.map(j => [
+      j.titulo,
+      j.descripcion || 'Sin descripción',
+      new Date(j.fecha_creacion || Date.now()).toLocaleDateString()
+    ]);
+
+    const columns = ['Título de Jugada', 'Descripción', 'Fecha'];
+
+    await generatePDFReport({
+      title: 'Playbook / Biblioteca Táctica',
+      filename: 'reporte_jugadas',
+      columns,
+      data,
+      extraInfo: 'Listado oficial de jugadas tácticas registradas en el sistema.'
+    });
+  };
+
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 animate-fade-in-up">
       <div className="flex justify-between items-center">
@@ -14,6 +33,15 @@ export default function PlaybookManager({
           <FolderOpen size={16} className="text-valle-gold mr-2" />
           Playbook / Biblioteca Táctica
         </h3>
+        <button
+          type="button"
+          onClick={exportarPlaybookPDF}
+          className="px-2 py-1 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-600 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer"
+          title="Descargar PDF"
+        >
+          <Download size={12} className="mr-1" />
+          PDF
+        </button>
       </div>
 
       <button
