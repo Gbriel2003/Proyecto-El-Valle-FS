@@ -66,12 +66,16 @@ export default function Login({ onLoginSuccess }) {
         setCargandoRecuperacion(true);
 
         try {
-            await api.post('/usuarios/solicitud-password', { correo: correoRecuperar });
-            setMensajeRecuperacion('Tu solicitud ha sido enviada al administrador. Una vez aprobada, se te asignará una contraseña temporal (12345678).');
+            const res = await api.post('/usuarios/solicitud-password', { correo: correoRecuperar });
+            setMensajeRecuperacion(res.data.mensaje || 'Tu solicitud ha sido enviada al administrador. Una vez aprobada, se te asignará una contraseña temporal.');
             setCorreoRecuperar('');
         } catch (err) {
             console.error(err);
-            setError('Ocurrió un error al procesar tu solicitud. Por favor intenta de nuevo.');
+            if (err.response && err.response.status === 404) {
+                setError('El correo electrónico ingresado no está registrado.');
+            } else {
+                setError('Ocurrió un error al procesar tu solicitud. Por favor intenta de nuevo.');
+            }
         } finally {
             setCargandoRecuperacion(false);
         }

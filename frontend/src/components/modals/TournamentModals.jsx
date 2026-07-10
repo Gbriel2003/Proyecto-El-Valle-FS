@@ -1,9 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import {
   X, Save, PlusCircle, Calendar, Award, Sparkles,
-  Loader2, AlertTriangle, ThumbsUp, List
+  Loader2, AlertTriangle, ThumbsUp, List, Download
 } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
+import api from '../../api';
 
 // Hook para cerrar con tecla Escape
 function useEscapeKey(onClose) {
@@ -14,6 +15,15 @@ function useEscapeKey(onClose) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+}
+
+// Hook para bloquear scroll de fondo
+function useScrollLock(isOpen) {
+  useEffect(() => {
+    if (isOpen) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = 'unset';
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 }
 
 // 1. Guardar Jugada Modal
@@ -27,6 +37,8 @@ export function GuardarJugadaModal({
   onSubmit
 }) {
   useEscapeKey(onClose);
+  useScrollLock(isOpen);
+  useScrollLock(isOpen);
   if (!isOpen) return null;
 
   return (
@@ -104,6 +116,7 @@ export function CrearTorneoModal({
   onSubmit
 }) {
   useEscapeKey(onClose);
+  useScrollLock(isOpen);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -227,6 +240,7 @@ export function ProgramarPartidoModal({
   onSubmit
 }) {
   useEscapeKey(onClose);
+  useScrollLock(isOpen);
   
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -453,6 +467,7 @@ export function FinalizarPartidoModal({
   onSubmit
 }) {
   useEscapeKey(onClose);
+  useScrollLock(isOpen);
   if (!isOpen || !partido) return null;
 
   return (
@@ -534,6 +549,29 @@ export function ReporteIAModal({
   onRetry
 }) {
   useEscapeKey(onClose);
+  useScrollLock(isOpen);
+
+  const rolUsuario = localStorage.getItem('rol_usuario');
+  const isAtleta = rolUsuario === 'Atleta';
+
+  const handleDownload = async () => {
+    try {
+      const response = await api.get(`/partidos/${partido.id}/descargar-reporte`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `reporte_partido_${partido.id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error al descargar el PDF", error);
+      alert("Hubo un error al intentar descargar el reporte. Es posible que el archivo ya no esté disponible en el servidor.");
+    }
+  };
+
   if (!isOpen || !partido) return null;
 
   return (
@@ -696,7 +734,18 @@ export function ReporteIAModal({
         </div>
 
         {/* Pie */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+          <div>
+            {!isAtleta && (
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition cursor-pointer flex items-center shadow-xs"
+              >
+                <Download size={14} className="mr-1.5" /> Descargar PDF
+              </button>
+            )}
+          </div>
           <button
             type="button"
             onClick={onClose}

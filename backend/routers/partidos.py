@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
 import os
@@ -295,3 +296,29 @@ def obtener_reporte_partido(
         "estado": "completado",
         "analisis_ia": reporte.analisis_ia
     }
+
+@router.get("/partidos/{partido_id}/descargar-reporte")
+def descargar_reporte_partido(
+    partido_id: int, 
+    db: Session = Depends(get_db),
+    usuario_actual: models.Usuario = Depends(obtener_usuario_actual)
+):
+    reporte = crud_partidos.obtener_reporte_partido(db, partido_id)
+    if not reporte:
+        raise HTTPException(status_code=404, detail="No existe un reporte para este partido.")
+    
+    if not reporte.ruta_archivo:
+        raise HTTPException(status_code=404, detail="El archivo físico del reporte no se encuentra.")
+        
+    if reporte.ruta_archivo.startswith("s3://"):
+        # En caso de S3, deberíamos usar presigned URL, pero para esta implementación local asumiremos la copia
+        raise HTTPException(status_code=400, detail="Descarga directa desde S3 no configurada en este entorno.")
+        
+    if not os.path.exists(reporte.ruta_archivo):
+        raise HTTPException(status_code=404, detail="El archivo del reporte ha sido movido o eliminado del servidor.")
+        
+    return FileResponse(
+        path=reporte.ruta_archivo, 
+        filename=os.path.basename(reporte.ruta_archivo), 
+        media_type="application/pdf"
+    )

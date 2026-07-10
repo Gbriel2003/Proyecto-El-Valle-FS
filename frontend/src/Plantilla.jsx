@@ -13,6 +13,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
     const [editandoFicha, setEditandoFicha] = useState(null);
     const [nuevoDorsal, setNuevoDorsal] = useState('');
     const [nuevaPosicion, setNuevaPosicion] = useState('');
+    const [nuevaPiernaHabil, setNuevaPiernaHabil] = useState('');
     const [mostrarDropdownPosicion, setMostrarDropdownPosicion] = useState(false);
     const [guardandoFicha, setGuardandoFicha] = useState(false);
 
@@ -31,15 +32,17 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
         try {
             const valorDorsal = nuevoDorsal.trim() !== '' ? parseInt(nuevoDorsal) : null;
             const valorPosicion = nuevaPosicion.trim() !== '' ? nuevaPosicion : null;
+            const valorPierna = nuevaPiernaHabil.trim() !== '' ? nuevaPiernaHabil : null;
             
             await api.put(`/atletas/${editandoFicha.atleta_id}`, {
                 numero_camisa: valorDorsal,
-                posicion_especifica: valorPosicion
+                posicion_especifica: valorPosicion,
+                pierna_habil: valorPierna
             });
             
             setJugadores(prev => prev.map(j => {
                 if (j.atleta_id === editandoFicha.atleta_id) {
-                    return { ...j, numero_camisa: valorDorsal, posicion_especifica: valorPosicion, posicion_principal: valorPosicion };
+                    return { ...j, numero_camisa: valorDorsal, posicion: valorPosicion, pierna_habil: valorPierna };
                 }
                 return j;
             }));
@@ -54,6 +57,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
             setEditandoFicha(null);
             setNuevoDorsal('');
             setNuevaPosicion('');
+            setNuevaPiernaHabil('');
         } catch (error) {
             console.error("Error al actualizar ficha:", error);
             const msg = error.response?.data?.detail || "No se pudo actualizar. Inténtalo de nuevo.";
@@ -144,6 +148,26 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
         });
     };
 
+    const exportarPlantillaGeneralPDF = async () => {
+        const data = jugadoresFiltrados.map(j => [
+            `${j.nombre} ${j.apellido}`,
+            j.numero_camisa || '-',
+            j.posicion || '-',
+            j.pierna_habil || '-',
+            j.peso_actual ? `${j.peso_actual} kg` : '-'
+        ]);
+
+        const columns = ['Nombre Completo', 'Dorsal', 'Posición', 'Pierna Hábil', 'Peso Actual'];
+
+        await generatePDFReport({
+            title: 'Roster General de Plantilla',
+            filename: 'reporte_plantilla',
+            columns,
+            data,
+            extraInfo: `Total de atletas listados: ${jugadoresFiltrados.length}`
+        });
+    };
+
     if (selectedAtletaId) {
         return <FichaTecnica atletaId={selectedAtletaId} onBack={() => setSelectedAtletaId(null)} crearNotificacion={crearNotificacion} />;
     }
@@ -164,15 +188,26 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                             )}
                         </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={exportarLesionadosPDF}
-                        className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
-                        title="Descargar Reporte de Lesionados"
-                    >
-                        <Download size={14} className="mr-1.5" />
-                        PDF Lesionados
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <button
+                            type="button"
+                            onClick={exportarPlantillaGeneralPDF}
+                            className="px-3 py-1.5 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold-dark border border-valle-gold/30 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
+                            title="Descargar Reporte General"
+                        >
+                            <Download size={14} className="mr-1.5" />
+                            PDF Plantilla
+                        </button>
+                        <button
+                            type="button"
+                            onClick={exportarLesionadosPDF}
+                            className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
+                            title="Descargar Reporte de Lesionados"
+                        >
+                            <Download size={14} className="mr-1.5" />
+                            PDF Lesionados
+                        </button>
+                    </div>
                 </div>
                 <div className="relative w-full lg:w-72 shrink-0">
                     <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
@@ -220,7 +255,8 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                                 e.stopPropagation();
                                                 setEditandoFicha(jugador);
                                                 setNuevoDorsal(jugador.numero_camisa !== null && jugador.numero_camisa !== undefined ? String(jugador.numero_camisa) : '');
-                                                setNuevaPosicion(jugador.posicion_especifica || jugador.posicion_principal || jugador.posicion || '');
+                                                setNuevaPosicion(jugador.posicion || '');
+                                                setNuevaPiernaHabil(jugador.pierna_habil || '');
                                             }}
                                             className="absolute top-4 right-4 text-xs font-black text-valle-green hover:text-white bg-slate-100 hover:bg-valle-green border border-slate-200 px-2 py-1 rounded-lg flex items-center gap-1 transition shadow-sm z-20 group/btn"
                                             title="Editar dorsal y posición"
@@ -392,6 +428,22 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                             onChange={(e) => setNuevoDorsal(e.target.value)}
                                         />
                                         <p className="text-[10px] text-slate-400 mt-1 font-medium">Deja vacío si deseas retirar el dorsal asignado.</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-slate-500 uppercase tracking-wider mb-1.5 text-xs font-bold">
+                                            Pierna Hábil
+                                        </label>
+                                        <select
+                                            value={nuevaPiernaHabil}
+                                            onChange={(e) => setNuevaPiernaHabil(e.target.value)}
+                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green font-medium text-sm"
+                                        >
+                                            <option value="">Seleccione...</option>
+                                            <option value="Derecha">Derecha</option>
+                                            <option value="Izquierda">Izquierda</option>
+                                            <option value="Ambiestra">Ambiestra</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>

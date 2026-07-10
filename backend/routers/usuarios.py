@@ -141,11 +141,10 @@ def solicitar_recuperacion(
 ):
     usuario = crud_usuarios.obtener_usuario_por_correo(db, req.correo)
     if not usuario:
-        # Retorno amigable e igual para evitar enumeración de correos
-        return {"mensaje": "Si el correo está registrado, se enviará la solicitud al administrador."}
+        raise HTTPException(status_code=404, detail="El correo electrónico ingresado no está registrado en el sistema.")
     
     crud_usuarios.crear_solicitud_password(db, usuario.id)
-    return {"mensaje": "Si el correo está registrado, se enviará la solicitud al administrador."}
+    return {"mensaje": "Tu solicitud ha sido enviada al administrador. Una vez aprobada, se te asignará una contraseña temporal."}
 
 @router.get("/usuarios/solicitudes-password", response_model=list[schemas.SolicitudPasswordResponse])
 def listar_solicitudes_pendientes(

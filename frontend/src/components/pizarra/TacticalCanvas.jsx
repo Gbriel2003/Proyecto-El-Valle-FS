@@ -24,8 +24,8 @@ export default function TacticalCanvas({
 }) {
   const [dragTokenId, setDragTokenId] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [formacionValle, setFormacionValle] = useState('');
-  const [formacionRival, setFormacionRival] = useState('');
+  const [formacionValle, setFormacionValle] = useState('1-2-1');
+  const [formacionRival, setFormacionRival] = useState('1-2-1');
 
   // --- FUNCIONES DE DIBUJO ---
   const startDrawing = (e) => {
@@ -110,7 +110,7 @@ export default function TacticalCanvas({
   return (
     <div className={isFullscreen 
       ? "fixed inset-0 z-100 bg-[#0c160e] p-3 flex flex-col justify-between overflow-hidden select-none gap-3 animate-fade-in-up landscape:flex-row landscape:p-2 landscape:gap-2" 
-      : "grid grid-cols-1 lg:grid-cols-4 gap-6 animate-fade-in-up"
+      : "grid grid-cols-1 xl:grid-cols-4 gap-6 animate-fade-in-up"
     }>
       {/* Overlay para forzar modo horizontal en móviles */}
       {isFullscreen && (
@@ -209,7 +209,7 @@ export default function TacticalCanvas({
 
       {/* Barra de Herramientas Lateral (Solo Modo Normal) */}
       {!isFullscreen && (
-        <div className="lg:col-span-1 space-y-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+        <div className="xl:col-span-1 space-y-5 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div className="space-y-5">
             {/* Herramientas de Dibujo */}
             <div className="space-y-4">
@@ -288,7 +288,6 @@ export default function TacticalCanvas({
                     setFormacionValle(e.target.value);
                     aplicarFormacion('valle', e.target.value);
                   }}
-                  placeholder="-- Selecciona esquema --"
                   options={[
                     { value: "1-2-1", label: "Diamante (1-2-1)" },
                     { value: "2-2", label: "Cuadrado (2-2)" },
@@ -305,7 +304,6 @@ export default function TacticalCanvas({
                     setFormacionRival(e.target.value);
                     aplicarFormacion('rival', e.target.value);
                   }}
-                  placeholder="-- Selecciona esquema --"
                   options={[
                     { value: "1-2-1", label: "Diamante (1-2-1)" },
                     { value: "2-2", label: "Cuadrado (2-2)" },
@@ -343,7 +341,7 @@ export default function TacticalCanvas({
       )}
 
       {/* El Campo de Futsal */}
-      <div className={isFullscreen ? "flex-1 flex items-center justify-center min-h-0 w-full relative landscape:h-full landscape:w-auto" : "lg:col-span-3 relative"}>
+      <div className={isFullscreen ? "flex-1 flex items-center justify-center min-h-0 min-w-0 w-full relative" : "xl:col-span-3 relative"}>
         {/* Botón de Maximizar (Solo Modo Normal) */}
         {!isFullscreen && (
           <button
@@ -361,8 +359,8 @@ export default function TacticalCanvas({
           ref={boardRef}
           className={`${
             isFullscreen 
-              ? 'relative w-full max-h-[66vh] aspect-5/3 bg-valle-green-dark rounded-2xl overflow-hidden shadow-2xl border border-valle-green/30 select-none cursor-crosshair touch-none flex items-center justify-center landscape:w-auto landscape:h-full landscape:max-w-full landscape:max-h-full' 
-              : 'relative w-full aspect-5/3 bg-valle-green-dark rounded-2xl overflow-hidden shadow-lg border border-valle-green/20 select-none cursor-crosshair touch-none'
+              ? 'relative w-[2000px] max-w-full max-h-[70vh] landscape:max-h-[98%] aspect-[5/3] bg-valle-green-dark rounded-2xl overflow-hidden shadow-2xl border border-valle-green/30 select-none cursor-crosshair touch-none' 
+              : 'relative w-full aspect-[5/3] bg-valle-green-dark rounded-2xl overflow-hidden shadow-lg border border-valle-green/20 select-none cursor-crosshair touch-none'
           }`}
           onPointerDown={startDrawing}
           onPointerMove={draw}
@@ -456,7 +454,6 @@ export default function TacticalCanvas({
               }}
               variant="dark"
               className="flex-1 md:flex-initial landscape:w-full"
-              placeholder="-- Formación Valle --"
               options={[
                 { value: "1-2-1", label: "Diamante (1-2-1)" },
                 { value: "2-2", label: "Cuadrado (2-2)" },
@@ -477,7 +474,6 @@ export default function TacticalCanvas({
               }}
               variant="dark"
               className="flex-1 md:flex-initial landscape:w-full"
-              placeholder="-- Formación Rival --"
               options={[
                 { value: "1-2-1", label: "Diamante (1-2-1)" },
                 { value: "2-2", label: "Cuadrado (2-2)" },

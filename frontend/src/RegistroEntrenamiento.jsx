@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from './api';
-import { Activity, Timer, Save, Users, PlusCircle, CheckCircle, ArrowLeft, Trash2, ChevronRight, Search, UserCheck } from 'lucide-react';
+import { Activity, Timer, Save, Users, PlusCircle, CheckCircle, ArrowLeft, Trash2, ChevronRight, Search, UserCheck, Download } from 'lucide-react';
 import CustomSelect from './components/ui/CustomSelect';
+import { generatePDFReport } from './utils/reportGenerator';
 
 export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     const [vista, setVista] = useState('lista');
@@ -11,10 +12,14 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     
     const [sesionActiva, setSesionActiva] = useState(null);
     
+    const rolUsuario = localStorage.getItem('rol_usuario');
+    const isAtleta = rolUsuario === 'Atleta';
+    
     // Filtros de historial
     const [busqueda, setBusqueda] = useState('');
     const [filtroTipo, setFiltroTipo] = useState('');
-    const [filtroMes, setFiltroMes] = useState('');
+    const [filtroFechaDesde, setFiltroFechaDesde] = useState('');
+    const [filtroFechaHasta, setFiltroFechaHasta] = useState('');
 
     // Control de asistencia masiva
     const [asistenciaEstado, setAsistenciaEstado] = useState({});
@@ -32,21 +37,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     const [aiReporte, setAiReporte] = useState(null);
     const [generandoIA, setGenerandoIA] = useState(false);
 
-    const meses = [
-        { value: '', label: 'Todos los meses' },
-        { value: '01', label: 'Enero' },
-        { value: '02', label: 'Febrero' },
-        { value: '03', label: 'Marzo' },
-        { value: '04', label: 'Abril' },
-        { value: '05', label: 'Mayo' },
-        { value: '06', label: 'Junio' },
-        { value: '07', label: 'Julio' },
-        { value: '08', label: 'Agosto' },
-        { value: '09', label: 'Septiembre' },
-        { value: '10', label: 'Octubre' },
-        { value: '11', label: 'Noviembre' },
-        { value: '12', label: 'Diciembre' },
-    ];
+
 
     const mostrarMensaje = (tipo, texto) => {
         setMensaje({ tipo, texto });
@@ -255,18 +246,88 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
     const sesionesFiltradas = sesiones.filter(s => {
         const coincideBusqueda = (s.descripcion || '').toLowerCase().includes(busqueda.toLowerCase());
         const coincideTipo = !filtroTipo || s.tipo_sesion === filtroTipo;
-        let coincideMes = true;
-        if (filtroMes) {
-            const mesSesion = s.fecha ? s.fecha.split('-')[1] : '';
-            coincideMes = mesSesion === filtroMes;
-        }
-        return coincideBusqueda && coincideTipo && coincideMes;
+        
+        let coincideFecha = true;
+        if (filtroFechaDesde && s.fecha < filtroFechaDesde) coincideFecha = false;
+        if (filtroFechaHasta && s.fecha > filtroFechaHasta) coincideFecha = false;
+
+        return coincideBusqueda && coincideTipo && coincideFecha;
     });
 
     // Filtrado de jugadores para panel de asistencia
     const jugadoresFiltradosAsistencia = jugadores.filter(j => 
         `${j.nombre} ${j.apellido}`.toLowerCase().includes(busquedaJugadorAsistencia.toLowerCase())
     );
+
+    const exportarEntrenamientosPDF = async () => {
+        const data = sesionesFiltradas.map(s => {
+            const fecha = s.fecha 
+                ? new Date(`${s.fecha}T00:00:00`).toLocaleDateString('es-VE', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                : 'N/A';
+            return [
+                fecha,
+                s.tipo_sesion || 'N/A',
+                s.descripcion || 'Sin descripción',
+                s.duracion_min ? `${s.duracion_min} min` : 'N/A'
+            ];
+        });
+
+        const columns = ['Fecha', 'Tipo de Sesión', 'Descripción / Enfoque', 'Duración'];
+
+        await generatePDFReport({
+            title: 'Reporte de Entrenamientos',
+            filename: 'reporte_entrenamientos',
+            columns,
+            data,
+            extraInfo: `Historial de sesiones de entrenamiento filtradas.\nTotal de sesiones registradas en este reporte: ${sesionesFiltradas.length}`
+        });
+    };
+
+    const exportarSesionPDF = async () => {
+        if (!sesionActiva) return;
+
+        const data = [];
+        const tituloSesion = `Control de Asistencia - Sesión del ${sesionActiva.fecha}`;
+
+        jugadores.forEach(j => {
+            const asistio = asistenciaEstado[j.atleta_id];
+            const fila = [
+                `${j.nombre} ${j.apellido}`,
+                j.posicion || 'N/A',
+                asistio ? 'PRESENTE' : 'AUSENTE'
+            ];
+
+            if (asistio) {
+                const carga = cargasRegistradas.find(c => c.atleta_id === j.atleta_id);
+                if (carga) {
+                    fila.push(carga.rpe_esfuerzo !== null ? `${carga.rpe_esfuerzo}/10` : 'N/E');
+                    fila.push(carga.saltos_cm ? `${carga.saltos_cm} cm` : '-');
+                    fila.push(carga.tiempo_sprint_30m ? `${carga.tiempo_sprint_30m} s` : '-');
+                } else {
+                    fila.push('N/E', '-', '-');
+                }
+            } else {
+                fila.push('-', '-', '-');
+            }
+            data.push(fila);
+        });
+
+        // Ordenar: primero presentes, luego ausentes, luego alfabéticamente
+        data.sort((a, b) => {
+            if (a[2] === b[2]) return a[0].localeCompare(b[0]);
+            return a[2] === 'PRESENTE' ? -1 : 1;
+        });
+
+        const columns = ['Atleta', 'Posición', 'Asistencia', 'Esfuerzo (RPE)', 'Salto Vertical', 'Sprint 30m'];
+
+        await generatePDFReport({
+            title: tituloSesion,
+            filename: `reporte_sesion_${sesionActiva.fecha}`,
+            columns,
+            data,
+            extraInfo: `Tipo: ${sesionActiva.tipo_sesion} | Duración: ${sesionActiva.duracion_min} min\nDescripción: ${sesionActiva.descripcion}\nTotal Presentes: ${data.filter(d => d[2] === 'PRESENTE').length} / ${jugadores.length}`
+        });
+    };
 
     return (
         <div className="w-full mx-auto space-y-6 px-2 sm:px-4 lg:px-6">
@@ -287,24 +348,32 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                             </h2>
                             <p className="text-sm text-slate-500">Administra las sesiones globales del equipo.</p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                            {!isAtleta && (
+                                <button 
+                                    onClick={exportarEntrenamientosPDF}
+                                    className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer flex items-center shadow-xs whitespace-nowrap"
+                                >
+                                    <Download size={16} className="mr-2 text-valle-green shrink-0" /> Descargar Reporte
+                                </button>
+                            )}
                             <button 
                                 onClick={() => setVista('analisis_ia')}
-                                className="bg-slate-800 hover:bg-slate-900 text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm"
+                                className="bg-slate-800 hover:bg-slate-900 text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm whitespace-nowrap"
                             >
-                                <Activity size={18} className="mr-2 text-valle-green" /> Análisis I.A.
+                                <Activity size={18} className="mr-2 text-valle-green shrink-0" /> Análisis I.A.
                             </button>
                             <button 
                                 onClick={() => { setSesionForm({ tipo_sesion: 'Físico', descripcion: '', duracion_min: 90 }); setVista('crear'); }}
-                                className="bg-valle-green hover:bg-valle-green-dark text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm"
+                                className="bg-valle-green hover:bg-valle-green-dark text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm whitespace-nowrap"
                             >
-                                <PlusCircle size={18} className="mr-2" /> Nueva Sesión
+                                <PlusCircle size={18} className="mr-2 shrink-0" /> Nueva Sesión
                             </button>
                         </div>
                     </div>
 
                     {/* BARRA DE FILTROS */}
-                    <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Buscar Descripción</label>
                             <div className="relative">
@@ -333,16 +402,23 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Mes de Registro</label>
-                            <select
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha Desde</label>
+                            <input
+                                type="date"
                                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-valle-green focus:border-valle-green font-medium text-slate-700"
-                                value={filtroMes}
-                                onChange={(e) => setFiltroMes(e.target.value)}
-                            >
-                                {meses.map(m => (
-                                    <option key={m.value} value={m.value}>{m.label}</option>
-                                ))}
-                            </select>
+                                value={filtroFechaDesde}
+                                onChange={(e) => setFiltroFechaDesde(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha Hasta</label>
+                            <input
+                                type="date"
+                                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-valle-green focus:border-valle-green font-medium text-slate-700"
+                                value={filtroFechaHasta}
+                                onChange={(e) => setFiltroFechaHasta(e.target.value)}
+                                min={filtroFechaDesde}
+                            />
                         </div>
                     </div>
                     
@@ -369,11 +445,11 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                         <tr key={s.id} className="hover:bg-slate-50/50 transition">
                                             <td className="p-4 font-medium text-slate-700 whitespace-nowrap">{s.fecha}</td>
                                             <td className="p-4">
-                                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                                                    s.tipo_sesion === 'Físico' ? 'bg-orange-100 text-orange-700' :
-                                                    s.tipo_sesion === 'Táctico' ? 'bg-valle-green-light text-white' :
-                                                    s.tipo_sesion === 'Recuperación' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-valle-gold-light text-valle-black'
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-black whitespace-nowrap ${
+                                                    s.tipo_sesion === 'Físico' ? 'bg-orange-100 text-orange-800' :
+                                                    s.tipo_sesion === 'Táctico' ? 'bg-emerald-100 text-emerald-800' :
+                                                    s.tipo_sesion === 'Recuperación' ? 'bg-blue-100 text-blue-800' :
+                                                    'bg-amber-100 text-amber-800'
                                                 }`}>
                                                     {s.tipo_sesion}
                                                 </span>
@@ -477,6 +553,16 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                     <div className="pt-3 border-t border-slate-100">
                                         <p className="italic text-slate-500">"{sesionActiva.descripcion}"</p>
                                     </div>
+                                    {!isAtleta && (
+                                        <div className="pt-3 mt-3 border-t border-slate-100">
+                                            <button 
+                                                onClick={exportarSesionPDF}
+                                                className="w-full bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center transition shadow-xs cursor-pointer"
+                                            >
+                                                <Download size={14} className="mr-1.5" /> Descargar Reporte de Sesión
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             

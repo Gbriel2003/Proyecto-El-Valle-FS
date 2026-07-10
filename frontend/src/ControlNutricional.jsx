@@ -3,9 +3,10 @@ import { createPortal } from 'react-dom';
 import api from './api';
 import {
   Apple, Scale, Droplet, Moon, Search, Activity, User,
-  Calendar, Award, Plus, Loader2, ClipboardList, Check, TrendingUp
+  Calendar, Award, Plus, Loader2, ClipboardList, Check, TrendingUp, Download, Pencil, X, Info
 } from 'lucide-react';
 import CustomSelect from './components/ui/CustomSelect';
+import { generatePDFReport } from './utils/reportGenerator';
 
 export default function ControlNutricional({ crearNotificacion = null }) {
   const [jugadores, setJugadores] = useState([]);
@@ -41,9 +42,47 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   const [guardandoHabitos, setGuardandoHabitos] = useState(false);
   const [asignandoDieta, setAsignandoDieta] = useState(false);
 
+  // Editando Biometria Base
+  const [editandoBase, setEditandoBase] = useState(false);
+  const [nuevoPesoBase, setNuevoPesoBase] = useState('');
+  const [nuevaAlturaBase, setNuevaAlturaBase] = useState('');
+  const [guardandoBase, setGuardandoBase] = useState(false);
+
   // IMC Calculado en vivo
   const [imcCalculado, setImcCalculado] = useState(null);
   const [imcEstado, setImcEstado] = useState({ texto: 'N/A', color: 'text-slate-400' });
+
+  const exportarNutricionPDF = async () => {
+    const data = jugadores.map(j => {
+      let estadoImc = 'Normal';
+      const imc = parseFloat(j.imc_actual);
+      if (imc) {
+        if (imc < 18.5) estadoImc = 'Bajo Peso';
+        else if (imc >= 25 && imc < 30) estadoImc = 'Sobrepeso';
+        else if (imc >= 30) estadoImc = 'Obesidad';
+      } else {
+        estadoImc = 'N/A';
+      }
+
+      return [
+        `${j.nombre} ${j.apellido}`,
+        j.peso_actual ? `${j.peso_actual} kg` : 'N/A',
+        j.imc_actual ? parseFloat(j.imc_actual).toFixed(2) : 'N/A',
+        estadoImc,
+        j.dieta_asignada_nombre || 'Ninguna'
+      ];
+    });
+
+    const columns = ['Jugador', 'Peso Actual', 'IMC', 'Estado', 'Dieta Asignada'];
+
+    await generatePDFReport({
+      title: 'Reporte Nutricional y Biométrico',
+      filename: 'reporte_nutricional',
+      columns,
+      data,
+      extraInfo: 'Listado general del estado físico y nutricional de la plantilla activa.'
+    });
+  };
 
   // Cargar lista de atletas
   const cargarAtletas = async () => {
@@ -351,6 +390,40 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   };
 
   // Guardar hábitos y plan nutricional
+  const guardarBiometriaBase = async (e) => {
+    e.preventDefault();
+    if (!atletaSeleccionado) return;
+    setGuardandoBase(true);
+    try {
+      const valorPeso = nuevoPesoBase !== '' ? parseFloat(nuevoPesoBase) : null;
+      const valorAltura = nuevaAlturaBase !== '' ? parseInt(nuevaAlturaBase) : null;
+      
+      await api.put(`/atletas/${atletaSeleccionado.atleta_id}`, {
+        peso_base: valorPeso,
+        altura_cm: valorAltura
+      });
+      
+      const prevJugadores = [...jugadores];
+      const jIndex = prevJugadores.findIndex(j => j.atleta_id === atletaSeleccionado.atleta_id);
+      if (jIndex !== -1) {
+          prevJugadores[jIndex] = { ...prevJugadores[jIndex], peso_base: valorPeso, altura_base: valorAltura };
+          setJugadores(prevJugadores);
+      }
+      setAtletaSeleccionado(prev => ({...prev, peso_base: valorPeso, altura_base: valorAltura}));
+
+      if (crearNotificacion) {
+        crearNotificacion("Biometría Base Actualizada", "Los datos de fichaje fueron actualizados correctamente.", "success");
+      }
+      setEditandoBase(false);
+    } catch (error) {
+      console.error(error);
+      const msg = error.response?.data?.detail || "No se pudo actualizar la biometría base.";
+      if (crearNotificacion) crearNotificacion("Error", msg, "error");
+    } finally {
+      setGuardandoBase(false);
+    }
+  };
+
   const handleGuardarHabitos = async (e) => {
     e.preventDefault();
     if (!atletaSeleccionado) return;
@@ -401,6 +474,16 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             <p className="text-xs text-slate-500 mt-0.5">Asignación de Dietas, Control de Hábitos y Seguimiento de Peso</p>
           </div>
         </div>
+        {tabPrincipal === 'atletas' && (
+          <button
+            type="button"
+            onClick={exportarNutricionPDF}
+            className="px-4 py-2 bg-valle-gold text-valle-black rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center shrink-0 cursor-pointer"
+          >
+            <Download size={14} className="mr-2" />
+            Exportar Estado General
+          </button>
+        )}
       </div>
 
       {/* TABS PRINCIPALES */}
@@ -536,7 +619,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 z-10 text-base">
+                  <div className="flex flex-wrap gap-4 z-10 text-base relative">
                     <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
                       <span className="text-xs text-white/80 block font-bold uppercase">Peso Fichaje</span>
                       <span className="font-black text-base text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>
@@ -549,8 +632,80 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                       <span className="text-xs text-white/80 block font-bold uppercase">Altura Base</span>
                       <span className="font-black text-base text-white mt-0.5 block">{atletaSeleccionado.altura_base ? `${atletaSeleccionado.altura_base} cm` : 'N/A'}</span>
                     </div>
+
+                    <button 
+                      onClick={() => {
+                        setNuevoPesoBase(atletaSeleccionado.peso_base ? String(atletaSeleccionado.peso_base) : '');
+                        setNuevaAlturaBase(atletaSeleccionado.altura_base ? String(atletaSeleccionado.altura_base) : '');
+                        setEditandoBase(true);
+                      }}
+                      className="absolute -top-3 -right-3 sm:-right-4 sm:-top-4 bg-white/20 hover:bg-valle-gold text-white p-2 rounded-full backdrop-blur-md transition-colors border border-white/30 shadow-lg"
+                      title="Editar Fichaje Base"
+                    >
+                      <Pencil size={14} />
+                    </button>
                   </div>
                 </div>
+
+                {/* MODAL DE EDICIÓN BASE */}
+                {editandoBase && createPortal(
+                  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden flex flex-col border border-slate-200 animate-slide-up">
+                      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm font-display">
+                          <Pencil size={16} className="text-valle-green" />
+                          Editar Biometría Base
+                        </h3>
+                        <button onClick={() => setEditandoBase(false)} className="text-slate-400 hover:text-slate-600 transition p-1 bg-white rounded-lg shadow-sm cursor-pointer">
+                          <X size={16} />
+                        </button>
+                      </div>
+                      
+                      <form onSubmit={guardarBiometriaBase} className="p-5 flex flex-col space-y-4 text-left">
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Peso Fichaje (kg)</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-valle-green/20 focus:border-valle-green transition-all"
+                            value={nuevoPesoBase}
+                            onChange={(e) => setNuevoPesoBase(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Altura Base (cm)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-valle-green/20 focus:border-valle-green transition-all"
+                            value={nuevaAlturaBase}
+                            onChange={(e) => setNuevaAlturaBase(e.target.value)}
+                          />
+                        </div>
+
+                        <div className="pt-2 flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setEditandoBase(false)}
+                            className="px-4 py-2 text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition cursor-pointer"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={guardandoBase}
+                            className="px-4 py-2 text-xs font-bold text-valle-gold bg-valle-green rounded-xl shadow-sm hover:bg-valle-green-dark hover:shadow transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+                          >
+                            {guardandoBase ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                            Guardar
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>,
+                  document.body
+                )}
 
                 {/* FORMULARIOS DE REGISTRO */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

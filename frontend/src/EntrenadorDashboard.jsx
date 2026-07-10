@@ -3,12 +3,13 @@ import api from './api';
 import {
     Users, Trophy, AlertTriangle, Calendar, TrendingUp,
     Shield, Activity, ChevronRight, Clock, Loader2,
-    CheckCircle, Zap, Heart, Target, BarChart2
+    CheckCircle, Zap, Heart, Target, BarChart2, Download
 } from 'lucide-react';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
     ResponsiveContainer, Legend, PieChart, Pie, Cell, BarChart, Bar
 } from 'recharts';
+import { generatePDFReport } from './utils/reportGenerator';
 
 export default function EntrenadorDashboard({ onVerFicha }) {
     const [datos, setDatos] = useState(null);
@@ -141,6 +142,30 @@ export default function EntrenadorDashboard({ onVerFicha }) {
         }
     ];
 
+    const exportarDashboardPDF = async () => {
+        if (!datos || !datos.resumen_equipo) return;
+        const r = datos.resumen_equipo;
+        const alertas = plantilla_estado.filter(a => a.color_riesgo !== 'verde').length;
+
+        const data = [
+            ['Partidos Jugados', r.total_partidos_jugados || 0],
+            ['Victorias', r.partidos_ganados || 0],
+            ['Derrotas', r.partidos_perdidos || 0],
+            ['Empates', r.partidos_empatados || 0],
+            ['Atletas en Alerta Médica/RPE', alertas]
+        ];
+
+        const columns = ['Métrica', 'Valor Registrado'];
+
+        await generatePDFReport({
+            title: 'Resumen Ejecutivo de Temporada',
+            filename: 'resumen_ejecutivo_elvalle',
+            columns,
+            data,
+            extraInfo: 'Métricas de rendimiento global del equipo El Valle F.S.'
+        });
+    };
+
     return (
         <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
 
@@ -153,12 +178,21 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                     </h2>
                     <p className="text-sm font-medium text-slate-500 mt-1">Vista ejecutiva del estado actual del equipo El Valle F.S.</p>
                 </div>
-                <button
-                    onClick={cargarDashboard}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2 cursor-pointer active:scale-95"
-                >
-                    <TrendingUp size={14} /> Actualizar
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={exportarDashboardPDF}
+                        className="px-4 py-2 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold-dark border border-valle-gold/30 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
+                        title="Descargar Resumen PDF"
+                    >
+                        <Download size={14} /> PDF Resumen
+                    </button>
+                    <button
+                        onClick={cargarDashboard}
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 transition flex items-center gap-2 cursor-pointer active:scale-95"
+                    >
+                        <TrendingUp size={14} /> Actualizar
+                    </button>
+                </div>
             </div>            {/* KPI Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {kpis.map((kpi, i) => (

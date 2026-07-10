@@ -3,10 +3,11 @@ import api from './api';
 import {
   User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle,
   Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple,
-  RefreshCw
+  RefreshCw, Download
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CustomSelect from './components/ui/CustomSelect';
+import { generatePDFReport } from './utils/reportGenerator';
 
 export default function FichaTecnica({ atletaId = null, onBack = null, crearNotificacion = null }) {
   const [datos, setDatos] = useState(null);
@@ -81,6 +82,37 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
     } finally {
       setCargandoIa(false);
     }
+  };
+
+  const exportarFichaPDF = async () => {
+    if (!datos || !datos.perfil) return;
+    const pf = datos.perfil;
+    const f = datos.estado_fisico || {};
+
+    const extraInfo = `Jugador: ${pf.nombre} ${pf.apellido}
+Dorsal: ${pf.numero_camisa || 'N/A'} | Posición: ${pf.posicion_especifica || pf.posicion_principal || 'N/A'} | Pierna Hábil: ${pf.pierna_habil || 'N/A'}
+Peso Fichaje: ${pf.peso_fichaje} kg | Peso Actual: ${f.peso_actual || 'N/A'} kg
+Altura Fichaje: ${pf.altura_fichaje} cm | Altura Actual: ${f.altura_actual || 'N/A'} cm
+IMC Actual: ${f.imc_actual ? parseFloat(f.imc_actual).toFixed(2) : 'N/A'}
+Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
+`;
+
+    const data = (datos.cargas_historicas || []).slice(0, 10).map(c => [
+      c.fecha ? new Date(c.fecha).toLocaleDateString() : 'N/A',
+      c.rpe_esfuerzo || 'N/A',
+      c.tipo_entrenamiento || 'N/A',
+      c.duracion_min ? `${c.duracion_min}` : 'N/A'
+    ]);
+
+    const columns = ['Fecha de Carga', 'RPE', 'Tipo', 'Duración (min)'];
+
+    await generatePDFReport({
+      title: 'Expediente Deportivo Individual',
+      filename: `expediente_${pf.nombre.toLowerCase()}_${pf.apellido.toLowerCase()}`,
+      columns,
+      data: data.length > 0 ? data : [['Sin cargas recientes', '', '', '']],
+      extraInfo
+    });
   };
 
   useEffect(() => {
@@ -322,6 +354,14 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
 
         {/* Botones de acción contextuales */}
         <div className="flex space-x-2 w-full md:w-auto">
+          {esCuerpoTecnico && (
+            <button
+              onClick={exportarFichaPDF}
+              className="w-full md:w-auto px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer"
+            >
+              <Download size={14} className="mr-1.5" /> PDF
+            </button>
+          )}
           {!esCuerpoTecnico ? (
             <button
               onClick={() => setMostrarHabitoModal(true)}

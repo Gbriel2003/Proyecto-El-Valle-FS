@@ -920,3 +920,5 @@ fastapi.exceptions.ResponseValidationError: 1 validation error:
 [2026-06-28 13:48:12,455] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
 [2026-06-30 19:44:56,169] INFO [el-valle-fs:58] [IA] Estadísticas individuales actualizadas para el partido 5.
 [2026-06-30 19:44:56,182] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
+[2026-07-09 21:02:02,620] INFO [el-valle-fs:59] [IA] Estadísticas individuales actualizadas para el partido 7.
+[2026-07-09 21:02:02,649] INFO [el-valle-fs:62] [IA] Reporte del partido 7 procesado correctamente.

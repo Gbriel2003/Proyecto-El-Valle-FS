@@ -60,7 +60,8 @@ def obtener_plantilla_activa(skip: int = 0, limit: int = 100, db: Session = Depe
             "dieta_asignada_id": atleta.dieta_asignada_id,
             "dieta_asignada_nombre": atleta.dieta_asignada.nombre if atleta.dieta_asignada else None,
             "lesionado": lesion_activa is not None,
-            "lesion_tipo": lesion_activa.tipo_lesion if lesion_activa else None
+            "lesion_tipo": lesion_activa.tipo_lesion if lesion_activa else None,
+            "pierna_habil": atleta.pierna_habil
         })
         
     return lista_formateada
@@ -70,7 +71,7 @@ def actualizar_perfil_atleta(
     atleta_id: int, 
     perfil_actualizado: schemas.PerfilAtletaUpdate, 
     db: Session = Depends(get_db), 
-    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_tecnico)
+    admin_o_entrenador: models.Usuario = Depends(verificar_cuerpo_o_nutricionista)
 ):
     # Validar que el dorsal no esté duplicado
     if perfil_actualizado.numero_camisa is not None:

@@ -58,6 +58,12 @@ def obtener_dashboard_atleta(
     return {
         "perfil": {
             "atleta_id": atleta.atleta_id,
+            "nombre": usuario.nombre if usuario else "Jugador",
+            "apellido": usuario.apellido if usuario else "Sin Registro",
+            "numero_camisa": atleta.numero_camisa,
+            "posicion_especifica": atleta.posicion_especifica,
+            "posicion_principal": atleta.posicion_especifica,
+            "pierna_habil": atleta.pierna_habil,
             "foto_perfil": usuario.foto_perfil if usuario else None,
             "peso_fichaje": atleta.peso_base,
             "altura_fichaje": atleta.altura_cm,

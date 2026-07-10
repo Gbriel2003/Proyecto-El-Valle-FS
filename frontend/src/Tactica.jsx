@@ -725,8 +725,8 @@ export default function Tactica({
 
             {/* ================= VISTA 2: PIZARRA TÁCTICA INTERACTIVA ================= */}
             {subVista === 'pizarra' && (
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div className="lg:col-span-3">
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    <div className="xl:col-span-3">
                         <TacticalCanvas
                             boardRef={boardRef}
                             canvasRef={canvasRef}
@@ -748,7 +748,7 @@ export default function Tactica({
                             cargarJugadaTactica={cargarJugadaTactica}
                         />
                     </div>
-                    <div className="lg:col-span-1">
+                    <div className="xl:col-span-1">
                         <PlaybookManager
                             cargandoJugadas={cargandoJugadas}
                             jugadas={jugadas}

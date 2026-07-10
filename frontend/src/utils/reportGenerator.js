@@ -54,7 +54,8 @@ export const generatePDFReport = async ({ title, filename, columns, data, extraI
     // Date
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 40, 125);
+    const today = new Date();
+    doc.text(`Fecha de emisión: ${today.toLocaleDateString('es-VE')} a las ${today.toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' })}`, 40, 125);
     
     let startY = 140;
     if (extraInfo) {
