@@ -1,7 +1,7 @@
 import { 
   Calendar, Clock, Shield, FileText, 
   Trash2, Upload, Loader2, ChevronRight, Plus, Trophy, Filter, ArrowRight,
-  CheckCircle, Pencil, Download
+  CheckCircle, Pencil, Download, Eye
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { generatePDFReport } from '../../utils/reportGenerator';
@@ -35,6 +35,7 @@ export default function MatchCalendar({
   setMostrarProgramarPartido
 }) {
   const [torneoFiltro, setTorneoFiltro] = useState(null); // null = todos
+  const [reemplazandoReporteId, setReemplazandoReporteId] = useState(null);
 
   // Separar partidos por estado
   const { programados, finalizados } = useMemo(() => {
@@ -161,7 +162,7 @@ export default function MatchCalendar({
         <div className="p-4 sm:p-5">
           {/* Top bar: torneo + estado */}
           <div className="flex justify-between items-center mb-4 pb-1">
-            <span className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5 truncate max-w-[60%]">
+            <span className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5 truncate max-w-[60%]">
               <Trophy size={13} className={esFinalizado ? (valleGanador ? 'text-valle-green' : 'text-slate-400') : 'text-valle-gold'} />
               {partido.torneo_nombre || "Torneo Oficial"}
             </span>
@@ -230,7 +231,7 @@ export default function MatchCalendar({
 
           {/* Footer: Fecha, hora y acciones */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 pt-3 border-t border-slate-100 gap-2.5">
-            <div className="flex items-center gap-4 text-xs text-slate-400 font-semibold">
+            <div className="flex items-center gap-4 text-xs text-slate-800 font-bold">
               <span className="flex items-center">
                 <Calendar size={12} className="mr-1 text-valle-gold" /> 
                 {formatearFecha(partido.fecha_hora)}
@@ -246,10 +247,10 @@ export default function MatchCalendar({
                 <button 
                   type="button"
                   onClick={() => abrirReporteIA(partido)}
-                  className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-700 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer"
+                  className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer"
                 >
+                  <Eye size={14} className="mr-1.5" />
                   Ver Reporte
-                  <ChevronRight size={13} className="ml-1" />
                 </button>
               ) : esCuerpoTecnico ? (
                 <button 
@@ -309,65 +310,102 @@ export default function MatchCalendar({
           <div className="px-4 sm:px-5 pb-4 sm:pb-5">
             <div className="pt-3 border-t border-slate-200/60 w-full text-left">
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
-                <FileText size={12} className="mr-1 text-valle-green" /> Cargar Reporte (PDF)
+                <FileText size={12} className="mr-1 text-valle-green" /> Reporte Táctico (PDF)
               </h4>
               
-              {mensajeSubida.partidoId === partido.id && mensajeSubida.texto && (
-                <div className={`mb-2 p-2 rounded-lg text-xs font-bold border flex items-center ${
-                  mensajeSubida.tipo === 'procesando' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                  mensajeSubida.tipo === 'error' ? 'bg-red-50 text-red-700 border-red-100' :
-                  'bg-slate-100 text-slate-700 border-slate-200'
-                }`}>
-                  {mensajeSubida.tipo === 'procesando' && <Loader2 size={12} className="mr-1.5 animate-spin" />}
-                  {mensajeSubida.texto}
+              {partido.tiene_reporte && reemplazandoReporteId !== partido.id ? (
+                <div className="flex flex-col sm:flex-row gap-2 mt-2 justify-start items-center">
+                  <a 
+                    href={`http://localhost:8000/api/partidos/${partido.id}/descargar-reporte`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-sm"
+                  >
+                    <Download size={13} className="mr-1.5" />
+                    Descargar reporte subido
+                  </a>
+                  <button 
+                    type="button"
+                    onClick={() => setReemplazandoReporteId(partido.id)}
+                    className="px-4 py-2 bg-valle-gold hover:bg-valle-gold/90 text-white rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-sm"
+                  >
+                    <Upload size={13} className="mr-1.5" />
+                    Subir nuevo reporte
+                  </button>
                 </div>
-              )}
-
-              {subiendo === partido.id && (
-                <div className="mb-2">
-                  <div className="flex justify-between text-xs text-slate-400 font-bold mb-1">
-                    <span>Subiendo PDF...</span>
-                    <span>{progresoSubida}%</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="h-1.5 bg-valle-green rounded-full transition-all duration-200"
-                      style={{ width: `${progresoSubida}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <label className="flex-1 w-full border border-dashed border-slate-300 hover:border-valle-green hover:bg-valle-green/5 bg-white rounded-xl p-2.5 text-center cursor-pointer transition">
-                  <input 
-                    type="file" 
-                    accept=".pdf" 
-                    className="hidden" 
-                    onChange={(e) => manejarCambioArchivo(e, partido.id)}
-                    disabled={subiendo === partido.id}
-                  />
-                  <div className="flex items-center justify-center text-slate-505 text-xs font-bold">
-                    <Upload size={13} className="mr-1.5 text-valle-gold" />
-                    {archivoSeleccionado && mensajeSubida.partidoId === partido.id 
-                      ? (archivoSeleccionado.name.length > 25 ? `${archivoSeleccionado.name.substring(0, 22)}...` : archivoSeleccionado.name)
-                      : 'Seleccionar PDF'}
-                  </div>
-                </label>
-                
-                <button 
-                  type="button"
-                  onClick={() => manejarSubida(partido.id)}
-                  disabled={subiendo === partido.id || !(archivoSeleccionado && mensajeSubida.partidoId === partido.id)}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-xl text-xs font-black transition disabled:opacity-50 flex items-center justify-center cursor-pointer shadow-xs"
-                >
-                  {subiendo === partido.id ? (
-                    <><Loader2 size={12} className="animate-spin mr-1" /> Procesando...</>
-                  ) : (
-                    'Analizar'
+              ) : (
+                <>
+                  {partido.tiene_reporte && (
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs text-slate-400 font-medium italic">Reemplazando reporte actual...</span>
+                      <button 
+                        type="button" 
+                        onClick={() => setReemplazandoReporteId(null)}
+                        className="text-xs text-red-500 hover:text-red-700 font-bold"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   )}
-                </button>
-              </div>
+
+                  {mensajeSubida.partidoId === partido.id && mensajeSubida.texto && (
+                    <div className={`mb-2 p-2 rounded-lg text-xs font-bold border flex items-center ${
+                      mensajeSubida.tipo === 'procesando' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                      mensajeSubida.tipo === 'error' ? 'bg-red-50 text-red-700 border-red-100' :
+                      'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {mensajeSubida.tipo === 'procesando' && <Loader2 size={12} className="mr-1.5 animate-spin" />}
+                      {mensajeSubida.texto}
+                    </div>
+                  )}
+
+                  {subiendo === partido.id && (
+                    <div className="mb-2">
+                      <div className="flex justify-between text-xs text-slate-400 font-bold mb-1">
+                        <span>Subiendo PDF...</span>
+                        <span>{progresoSubida}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="h-1.5 bg-valle-green rounded-full transition-all duration-200"
+                          style={{ width: `${progresoSubida}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
+                    <label className="flex-1 w-full border border-dashed border-slate-300 hover:border-valle-green hover:bg-valle-green/5 bg-white rounded-xl p-2.5 text-center cursor-pointer transition">
+                      <input 
+                        type="file" 
+                        accept=".pdf" 
+                        className="hidden" 
+                        onChange={(e) => manejarCambioArchivo(e, partido.id)}
+                        disabled={subiendo === partido.id}
+                      />
+                      <div className="flex items-center justify-center text-slate-505 text-xs font-bold">
+                        <Upload size={13} className="mr-1.5 text-valle-gold" />
+                        {archivoSeleccionado && mensajeSubida.partidoId === partido.id 
+                          ? (archivoSeleccionado.name.length > 25 ? `${archivoSeleccionado.name.substring(0, 22)}...` : archivoSeleccionado.name)
+                          : 'Seleccionar PDF'}
+                      </div>
+                    </label>
+                    
+                    <button 
+                      type="button"
+                      onClick={() => manejarSubida(partido.id)}
+                      disabled={subiendo === partido.id || !(archivoSeleccionado && mensajeSubida.partidoId === partido.id)}
+                      className="w-full sm:w-auto px-4 py-2.5 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-xl text-xs font-black transition disabled:opacity-50 flex items-center justify-center cursor-pointer shadow-xs"
+                    >
+                      {subiendo === partido.id ? (
+                        <><Loader2 size={12} className="animate-spin mr-1" /> Procesando...</>
+                      ) : (
+                        'Analizar'
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -387,7 +425,7 @@ export default function MatchCalendar({
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-valle-gold/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
             
-            <div className="flex justify-between items-center relative z-10">
+            <div className="flex flex-col gap-3 relative z-10">
               <div>
                 <h3 className="text-base font-black text-white flex items-center tracking-wide font-display">
                   <Trophy size={18} className="mr-2.5 text-valle-gold drop-shadow-md" />
@@ -398,11 +436,11 @@ export default function MatchCalendar({
               <button
                 type="button"
                 onClick={exportarPartidosPDF}
-                className="px-3 py-1.5 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold border border-valle-gold/30 rounded-lg text-xs font-bold transition flex items-center cursor-pointer backdrop-blur-sm shadow-sm whitespace-nowrap"
-                title="Descargar PDF de partidos"
+                className="w-full justify-center px-3 py-2 mt-1 bg-valle-gold hover:opacity-90 text-white rounded-lg text-xs font-bold transition flex items-center cursor-pointer shadow-md whitespace-nowrap"
+                title="Reporte Partidos"
               >
                 <Download size={14} className="mr-1.5" />
-                Exportar PDF
+                Reporte Partidos
               </button>
             </div>
           </div>

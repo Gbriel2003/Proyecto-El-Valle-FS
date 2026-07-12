@@ -922,3 +922,8 @@ fastapi.exceptions.ResponseValidationError: 1 validation error:
 [2026-06-30 19:44:56,182] INFO [el-valle-fs:61] [IA] Reporte del partido 5 procesado correctamente.
 [2026-07-09 21:02:02,620] INFO [el-valle-fs:59] [IA] Estadísticas individuales actualizadas para el partido 7.
 [2026-07-09 21:02:02,649] INFO [el-valle-fs:62] [IA] Reporte del partido 7 procesado correctamente.
+[2026-07-10 11:53:19,271] WARNING [el-valle-fs:252] Aviso S3: Could not connect to the endpoint URL: "https://el-valle-fs-reportes-pdf.s3.us-east-2.amazonaws.com/partidos/8_f66eda9dcb2d4de29bc178f391b71f63_reporte_ejemplo.pdf"
+[2026-07-10 11:53:23,079] INFO [el-valle-fs:59] [IA] Estadísticas individuales actualizadas para el partido 8.
+[2026-07-10 11:53:23,094] INFO [el-valle-fs:62] [IA] Reporte del partido 8 procesado correctamente.
+[2026-07-12 12:12:54,532] INFO [el-valle-fs:59] [IA] Estadísticas individuales actualizadas para el partido 8.
+[2026-07-12 12:12:54,542] INFO [el-valle-fs:62] [IA] Reporte del partido 8 procesado correctamente.

@@ -357,9 +357,9 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
           {esCuerpoTecnico && (
             <button
               onClick={exportarFichaPDF}
-              className="w-full md:w-auto px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer"
+              className="w-full md:w-auto px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center justify-center shadow-md cursor-pointer"
             >
-              <Download size={14} className="mr-1.5" /> PDF
+              <Download size={14} className="mr-1.5" /> Reporte Atleta
             </button>
           )}
           {!esCuerpoTecnico ? (
@@ -538,7 +538,7 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
                       className={`focus:outline-none flex-1 px-1 sm:px-3 py-1 rounded-md text-center capitalize transition cursor-pointer text-[10px] sm:text-xs whitespace-nowrap ${
                         temporalidad === temp
                           ? 'bg-valle-green text-valle-gold shadow-md'
-                          : 'text-slate-400 hover:text-slate-200'
+                          : 'text-white hover:text-valle-green'
                       }`}
                     >
                       {temp}
@@ -578,7 +578,7 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
               ) : (
                 <div className="space-y-4 bg-valle-black-light/50 p-4 rounded-lg border border-slate-800 text-sm">
                   <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                    <span className="text-slate-400 font-bold">Riesgo de Lesión:</span>
+                    <span className="text-white font-bold">Riesgo de Lesión:</span>
                     <span className={`font-black px-2.5 py-0.5 rounded text-xs shadow-sm ${
                       analisisIa[temporalidad].riesgo_lesion === 'Alto' ? 'bg-red-600 text-white border border-red-700' :
                       analisisIa[temporalidad].riesgo_lesion === 'Medio' ? 'bg-amber-600 text-white border border-amber-700' :
@@ -587,7 +587,7 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
                       {analisisIa[temporalidad].riesgo_lesion}
                     </span>
                   </div>
-                  <p className="text-slate-300 italic leading-relaxed">"{analisisIa[temporalidad].analisis}"</p>
+                  <p className="text-white italic leading-relaxed">"{analisisIa[temporalidad].analisis}"</p>
                   <p className="font-bold text-valle-gold flex items-start gap-1.5 mt-2">
                     <span className="shrink-0 text-base">💡</span>
                     <span>{analisisIa[temporalidad].recomendacion}</span>
@@ -628,7 +628,7 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
                 </div>
                 {l.descripcion && <p className="text-slate-500 italic mb-2">"{l.descripcion}"</p>}
                 <div className="text-xs text-slate-400 flex flex-col space-y-1 mt-auto">
-                  <span>Inicio: {l.fecha_inicio}</span>
+                  <span className="text-valle-green font-semibold">Inicio: {l.fecha_inicio}</span>
                   {l.fecha_alta ? (
                     <span className="text-valle-green font-semibold">Alta: {l.fecha_alta}</span>
                   ) : (

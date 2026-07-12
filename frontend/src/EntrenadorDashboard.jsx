@@ -181,10 +181,10 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                 <div className="flex gap-2">
                     <button
                         onClick={exportarDashboardPDF}
-                        className="px-4 py-2 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold-dark border border-valle-gold/30 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
-                        title="Descargar Resumen PDF"
+                        className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer w-max"
+                        title="Descargar Reporte General"
                     >
-                        <Download size={14} /> PDF Resumen
+                        <Download size={14} className="mr-1.5" /> Reporte General
                     </button>
                     <button
                         onClick={cargarDashboard}

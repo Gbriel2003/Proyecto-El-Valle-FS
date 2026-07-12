@@ -789,7 +789,7 @@ export default function Tactica({
             <ProgramarPartidoModal
                 isOpen={mostrarProgramarPartido}
                 onClose={() => setMostrarProgramarPartido(false)}
-                torneos={torneos}
+                torneos={torneos.filter(t => t.estado !== 'Finalizado' || t.id === torneoIdPartido)}
                 torneoIdPartido={torneoIdPartido}
                 setTorneoIdPartido={setTorneoIdPartido}
                 equipoLocalPartido={equipoLocalPartido}

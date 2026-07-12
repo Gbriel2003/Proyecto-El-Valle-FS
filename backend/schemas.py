@@ -148,6 +148,8 @@ class PartidoResponse(PartidoCreate):
     goles_local: int
     goles_visitante: int
     estado: str
+    tiene_reporte: bool = False
+    
     class Config:
         from_attributes = True
 

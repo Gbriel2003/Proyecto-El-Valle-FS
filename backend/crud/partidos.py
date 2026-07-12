@@ -126,7 +126,13 @@ def actualizar_partido(db: Session, partido_id: int, partido_data: schemas.Parti
                     tipo="info"
                 )
                 db.add(nueva_notif)
-    
+
+    # Si el partido se está marcando como Finalizado, eliminamos la notificación de Pendiente de Registro
+    if partido_data.estado == "Finalizado":
+        fecha_str = partido.fecha_hora.strftime("%d/%m/%Y") if partido.fecha_hora else ""
+        mensaje_pendiente = f"Al partido {partido.equipo_local} vs {partido.equipo_visitante} del día {fecha_str} no se le ha cargado el resultado ni el reporte."
+        db.query(models.Notificacion).filter(models.Notificacion.mensaje == mensaje_pendiente).delete()
+
     db.commit()
     db.refresh(partido)
     return partido

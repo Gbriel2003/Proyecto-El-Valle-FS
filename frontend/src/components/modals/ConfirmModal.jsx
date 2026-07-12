@@ -41,10 +41,10 @@ export default function ConfirmModal({
     },
     info: {
       Icon: Info,
-      color: 'text-blue-500',
-      bgIcon: 'bg-blue-100',
-      btnConfirm: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-600/20',
-      border: 'border-blue-500'
+      color: 'text-valle-green',
+      bgIcon: 'bg-valle-green/10',
+      btnConfirm: 'bg-valle-green hover:bg-valle-green-dark text-white shadow-valle-green/20',
+      border: 'border-valle-green'
     },
     success: {
       Icon: CheckCircle,

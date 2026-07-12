@@ -192,20 +192,20 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                         <button
                             type="button"
                             onClick={exportarPlantillaGeneralPDF}
-                            className="px-3 py-1.5 bg-valle-gold/20 hover:bg-valle-gold/40 text-valle-gold-dark border border-valle-gold/30 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
-                            title="Descargar Reporte General"
+                            className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer w-max"
+                            title="Descargar Reporte Plantilla"
                         >
                             <Download size={14} className="mr-1.5" />
-                            PDF Plantilla
+                            Reporte Plantilla
                         </button>
                         <button
                             type="button"
                             onClick={exportarLesionadosPDF}
-                            className="px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 rounded-lg text-xs font-bold transition flex items-center shadow-xs cursor-pointer w-max"
+                            className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer w-max"
                             title="Descargar Reporte de Lesionados"
                         >
                             <Download size={14} className="mr-1.5" />
-                            PDF Lesionados
+                            Reporte Lesionados
                         </button>
                     </div>
                 </div>
@@ -243,7 +243,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                         return (
                             <div
                                 key={jugador.atleta_id || index}
-                                className={`bg-white rounded-2xl shadow-sm border-y border-r border-slate-200/80 border-l-4 ${jugador.lesionado ? 'border-l-rose-500' : 'border-l-emerald-500'} overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up`}
+                                className={`bg-white rounded-2xl shadow-sm border-y border-r border-slate-200/80 border-l-4 ${jugador.lesionado ? 'border-l-rose-500' : 'border-l-valle-green'} overflow-hidden hover:shadow-md hover:border-valle-gold/30 transition-all duration-300 group flex flex-col justify-between cursor-pointer animate-fade-in-up`}
                                 style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setSelectedAtletaId(jugador.atleta_id)}
                             >
@@ -322,8 +322,8 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                                     <span className="font-bold flex items-center">
                                         <Eye size={12} className="mr-1" /> Ver Ficha
                                     </span>
-                                    <span className={`font-bold flex items-center gap-1.5 ${jugador.lesionado ? 'text-rose-600 group-hover:text-white' : 'text-emerald-600 group-hover:text-white'}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${jugador.lesionado ? 'bg-rose-500 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-white'}`}></span>
+                                    <span className={`font-bold flex items-center gap-1.5 ${jugador.lesionado ? 'text-rose-600 group-hover:text-white' : 'text-valle-green group-hover:text-white'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${jugador.lesionado ? 'bg-rose-500 group-hover:bg-white' : 'bg-valle-green group-hover:bg-white'}`}></span>
                                         {jugador.lesionado ? 'Lesionado' : 'Disponible'}
                                     </span>
                                 </div>

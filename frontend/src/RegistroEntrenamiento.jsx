@@ -348,26 +348,26 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                             </h2>
                             <p className="text-sm text-slate-500">Administra las sesiones globales del equipo.</p>
                         </div>
-                        <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                        <div className="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 flex-wrap md:flex-nowrap">
                             {!isAtleta && (
                                 <button 
                                     onClick={exportarEntrenamientosPDF}
-                                    className="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs transition cursor-pointer flex items-center shadow-xs whitespace-nowrap"
+                                    className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white font-bold rounded-lg text-xs transition cursor-pointer flex items-center shadow-md whitespace-nowrap"
                                 >
-                                    <Download size={16} className="mr-2 text-valle-green shrink-0" /> Descargar Reporte
+                                    <Download size={14} className="mr-1.5 shrink-0" /> Descargar Reporte
                                 </button>
                             )}
                             <button 
                                 onClick={() => setVista('analisis_ia')}
-                                className="bg-slate-800 hover:bg-slate-900 text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm whitespace-nowrap"
+                                className="px-3 py-1.5 bg-valle-gold hover:bg-yellow-500 text-slate-900 rounded-lg text-xs font-bold flex items-center transition justify-center shadow-md cursor-pointer whitespace-nowrap"
                             >
-                                <Activity size={18} className="mr-2 text-valle-green shrink-0" /> Análisis I.A.
+                                <Activity size={14} className="mr-1.5 shrink-0" /> Análisis I.A.
                             </button>
                             <button 
                                 onClick={() => { setSesionForm({ tipo_sesion: 'Físico', descripcion: '', duracion_min: 90 }); setVista('crear'); }}
-                                className="bg-valle-green hover:bg-valle-green-dark text-valle-gold px-4 py-2 rounded-lg text-sm font-bold flex items-center transition justify-center shadow-sm whitespace-nowrap"
+                                className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold flex items-center transition justify-center shadow-md cursor-pointer whitespace-nowrap"
                             >
-                                <PlusCircle size={18} className="mr-2 shrink-0" /> Nueva Sesión
+                                <PlusCircle size={14} className="mr-1.5 shrink-0" /> Nueva Sesión
                             </button>
                         </div>
                     </div>
@@ -557,9 +557,9 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                         <div className="pt-3 mt-3 border-t border-slate-100">
                                             <button 
                                                 onClick={exportarSesionPDF}
-                                                className="w-full bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center transition shadow-xs cursor-pointer"
+                                                className="w-full bg-valle-green hover:bg-valle-green-dark text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center transition shadow-md cursor-pointer"
                                             >
-                                                <Download size={14} className="mr-1.5" /> Descargar Reporte de Sesión
+                                                <Download size={14} className="mr-1.5" /> Descargar Reporte
                                             </button>
                                         </div>
                                     )}
@@ -767,31 +767,31 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                     
                     <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-6 border-b border-slate-100 gap-4 shrink-0">
                         <div className="flex items-center">
-                            <div className="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center mr-4">
-                                <Activity size={24} className="text-valle-green" />
-                            </div>
+                            <Activity size={32} className="text-valle-green mr-3 shrink-0" />
                             <div>
                                 <h3 className="font-bold text-valle-black text-xl">Análisis de Rendimiento (I.A.)</h3>
                                 <p className="text-sm text-slate-500">Reporte inteligente del rendimiento colectivo del equipo.</p>
                             </div>
                         </div>
                         
-                        <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200">
-                            <CustomSelect
-                                value={aiTemporalidad}
-                                onChange={(e) => setAiTemporalidad(e.target.value)}
-                                options={[
-                                    { value: 'diario', label: 'Diario (Hoy)' },
-                                    { value: 'semanal', label: 'Semanal (Últimos 7 días)' },
-                                    { value: 'mensual', label: 'Mensual (Últimos 30 días)' },
-                                    { value: 'anual', label: 'Anual (Temporada)' }
-                                ]}
-                                className="w-48"
-                            />
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-slate-50 p-2 sm:p-3 rounded-xl border border-slate-200">
+                            <div className="w-full sm:w-[220px] shrink-0">
+                                <CustomSelect
+                                    value={aiTemporalidad}
+                                    onChange={(e) => setAiTemporalidad(e.target.value)}
+                                    options={[
+                                        { value: 'diario', label: 'Diario (Hoy)' },
+                                        { value: 'semanal', label: 'Semanal (Últimos 7 días)' },
+                                        { value: 'mensual', label: 'Mensual (Últimos 30 días)' },
+                                        { value: 'anual', label: 'Anual (Temporada)' }
+                                    ]}
+                                    className="w-full"
+                                />
+                            </div>
                             <button 
                                 onClick={generarAnalisisIA}
                                 disabled={generandoIA}
-                                className="px-4 py-2 bg-valle-green hover:bg-valle-green-dark text-valle-gold rounded-lg font-bold transition flex items-center shadow-sm disabled:opacity-50"
+                                className="w-full sm:w-auto px-3 py-2 sm:py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center justify-center shadow-sm disabled:opacity-50 whitespace-nowrap cursor-pointer shrink-0"
                             >
                                 {generandoIA ? "Analizando..." : "Generar Reporte"}
                             </button>
@@ -860,7 +860,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                         </div>
                                     </div>
 
-                                    <div className="bg-slate-900 rounded-xl p-6 shadow-md border border-slate-800 mt-6 text-white relative overflow-hidden">
+                                    <div className="bg-valle-black rounded-xl p-6 shadow-md border border-valle-black-light mt-6 text-white relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-valle-green/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
                                         <h4 className="font-bold text-valle-gold flex items-center mb-3">
                                             Recomendación Técnica

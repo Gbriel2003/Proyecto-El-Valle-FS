@@ -82,32 +82,55 @@ export default function Login({ onLoginSuccess }) {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-slate-50 via-slate-100 to-slate-200/70 relative overflow-hidden px-4">
-            {/* Ambient decorative brand colors blobs */}
-            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-valle-green/5 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-valle-gold/5 blur-3xl pointer-events-none" />
+        <div className="min-h-screen lg:h-screen flex w-full bg-white overflow-x-hidden lg:overflow-hidden">
+            {/* Mitad Izquierda - Imagen */}
+            <div className="hidden lg:flex w-1/2 relative bg-slate-900 items-center justify-center overflow-hidden">
+                <div 
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[20s] hover:scale-105"
+                    style={{ backgroundImage: 'url(/equipo_login.png?v=3)' }}
+                />
+                <div className="absolute inset-0 bg-valle-green-dark/60 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-slate-900/60" />
+                <div className="relative z-10 p-12 text-white max-w-2xl flex flex-col items-center text-center justify-center h-full">
+                    <img 
+                        src="/logo.png" 
+                        alt="Escudo El Valle F.S." 
+                        className="w-48 h-48 object-contain mb-8 filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-transform duration-500 hover:scale-110" 
+                    />
+                    <h1 className="text-5xl md:text-6xl font-black font-display tracking-tight leading-tight mb-6 drop-shadow-lg">
+                        El Valle F.S.
+                    </h1>
+                    <p className="text-xl md:text-2xl text-slate-100 font-bold leading-relaxed mb-8 drop-shadow-md">
+                        "Un equipo, un sueño, un respeto inquebrantable, Somos El Valle F.S"
+                    </p>
+                    <div className="flex flex-col items-center gap-3 text-sm font-bold text-valle-gold tracking-widest uppercase">
+                        <span className="w-16 h-1 bg-valle-gold rounded-full" />
+                        Plataforma de Gestión Deportiva
+                    </div>
+                </div>
+            </div>
 
-            <div className="max-w-md w-full bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/80 p-8 space-y-6 relative z-10 transition-all duration-300 hover:shadow-2xl hover:border-valle-gold/30 animate-fade-in-up">
+            {/* Mitad Derecha - Formulario */}
+            <div className="w-full lg:w-1/2 flex items-center justify-center relative px-4 sm:px-12 lg:px-24 overflow-hidden">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-valle-green/5 blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-valle-gold/5 blur-3xl pointer-events-none transform -translate-x-1/3 translate-y-1/3" />
 
-                {vista === 'login' ? (
-                    <>
-                        <div className="text-center flex flex-col items-center">
-                            <img 
-                                src="/logo.png" 
-                                alt="Logo El Valle F.S." 
-                                className="w-24 h-24 object-contain mb-4 filter drop-shadow-sm transition-transform duration-500 hover:scale-105" 
-                                onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} 
-                            />
-                            <div className="w-16 h-16 bg-valle-green rounded-2xl hidden items-center justify-center mb-4 shadow-md border-2 border-valle-gold/30">
-                                <ShieldCheck size={32} className="text-valle-gold" />
+                <div className="w-full max-w-md relative z-10 animate-fade-in-up">
+                    {vista === 'login' ? (
+                        <>
+                            <div className="text-center lg:text-left mb-10">
+                                <img 
+                                    src="/logo.png" 
+                                    alt="Escudo El Valle F.S." 
+                                    className="w-28 h-28 object-contain mx-auto mb-6 block lg:hidden drop-shadow-[0_5px_15px_rgba(0,0,0,0.15)]" 
+                                />
+                                <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display mb-2">
+                                    ¡Bienvenido de vuelta!
+                                </h2>
+                                <p className="text-sm font-medium text-slate-500">
+                                    Ingresa tus credenciales para acceder a tu panel
+                                </p>
                             </div>
-                            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-                                El Valle <span className="text-valle-gold font-medium">F.S.</span>
-                            </h2>
-                            <p className="text-sm font-medium text-slate-500 mt-1.5">
-                                Plataforma de Gestión Inteligente
-                            </p>
-                        </div>
 
                         {error && (
                             <div className="bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 p-3.5 rounded-lg text-sm text-red-700 font-semibold flex items-center gap-2 animate-fade-in-up">
@@ -118,7 +141,7 @@ export default function Login({ onLoginSuccess }) {
 
                         <form onSubmit={manejarEnvio} className="space-y-5">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                <label className="block text-sm font-black text-slate-900 uppercase tracking-wider mb-2">
                                     Correo Electrónico
                                 </label>
                                 <div className="relative group">
@@ -128,7 +151,7 @@ export default function Login({ onLoginSuccess }) {
                                     <input
                                         type="email"
                                         required
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                                        className="w-full pl-10 pr-4 py-3 bg-white border border-valle-green/50 hover:border-valle-green rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                                         placeholder="ejemplo@correo.com"
                                         value={formData.username}
                                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -138,7 +161,7 @@ export default function Login({ onLoginSuccess }) {
 
                             <div>
                                 <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                    <label className="block text-sm font-black text-slate-900 uppercase tracking-wider">
                                         Contraseña
                                     </label>
                                     <button
@@ -156,7 +179,7 @@ export default function Login({ onLoginSuccess }) {
                                     <input
                                         type="password"
                                         required
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                                        className="w-full pl-10 pr-4 py-3 bg-white border border-valle-green/50 hover:border-valle-green rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                                         placeholder="••••••••"
                                         value={formData.password}
                                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -218,7 +241,7 @@ export default function Login({ onLoginSuccess }) {
                         ) : (
                             <form onSubmit={manejarRecuperar} className="space-y-5">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                    <label className="block text-sm font-black text-slate-900 uppercase tracking-wider mb-2">
                                         Correo Electrónico
                                     </label>
                                     <div className="relative group">
@@ -228,7 +251,7 @@ export default function Login({ onLoginSuccess }) {
                                         <input
                                             type="email"
                                             required
-                                            className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200/80 rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
+                                            className="w-full pl-10 pr-4 py-3 bg-white border border-valle-green/50 hover:border-valle-green rounded-xl text-sm text-slate-800 transition placeholder:text-slate-400 focus:outline-none focus:border-valle-green focus:ring-4 focus:ring-valle-green/10"
                                             placeholder="ejemplo@correo.com"
                                             value={correoRecuperar}
                                             onChange={(e) => setCorreoRecuperar(e.target.value)}
@@ -266,5 +289,6 @@ export default function Login({ onLoginSuccess }) {
                 )}
             </div>
         </div>
-    );
+    </div>
+  );
 }

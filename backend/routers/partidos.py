@@ -143,7 +143,8 @@ def obtener_partidos(skip: int = 0, limit: int = 100, db: Session = Depends(get_
             "goles_local": p.goles_local,
             "goles_visitante": p.goles_visitante,
             "torneo_nombre": p.torneo.nombre if p.torneo else "Torneo Desconocido",
-            "jugadores_ids": [est.atleta_id for est in p.estadisticas]
+            "jugadores_ids": [est.atleta_id for est in p.estadisticas],
+            "tiene_reporte": p.tiene_reporte
         }
         for p in partidos
     ]

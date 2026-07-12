@@ -222,15 +222,7 @@ export default function App() {
     return () => clearInterval(intervalo);
   }, [autenticado]);
 
-  // Mostrar alerta de partidos caducados cada vez que se entra al módulo de partidos
-  useEffect(() => {
-    if (menuActivo === 'partidos' || menuActivo === 'mis_partidos') {
-      const caducadas = notificaciones.filter(n => !n.leido && (n.tipo === 'warning' || (n.mensaje && n.mensaje.toLowerCase().includes('no se le ha cargado el resultado'))));
-      caducadas.forEach(n => {
-        agregarToast("Acción Requerida", n.mensaje, "warning");
-      });
-    }
-  }, [menuActivo]); // Solo depende de menuActivo para que aparezca al entrar al módulo
+    // Se eliminó la alerta redundante al entrar al módulo de partidos
 
   const unreadCount = notificaciones.filter(n => !n.leido).length;
 
@@ -468,6 +460,23 @@ export default function App() {
       : 'text-slate-650 hover:bg-slate-50 hover:text-valle-green border-l-2 border-transparent pl-6'
   }`;
 
+  const getIconoMenu = (menu) => {
+    switch (menu) {
+      case 'dashboard': return <BarChart2 size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'ia': return <Activity size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'jugadores': return <Users size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'control_nutricional': return <Apple size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'pizarra_tactica': return <Pencil size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'partidos': return <Calendar size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'configuracion': return <Settings size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'mi_perfil': return <Award size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'mis_partidos': return <Trophy size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'administrar_perfil': return <UserIcon size={24} className="mr-2 text-valle-green shrink-0" />;
+      case 'cambiar_contrasena': return <Lock size={24} className="mr-2 text-valle-green shrink-0" />;
+      default: return null;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
 
@@ -649,7 +658,8 @@ export default function App() {
             >
               <Menu size={24} />
             </button>
-            <h1 className="text-xl font-bold text-valle-black font-display hidden sm:block">
+            <h1 className="text-xl font-bold text-valle-black font-display hidden sm:flex items-center">
+              {getIconoMenu(menuActivo)}
               {titulosPaginas[menuActivo] || menuActivo.replace('_', ' ')}
             </h1>
           </div>
@@ -767,7 +777,8 @@ export default function App() {
           
           {/* Título en móvil (ya que lo ocultamos en el header) */}
           <div className="mb-6 sm:hidden">
-            <h1 className="text-2xl font-bold text-valle-black font-display">
+            <h1 className="text-2xl font-bold text-valle-black font-display flex items-center">
+              {getIconoMenu(menuActivo)}
               {titulosPaginas[menuActivo] || menuActivo.replace('_', ' ')}
             </h1>
           </div>

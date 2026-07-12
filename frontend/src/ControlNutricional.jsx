@@ -478,10 +478,11 @@ export default function ControlNutricional({ crearNotificacion = null }) {
           <button
             type="button"
             onClick={exportarNutricionPDF}
-            className="px-4 py-2 bg-valle-gold text-valle-black rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center shrink-0 cursor-pointer"
+            className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer shrink-0"
+            title="Descargar Reporte Estado General"
           >
-            <Download size={14} className="mr-2" />
-            Exportar Estado General
+            <Download size={14} className="mr-1.5" />
+            Reporte Estado General
           </button>
         )}
       </div>
@@ -584,7 +585,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             ) : (
               <>
                 {/* FICHA RESUMEN DE JUGADOR */}
-                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-6 rounded-2xl shadow-md border border-valle-gold/10 relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-5 sm:p-6 rounded-2xl shadow-md border border-valle-gold/10 relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
                   {/* Contenedor de desbordamiento para el fondo */}
                   <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
                     {/* Decoración de fondo */}
@@ -593,7 +594,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 sm:space-x-4 z-30">
+                  <div className="flex items-center space-x-3 sm:space-x-4 z-30 flex-1 min-w-0 w-full lg:w-auto pr-0 lg:pr-4">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white/10 rounded-full border-2 border-valle-gold/50 flex items-center justify-center text-white font-black text-xl sm:text-2xl font-display uppercase shadow-inner">
                       {atletaSeleccionado.nombre.charAt(0)}{atletaSeleccionado.apellido.charAt(0)}
                     </div>
@@ -607,7 +608,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                           disabled={asignandoDieta}
                           onChange={(e) => handleAsignarDieta(e.target.value)}
                           variant="dark"
-                          className="w-full sm:max-w-xs"
+                          className="w-full sm:max-w-[220px]"
                           alignRight={true}
                           placeholder="Sin dieta asignada"
                           options={[
@@ -619,18 +620,18 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 z-10 text-base relative">
-                    <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-xs text-white/80 block font-bold uppercase">Peso Fichaje</span>
-                      <span className="font-black text-base text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 z-10 text-base relative shrink-0 mt-2 lg:mt-0 w-full lg:w-auto justify-start lg:justify-end">
+                    <div className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 backdrop-blur-xs">
+                      <span className="text-[10px] text-white/80 block font-bold uppercase tracking-wider">Peso Fichaje</span>
+                      <span className="font-black text-sm text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>
                     </div>
-                    <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-xs text-white/80 block font-bold uppercase">Peso Actual</span>
-                      <span className="font-black text-base text-white mt-0.5 block">{atletaSeleccionado.peso_actual ? `${atletaSeleccionado.peso_actual} kg` : 'N/A'}</span>
+                    <div className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 backdrop-blur-xs">
+                      <span className="text-[10px] text-white/80 block font-bold uppercase tracking-wider">Peso Actual</span>
+                      <span className="font-black text-sm text-white mt-0.5 block">{atletaSeleccionado.peso_actual ? `${atletaSeleccionado.peso_actual} kg` : 'N/A'}</span>
                     </div>
-                    <div className="bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 backdrop-blur-xs">
-                      <span className="text-xs text-white/80 block font-bold uppercase">Altura Base</span>
-                      <span className="font-black text-base text-white mt-0.5 block">{atletaSeleccionado.altura_base ? `${atletaSeleccionado.altura_base} cm` : 'N/A'}</span>
+                    <div className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 backdrop-blur-xs">
+                      <span className="text-[10px] text-white/80 block font-bold uppercase tracking-wider">Altura Base</span>
+                      <span className="font-black text-sm text-white mt-0.5 block">{atletaSeleccionado.altura_base ? `${atletaSeleccionado.altura_base} cm` : 'N/A'}</span>
                     </div>
 
                     <button 

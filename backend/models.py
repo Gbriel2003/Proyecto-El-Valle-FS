@@ -100,6 +100,10 @@ class Partido(Base):
     torneo = relationship("Torneo", back_populates="partidos")
     reportes = relationship("ReportePartido", back_populates="partido")
 
+    @property
+    def tiene_reporte(self) -> bool:
+        return len(self.reportes) > 0
+
 class EstadisticasTacticas(Base):
     __tablename__ = "estadisticas_tacticas"
 

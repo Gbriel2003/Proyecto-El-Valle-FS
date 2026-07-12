@@ -10,11 +10,11 @@ export default {
                 'valle-green': {
                     DEFAULT: '#2E5235',
                     dark: '#1b3120',
-                    light: '#4d8256',
+                    light: '#44754D',
                 },
                 'valle-gold': {
                     DEFAULT: '#B49650',
-                    light: '#cfb57a',
+                    light: '#D6B86F',
                 },
                 'valle-black': {
                     DEFAULT: '#191E17',
