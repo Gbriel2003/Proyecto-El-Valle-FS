@@ -233,7 +233,7 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
         )}
       </div>
 
-      <div className="animate-fade-in-up grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      <div className={`animate-fade-in-up grid grid-cols-1 ${esCuerpoTecnico ? 'lg:grid-cols-2' : 'max-w-4xl'} gap-6 items-start`}>
         
         {/* Tarjeta de Detalles del Perfil */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 w-full flex flex-col h-full space-y-6">
@@ -269,16 +269,8 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
               </div>
             </div>
 
-            {/* Correo Electrónico y Cédula */}
+            {/* Cédula y Teléfono */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                  <Mail size={12} /> Correo Electrónico
-                </label>
-                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 cursor-not-allowed shadow-inner select-none truncate">
-                  {usuario?.correo || 'Cargando...'}
-                </div>
-              </div>
               <div>
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
                   Cédula de Identidad
@@ -293,22 +285,30 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
                   placeholder="No registrada"
                 />
               </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
+                  Teléfono de Contacto
+                </label>
+                <input
+                  type="text"
+                  name="telefono"
+                  value={formData.telefono}
+                  onChange={handleChange}
+                  disabled={rolUsuario !== 'admin'}
+                  className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
+                  placeholder="No registrado"
+                />
+              </div>
             </div>
             
-            {/* Teléfono de Contacto */}
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 block">
-                Teléfono de Contacto
+            {/* Correo Electrónico */}
+            <div className="sm:w-1/2 sm:pr-2">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <Mail size={12} /> Correo Electrónico
               </label>
-              <input
-                type="text"
-                name="telefono"
-                value={formData.telefono}
-                onChange={handleChange}
-                disabled={rolUsuario !== 'admin'}
-                className={`w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 shadow-inner ${rolUsuario !== 'admin' ? 'cursor-not-allowed' : 'focus:border-valle-green focus:ring-1 focus:ring-valle-green'}`}
-                placeholder="No registrado"
-              />
+              <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-600 cursor-not-allowed shadow-inner select-none truncate">
+                {usuario?.correo || 'Cargando...'}
+              </div>
             </div>
 
             {/* Metadatos (Rol y Fecha) */}
@@ -341,41 +341,34 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
                 </div>
               </div>
             </div>
+
+            {/* Mensaje de Contraseña Restringido (Integrado) */}
+            {!esCuerpoTecnico && (
+              <div className="bg-amber-50/70 border-l-4 border-amber-500 p-4 rounded-r-xl text-left text-xs font-bold text-amber-800 w-full flex items-start gap-3 mt-6">
+                <ShieldAlert size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-1.5">
+                  <p className="font-extrabold text-amber-900 text-[13px]">Cambio de Contraseña Restringido</p>
+                  <p className="leading-relaxed">
+                    Por políticas de seguridad, no puedes modificar tu contraseña directamente. Si requieres restablecer tu clave de acceso, solicita la modificación a un <strong>Administrador</strong> del sistema o al <strong>Director Técnico</strong> en el club.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
 
 
-        {/* Tarjeta de Seguridad */}
-        <div className="w-full h-full">
-          {esCuerpoTecnico ? (
-            // Admin y Entrenador pueden cambiar contraseña directamente
+        {/* Tarjeta de Seguridad (Solo Cuerpo Técnico) */}
+        {esCuerpoTecnico && (
+          <div className="w-full h-full">
             <ChangePassword
               crearNotificacion={crearNotificacion}
               obligatoria={debeCambiarPassword}
               onPasswordChanged={onPasswordChanged}
             />
-          ) : (
-            // Atletas y Nutricionistas requieren autorización
-            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 text-center flex flex-col items-center justify-center space-y-4 h-full">
-              <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shadow-xs">
-                <ShieldAlert size={24} />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900 tracking-tight font-display">
-                Cambio de Contraseña Restringido
-              </h3>
-              <p className="text-xs font-semibold text-slate-500 leading-relaxed max-w-md">
-                Por políticas de seguridad y control interno del club <strong>El Valle F.S.</strong>, los atletas y el personal de nutrición no pueden modificar su contraseña de acceso directamente.
-              </p>
-              <div className="bg-amber-50/70 border-l-4 border-amber-500 p-4 rounded-r-lg text-left text-xs font-bold text-amber-800 w-full flex items-start gap-2.5">
-                <KeyRound size={16} className="text-amber-600 shrink-0 mt-0.5" />
-                <p className="leading-relaxed">
-                  Si requieres restablecer o cambiar tu clave de acceso, por favor solicita la modificación a un <strong>Administrador</strong> del sistema o al <strong>Director Técnico</strong> en el club.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
       </div>
       

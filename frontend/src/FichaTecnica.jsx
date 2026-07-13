@@ -3,7 +3,7 @@ import api from './api';
 import {
   User, Activity, Scale, Droplet, Moon, Brain, AlertTriangle,
   Plus, Check, ChevronLeft, Calendar, Heart, ShieldAlert, X, Apple,
-  RefreshCw, Download
+  RefreshCw, Download, Search
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CustomSelect from './components/ui/CustomSelect';
@@ -34,6 +34,11 @@ export default function FichaTecnica({ atletaId = null, onBack = null, crearNoti
   // Datos extendidos
   const [habitos, setHabitos] = useState([]);
   const [lesiones, setLesiones] = useState([]);
+
+  // Filtros de nutrición
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState('');
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState('');
+  const [filtroSuplementacion, setFiltroSuplementacion] = useState('');
 
   // Estados de formularios y modals
   const [mostrarHabitoModal, setMostrarHabitoModal] = useState(false);
@@ -111,6 +116,53 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
       filename: `expediente_${pf.nombre.toLowerCase()}_${pf.apellido.toLowerCase()}`,
       columns,
       data: data.length > 0 ? data : [['Sin cargas recientes', '', '', '']],
+      extraInfo
+    });
+  };
+
+  const habitosFiltrados = habitos.filter(h => {
+    let cumpleFecha = true;
+    let cumpleSuple = true;
+    
+    if (filtroFechaDesde) {
+      cumpleFecha = h.fecha >= filtroFechaDesde;
+    }
+    if (filtroFechaHasta && cumpleFecha) {
+      cumpleFecha = h.fecha <= filtroFechaHasta;
+    }
+    
+    if (filtroSuplementacion && filtroSuplementacion.trim() !== '') {
+      cumpleSuple = h.suplementacion?.toLowerCase().includes(filtroSuplementacion.toLowerCase());
+    }
+    
+    return cumpleFecha && cumpleSuple;
+  });
+
+  const exportarNutricionIndividualPDF = async () => {
+    if (!datos || !datos.perfil) return;
+    const pf = datos.perfil;
+    const f = datos.estado_fisico || {};
+
+    const extraInfo = `Historial de Nutrición e Hidratación
+Jugador: ${pf.nombre} ${pf.apellido}
+Dorsal: ${pf.numero_camisa || 'N/A'} | IMC Actual: ${f.imc_actual ? parseFloat(f.imc_actual).toFixed(2) : 'N/A'}
+Reporte filtrado por fecha y/o suplementos.`;
+
+    const data = habitosFiltrados.map(h => [
+      h.fecha || 'N/A',
+      `${h.frecuencia_comidas} comidas`,
+      `${h.hidratacion_litros} L`,
+      `${h.calidad_descanso}h`,
+      h.suplementacion || 'Ninguna'
+    ]);
+
+    const columns = ['Fecha', 'Comidas / Día', 'Hidratación', 'Descanso', 'Suplementación'];
+
+    await generatePDFReport({
+      title: 'Reporte de Nutrición e Hidratación',
+      filename: `nutricion_${pf.nombre.toLowerCase()}_${pf.apellido.toLowerCase()}`,
+      columns,
+      data: data.length > 0 ? data : [['Sin registros', '', '', '', '']],
       extraInfo
     });
   };
@@ -662,7 +714,55 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
 
       {/* Historial Nutricional y de Descanso (Litros, Comidas, Sueño) */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h3 className="font-bold text-valle-black text-sm mb-4">Registro Histórico de Nutrición e Hidratación</h3>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <h3 className="font-bold text-valle-black text-sm">Registro Histórico de Nutrición e Hidratación</h3>
+          <button
+            type="button"
+            onClick={exportarNutricionIndividualPDF}
+            className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer shrink-0"
+            title="Descargar Reporte"
+          >
+            <Download size={14} className="mr-1.5" />
+            Descargar Reporte
+          </button>
+        </div>
+
+        {habitos.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/60 mb-4">
+            <div className="flex-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Desde</label>
+              <input 
+                type="date" 
+                value={filtroFechaDesde} 
+                onChange={(e) => setFiltroFechaDesde(e.target.value)} 
+                className="w-full text-sm px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Hasta</label>
+              <input 
+                type="date" 
+                value={filtroFechaHasta} 
+                onChange={(e) => setFiltroFechaHasta(e.target.value)} 
+                className="w-full text-sm px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+              />
+            </div>
+            <div className="flex-[2]">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Suplementación</label>
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="Filtrar por suplemento (ej. Proteína, Creatina...)" 
+                  value={filtroSuplementacion} 
+                  onChange={(e) => setFiltroSuplementacion(e.target.value)} 
+                  className="w-full pl-9 pr-3 py-2 bg-white text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
@@ -679,8 +779,12 @@ Dieta Asignada: ${pf.dieta_asignada ? pf.dieta_asignada.nombre : 'Ninguna'}
                 <tr>
                   <td colSpan="5" className="py-8 text-center text-slate-400">Ningún registro nutricional cargado aún.</td>
                 </tr>
+              ) : habitosFiltrados.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="py-8 text-center text-slate-400">No hay registros que coincidan con los filtros aplicados.</td>
+                </tr>
               ) : (
-                habitos.map((h) => (
+                habitosFiltrados.map((h) => (
                   <tr key={h.id} className="border-b border-slate-100 hover:bg-slate-50">
                     <td className="py-3 px-4 font-bold text-slate-700 flex items-center">
                       <Calendar size={13} className="text-slate-400 mr-2" />

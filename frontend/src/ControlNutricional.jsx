@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import CustomSelect from './components/ui/CustomSelect';
 import { generatePDFReport } from './utils/reportGenerator';
+import ConfirmModal from './components/modals/ConfirmModal';
 
 export default function ControlNutricional({ crearNotificacion = null }) {
   const [jugadores, setJugadores] = useState([]);
@@ -47,6 +48,13 @@ export default function ControlNutricional({ crearNotificacion = null }) {
   const [nuevoPesoBase, setNuevoPesoBase] = useState('');
   const [nuevaAlturaBase, setNuevaAlturaBase] = useState('');
   const [guardandoBase, setGuardandoBase] = useState(false);
+
+  // Filtros Historial Hábitos
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState('');
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState('');
+  const [filtroSuplementacion, setFiltroSuplementacion] = useState('');
+
+  const [confirmacion, setConfirmacion] = useState(null);
 
   // IMC Calculado en vivo
   const [imcCalculado, setImcCalculado] = useState(null);
@@ -170,25 +178,30 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     }
   };
 
-  const handleEliminarDieta = async (dietaId) => {
+  const handleEliminarDieta = (dietaId) => {
     if (!dietaId) return;
-    if (!window.confirm("¿Estás seguro de eliminar esta propuesta de dieta de la biblioteca? Los registros anteriores seguirán mostrando el nombre pero no los detalles.")) return;
-
-    try {
-      await api.delete(`/dietas/${dietaId}`);
-      if (crearNotificacion) {
-        crearNotificacion(
-          "Dieta Eliminada",
-          "La dieta se eliminó de la biblioteca.",
-          "info"
-        );
+    
+    setConfirmacion({
+      title: 'Eliminar Dieta',
+      message: '¿Estás seguro de eliminar esta propuesta de dieta de la biblioteca? Los registros anteriores seguirán mostrando el nombre pero no los detalles.',
+      onConfirm: async () => {
+        try {
+          await api.delete(`/dietas/${dietaId}`);
+          if (crearNotificacion) {
+            crearNotificacion(
+              "Dieta Eliminada",
+              "La dieta se eliminó de la biblioteca.",
+              "info"
+            );
+          }
+          prepararNuevaDieta();
+          cargarDietas();
+        } catch (err) {
+          console.error("Error al eliminar dieta:", err);
+          alert("Error al eliminar la dieta.");
+        }
       }
-      prepararNuevaDieta();
-      cargarDietas();
-    } catch (err) {
-      console.error("Error al eliminar dieta:", err);
-      alert("Error al eliminar la dieta.");
-    }
+    });
   };
 
   const mostrarDetalleDietaPorNombre = (nombre) => {
@@ -458,6 +471,51 @@ export default function ControlNutricional({ crearNotificacion = null }) {
     } finally {
       setGuardandoHabitos(false);
     }
+  };
+
+  const habitosFiltrados = habitosHistorial.filter(h => {
+    let cumpleFecha = true;
+    let cumpleSuple = true;
+    
+    if (filtroFechaDesde) {
+      cumpleFecha = h.fecha >= filtroFechaDesde;
+    }
+    if (filtroFechaHasta && cumpleFecha) {
+      cumpleFecha = h.fecha <= filtroFechaHasta;
+    }
+    
+    if (filtroSuplementacion && filtroSuplementacion.trim() !== '') {
+      cumpleSuple = h.suplementacion?.toLowerCase().includes(filtroSuplementacion.toLowerCase());
+    }
+    
+    return cumpleFecha && cumpleSuple;
+  });
+
+  const exportarNutricionIndividualPDF = async () => {
+    if (!atletaSeleccionado) return;
+
+    const extraInfo = `Historial de Nutrición e Hidratación
+Jugador: ${atletaSeleccionado.nombre} ${atletaSeleccionado.apellido}
+Dorsal: ${atletaSeleccionado.numero_camisa || 'N/A'} | IMC Base: ${atletaSeleccionado.imc_base || 'N/A'}
+Reporte filtrado por fecha y/o suplementos.`;
+
+    const data = habitosFiltrados.map(h => [
+      h.fecha || 'N/A',
+      `${h.frecuencia_comidas} comidas`,
+      `${h.hidratacion_litros} L`,
+      `${h.calidad_descanso}h`,
+      h.suplementacion || 'Ninguna'
+    ]);
+
+    const columns = ['Fecha', 'Comidas / Día', 'Hidratación', 'Descanso', 'Suplementación'];
+
+    await generatePDFReport({
+      title: 'Reporte de Nutrición e Hidratación',
+      filename: `nutricion_${atletaSeleccionado.nombre.toLowerCase()}_${atletaSeleccionado.apellido.toLowerCase()}`,
+      columns,
+      data: data.length > 0 ? data : [['Sin registros', '', '', '', '']],
+      extraInfo
+    });
   };
 
   return (
@@ -953,6 +1011,18 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     >
                       <ClipboardList size={18} className="mr-2" /> Historial de Hábitos y Menú
                     </button>
+
+                    {tabHistorial === 'habitos' && habitosHistorial.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={exportarNutricionIndividualPDF}
+                        className="ml-auto px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center shadow-md cursor-pointer shrink-0"
+                        title="Descargar Reporte de Hábitos"
+                      >
+                        <Download size={14} className="mr-1.5" />
+                        Reporte
+                      </button>
+                    )}
                   </div>
 
                   {/* Contenido del Historial */}
@@ -1020,10 +1090,49 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                         </table>
                       )
                     ) : (
-                      habitosHistorial.length === 0 ? (
-                        <p className="text-base text-slate-500 text-center py-8 font-medium">Sin historial de hábitos nutricionales registrado para este jugador.</p>
-                      ) : (
-                        <table className="w-full text-left border-collapse text-sm">
+                      <div className="space-y-4">
+                        {habitosHistorial.length > 0 && (
+                          <div className="flex flex-col sm:flex-row gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/60 mb-2">
+                            <div className="flex-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Desde</label>
+                              <input 
+                                type="date" 
+                                value={filtroFechaDesde} 
+                                onChange={(e) => setFiltroFechaDesde(e.target.value)} 
+                                className="w-full text-sm px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Hasta</label>
+                              <input 
+                                type="date" 
+                                value={filtroFechaHasta} 
+                                onChange={(e) => setFiltroFechaHasta(e.target.value)} 
+                                className="w-full text-sm px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+                              />
+                            </div>
+                            <div className="flex-[2]">
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Suplementación</label>
+                              <div className="relative">
+                                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                                <input 
+                                  type="text" 
+                                  placeholder="Filtrar por suplemento (ej. Proteína, Creatina...)" 
+                                  value={filtroSuplementacion} 
+                                  onChange={(e) => setFiltroSuplementacion(e.target.value)} 
+                                  className="w-full pl-9 pr-3 py-2 bg-white text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green" 
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {habitosHistorial.length === 0 ? (
+                          <p className="text-base text-slate-500 text-center py-8 font-medium">Sin historial de hábitos nutricionales registrado para este jugador.</p>
+                        ) : habitosFiltrados.length === 0 ? (
+                          <p className="text-base text-slate-500 text-center py-8 font-medium">No hay registros que coincidan con los filtros aplicados.</p>
+                        ) : (
+                          <table className="w-full text-left border-collapse text-sm">
                           <thead>
                             <tr className="border-b border-slate-100 text-slate-500 font-extrabold uppercase tracking-wider text-xs">
                               <th className="pb-3">Fecha</th>
@@ -1035,7 +1144,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-50">
-                            {habitosHistorial.map((h, idx) => {
+                            {habitosFiltrados.map((h, idx) => {
                               return (
                                 <tr key={h.id || idx} className="hover:bg-slate-50/40 text-slate-700 font-semibold">
                                   <td className="py-3 flex items-center gap-1.5 whitespace-nowrap">
@@ -1070,7 +1179,8 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                             })}
                           </tbody>
                         </table>
-                      )
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1213,7 +1323,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                   onClick={prepararNuevaDieta}
                   className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm rounded-xl transition flex items-center justify-center cursor-pointer"
                 >
-                  Limpiar / Cancelar
+                  Limpiar
                 </button>
               </div>
             </form>
@@ -1256,6 +1366,12 @@ export default function ControlNutricional({ crearNotificacion = null }) {
         </div>,
         document.body
       )}
+
+      <ConfirmModal 
+        isOpen={!!confirmacion}
+        onClose={() => setConfirmacion(null)}
+        {...confirmacion}
+      />
 
     </div>
   );

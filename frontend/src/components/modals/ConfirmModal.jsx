@@ -1,5 +1,6 @@
 import { AlertTriangle, AlertCircle, Info, CheckCircle, X } from 'lucide-react';
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function ConfirmModal({
   isOpen,
@@ -57,8 +58,8 @@ export default function ConfirmModal({
 
   const { Icon, color, bgIcon, btnConfirm } = config[variant] || config.danger;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-up border border-slate-200">
         
         {/* Encabezado con Ícono */}
@@ -102,6 +103,7 @@ export default function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
