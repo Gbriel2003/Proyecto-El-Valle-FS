@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import CustomSelect from '../ui/CustomSelect';
 import api from '../../api';
+import { generateIAPDFReport } from '../../utils/reportGenerator';
 
 // Hook para cerrar con tecla Escape
 function useEscapeKey(onClose) {
@@ -554,22 +555,8 @@ export function ReporteIAModal({
   const rolUsuario = localStorage.getItem('rol_usuario');
   const isAtleta = rolUsuario === 'Atleta';
 
-  const handleDownload = async () => {
-    try {
-      const response = await api.get(`/partidos/${partido.id}/descargar-reporte`, {
-        responseType: 'blob'
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `reporte_partido_${partido.id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-    } catch (error) {
-      console.error("Error al descargar el PDF", error);
-      alert("Hubo un error al intentar descargar el reporte. Es posible que el archivo ya no esté disponible en el servidor.");
-    }
+  const handleDownload = () => {
+    generateIAPDFReport({ partido, reporteIA });
   };
 
   if (!isOpen || !partido) return null;

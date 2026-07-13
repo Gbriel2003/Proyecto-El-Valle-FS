@@ -191,10 +191,10 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
   return (
     <div className="w-full mx-auto space-y-6 px-2 sm:px-4 lg:px-6">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         
         {/* PANEL IZQUIERDO: FORMULARIO */}
-        <div className="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-fit">
+        <div className="xl:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-6 h-fit">
           <div className="flex items-center mb-6">
             <div className="w-10 h-10 rounded-full bg-valle-green flex items-center justify-center mr-3 shadow-sm">
               <UserPlus size={20} className="text-valle-gold" />
@@ -272,33 +272,35 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Correo Electrónico</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={16} className="text-slate-400" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Correo Electrónico</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail size={16} className="text-slate-400" />
+                  </div>
+                  <input
+                    required type="email"
+                    className="w-full pl-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green"
+                    value={formulario.correo}
+                    onChange={(e) => setFormulario({...formulario, correo: e.target.value})}
+                  />
                 </div>
-                <input
-                  required type="email"
-                  className="w-full pl-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green"
-                  value={formulario.correo}
-                  onChange={(e) => setFormulario({...formulario, correo: e.target.value})}
-                />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Contraseña Temporal</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={16} className="text-slate-400" />
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">Contraseña Temporal</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock size={16} className="text-slate-400" />
+                  </div>
+                  <input
+                    required type="password"
+                    className="w-full pl-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green"
+                    value={formulario.password}
+                    onChange={(e) => setFormulario({...formulario, password: e.target.value})}
+                  />
                 </div>
-                <input
-                  required type="password"
-                  className="w-full pl-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-valle-green focus:ring-1 focus:ring-valle-green"
-                  value={formulario.password}
-                  onChange={(e) => setFormulario({...formulario, password: e.target.value})}
-                />
               </div>
             </div>
 
@@ -323,7 +325,7 @@ export default function ConfiguracionClub({ crearNotificacion = null }) {
         </div>
 
         {/* PANEL DERECHO: LISTA DE USUARIOS */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
             <div>
               <h2 className="text-lg font-bold text-valle-black flex items-center">

@@ -585,7 +585,7 @@ export default function ControlNutricional({ crearNotificacion = null }) {
             ) : (
               <>
                 {/* FICHA RESUMEN DE JUGADOR */}
-                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-5 sm:p-6 rounded-2xl shadow-md border border-valle-gold/10 relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+                <div className="bg-linear-to-br from-valle-green to-[#0f3016] text-white p-5 sm:p-6 rounded-2xl shadow-md border border-valle-gold/10 relative flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5">
                   {/* Contenedor de desbordamiento para el fondo */}
                   <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
                     {/* Decoración de fondo */}
@@ -594,33 +594,34 @@ export default function ControlNutricional({ crearNotificacion = null }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-3 sm:space-x-4 z-30 flex-1 min-w-0 w-full lg:w-auto pr-0 lg:pr-4">
+                  <div className="flex items-center space-x-3 sm:space-x-4 z-30 flex-1 min-w-0 w-full xl:w-auto pr-0 xl:pr-4">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 bg-white/10 rounded-full border-2 border-valle-gold/50 flex items-center justify-center text-white font-black text-xl sm:text-2xl font-display uppercase shadow-inner">
                       {atletaSeleccionado.nombre.charAt(0)}{atletaSeleccionado.apellido.charAt(0)}
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h3 className="font-extrabold text-xl sm:text-2xl tracking-tight font-display truncate">{atletaSeleccionado.nombre} {atletaSeleccionado.apellido}</h3>
                       <p className="text-xs text-valle-gold font-bold tracking-wider uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
-                      <div className="mt-2.5 flex items-center gap-2">
-                        <span className="text-xs text-white/95 font-bold uppercase tracking-wider">Dieta:</span>
-                        <CustomSelect
-                          value={atletaSeleccionado.dieta_asignada_id || ''}
-                          disabled={asignandoDieta}
-                          onChange={(e) => handleAsignarDieta(e.target.value)}
-                          variant="dark"
-                          className="w-full sm:max-w-[220px]"
-                          alignRight={true}
-                          placeholder="Sin dieta asignada"
-                          options={[
-                            { value: "", label: "Sin dieta asignada" },
-                            ...dietas.map(d => ({ value: d.id, label: `${d.nombre} (${d.calorias || 'N/A'} kcal)` }))
-                          ]}
-                        />
+                      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                        <span className="text-xs text-white/95 font-bold uppercase tracking-wider shrink-0">Dieta:</span>
+                        <div className="w-full sm:w-auto min-w-[150px] max-w-[220px]">
+                          <CustomSelect
+                            value={atletaSeleccionado.dieta_asignada_id || ''}
+                            disabled={asignandoDieta}
+                            onChange={(e) => handleAsignarDieta(e.target.value)}
+                            variant="dark"
+                            alignRight={true}
+                            placeholder="Sin dieta asignada"
+                            options={[
+                              { value: "", label: "Sin dieta asignada" },
+                              ...dietas.map(d => ({ value: d.id, label: `${d.nombre} (${d.calorias || 'N/A'} kcal)` }))
+                            ]}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 z-10 text-base relative shrink-0 mt-2 lg:mt-0 w-full lg:w-auto justify-start lg:justify-end">
+                  <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:gap-3 z-10 text-base relative shrink-0 mt-2 xl:mt-0 w-full xl:w-auto justify-start xl:justify-end">
                     <div className="bg-white/10 border border-white/10 rounded-xl px-3 py-2 backdrop-blur-xs">
                       <span className="text-[10px] text-white/80 block font-bold uppercase tracking-wider">Peso Fichaje</span>
                       <span className="font-black text-sm text-valle-gold mt-0.5 block">{atletaSeleccionado.peso_base ? `${atletaSeleccionado.peso_base} kg` : 'N/A'}</span>

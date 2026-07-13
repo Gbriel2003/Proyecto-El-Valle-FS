@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { generatePDFReport } from '../../utils/reportGenerator';
+import api from '../../api';
 
 export default function MatchCalendar({
   partidos,
@@ -36,6 +37,24 @@ export default function MatchCalendar({
 }) {
   const [torneoFiltro, setTorneoFiltro] = useState(null); // null = todos
   const [reemplazandoReporteId, setReemplazandoReporteId] = useState(null);
+
+  const descargarReporteSubido = async (partidoId) => {
+    try {
+      const response = await api.get(`/partidos/${partidoId}/descargar-reporte`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `reporte_tactico_${partidoId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error al descargar el PDF", error);
+      alert("Hubo un error al descargar el reporte subido.");
+    }
+  };
 
   // Separar partidos por estado
   const { programados, finalizados } = useMemo(() => {
@@ -315,15 +334,14 @@ export default function MatchCalendar({
               
               {partido.tiene_reporte && reemplazandoReporteId !== partido.id ? (
                 <div className="flex flex-col sm:flex-row gap-2 mt-2 justify-start items-center">
-                  <a 
-                    href={`http://localhost:8000/api/partidos/${partido.id}/descargar-reporte`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button 
+                    type="button"
+                    onClick={() => descargarReporteSubido(partido.id)}
                     className="px-4 py-2 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold transition flex items-center justify-center cursor-pointer shadow-sm"
                   >
                     <Download size={13} className="mr-1.5" />
                     Descargar reporte subido
-                  </a>
+                  </button>
                   <button 
                     type="button"
                     onClick={() => setReemplazandoReporteId(partido.id)}
