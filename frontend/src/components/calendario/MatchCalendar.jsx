@@ -326,7 +326,7 @@ export default function MatchCalendar({
         
         {/* Zona de subida de reportes tácticos (solo finalizados + cuerpo técnico) */}
         {esFinalizado && esCuerpoTecnico && (
-          <div className="px-4 sm:px-5 pb-4 sm:pb-5">
+          <div id="tour-tactica-live" className="px-4 sm:px-5 pb-4 sm:pb-5">
             <div className="pt-3 border-t border-slate-200/60 w-full text-left">
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center">
                 <FileText size={12} className="mr-1 text-valle-green" /> Reporte Táctico (PDF)
@@ -432,7 +432,7 @@ export default function MatchCalendar({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fade-in-up w-full">
       
       {/* ====== PANEL IZQUIERDO: TORNEOS ====== */}
       <div className="lg:col-span-4 space-y-4">

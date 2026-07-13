@@ -170,7 +170,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
         <div className="space-y-6 w-full mx-auto pb-8 px-2 sm:px-4 lg:px-6">
 
             {/* Cabecera */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in-up">
+            <div id="tour-dashboard-header" className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in-up">
                 <div>
                     <h2 className="text-xl font-black text-valle-black flex items-center font-display">
                         <BarChart2 className="text-valle-green mr-2.5" size={24} />
@@ -194,7 +194,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
                     </button>
                 </div>
             </div>            {/* KPI Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div id="tour-dashboard-kpis" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {kpis.map((kpi, i) => (
                     <div 
                         key={i} 
@@ -214,7 +214,7 @@ export default function EntrenadorDashboard({ onVerFicha }) {
             </div>
 
             {/* Fila de Gráficos Adicionales de Guía y Soporte */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up animate-delay-225">
+            <div id="tour-dashboard-charts" className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up animate-delay-225">
                 
                 {/* Tarjeta de Gráfico 1: Balance y Efectividad de Partidos (Donut) */}
                 <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col justify-between">

@@ -573,7 +573,7 @@ Reporte filtrado por fecha y/o suplementos.`;
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
           {/* COLUMNA SELECCIONADOR DE JUGADORES (4 COLS) */}
-          <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col max-h-[700px]">
+          <div id="tour-nutricion-lista" className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col max-h-[700px]">
             <div className="p-4 border-b border-slate-100 bg-slate-50/50">
               <span className="text-sm font-bold text-slate-850 tracking-tight font-display block mb-3">Lista de Jugadores</span>
               <div className="relative">
@@ -635,7 +635,7 @@ Reporte filtrado por fecha y/o suplementos.`;
           {/* COLUMNA DETALLE Y FORMULARIOS (8 COLS) */}
           <div className="lg:col-span-8 space-y-6">
             {!atletaSeleccionado ? (
-              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-16 text-center text-slate-400 flex flex-col items-center justify-center min-h-[400px]">
+              <div id="tour-nutricion-asignar" className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-16 text-center text-slate-400 flex flex-col items-center justify-center min-h-[400px]">
                 <Apple size={48} className="text-slate-350 stroke-1 mb-4 animate-bounce" />
                 <p className="text-sm font-bold text-slate-650">Ningún jugador seleccionado</p>
                 <p className="text-xs text-slate-500 mt-2 max-w-md leading-relaxed font-medium">Selecciona un atleta de la lista de la izquierda para comenzar a registrar su biometría o asignarle hábitos nutricionales.</p>
@@ -661,7 +661,7 @@ Reporte filtrado por fecha y/o suplementos.`;
                       <p className="text-xs text-valle-gold font-bold tracking-wider uppercase mt-0.5">{atletaSeleccionado.posicion}</p>
                       <div className="mt-2.5 flex flex-wrap items-center gap-2">
                         <span className="text-xs text-white/95 font-bold uppercase tracking-wider shrink-0">Dieta:</span>
-                        <div className="w-full sm:w-auto min-w-[150px] max-w-[220px]">
+                        <div id="tour-nutricion-asignar" className="w-full sm:w-auto min-w-[150px] max-w-[220px]">
                           <CustomSelect
                             value={atletaSeleccionado.dieta_asignada_id || ''}
                             disabled={asignandoDieta}

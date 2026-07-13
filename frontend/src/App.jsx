@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import api from './api';
 import Login from './Login';
 import AtletaDashboard from './AtletaDashboard';
@@ -82,39 +82,76 @@ export default function App() {
     if (!rolUsuario) return [];
     
     let steps = [];
+
     if (rolUsuario === 'admin') {
       steps = [
-        { target: '#nav-dashboard', content: '¡Bienvenido! Aquí verás un resumen general del rendimiento y estadísticas del club.', disableBeacon: true },
-        { target: '#nav-ia', content: 'Utiliza nuestra IA para analizar sesiones de entrenamiento y medir el esfuerzo de la plantilla.' },
-        { target: '#nav-jugadores', content: 'Gestiona la plantilla activa, da de alta a jugadores y revisa sus estados físicos y lesiones.' },
-        { target: '#nav-control_nutricional', content: 'Supervisa la nutrición, biometría y dietas asignadas de los atletas.' },
-        { target: '#nav-tactica-grupo', content: 'Despliega este menú para acceder a la Pizarra Táctica interactiva y al calendario de Partidos.' },
-        { target: '#nav-configuracion', content: 'Administra cuentas de usuario, crea personal técnico y configura el club.' },
-        { target: '#nav-administrar_perfil', content: 'Aquí puedes configurar tu información y credenciales de acceso.' }
+        { target: '#nav-dashboard', content: 'Rendimiento Global: En esta sección tendrás una visión panorámica de cómo va el equipo.', menuTarget: 'dashboard' },
+        { target: '#tour-dashboard-header', content: 'Desde esta cabecera puedes generar reportes ejecutivos en PDF al instante.', menuTarget: 'dashboard' },
+        { target: '#tour-dashboard-kpis', content: 'Aquí verás los KPIs generales: victorias, empates y alertas médicas críticas.', menuTarget: 'dashboard' },
+        { target: '#nav-ia', content: 'Control Entrenamiento: Esta sección usa Inteligencia Artificial para cuidar a tus jugadores.', menuTarget: 'ia' },
+        { target: '#tour-ia-form', content: 'Sube los reportes de sesión aquí. La IA medirá la carga cognitiva y te alertará sobre riesgos de lesión.', menuTarget: 'ia' },
+        { target: '#nav-jugadores', content: 'Plantilla Activa: Aquí administras los perfiles de todos los jugadores registrados.', menuTarget: 'jugadores' },
+        { target: '#tour-plantilla-busqueda', content: 'Utiliza el buscador para encontrar fichas rápidamente por nombre o posición.', menuTarget: 'jugadores' },
+        { target: '#tour-plantilla-lista', content: 'La lista general muestra las fotos, posiciones y lesiones activas de un solo vistazo.', menuTarget: 'jugadores' },
+        { target: '#nav-control_nutricional', content: 'Control Nutricional: El área dedicada a la biometría y dietas del equipo.', menuTarget: 'control_nutricional' },
+        { target: '#tour-nutricion-lista', content: 'Selecciona a cualquier jugador de la tabla para analizar en detalle su estado físico.', menuTarget: 'control_nutricional' },
+        { target: '#tour-nutricion-asignar', content: 'Y desde este menú podrás asignarle planes alimenticios predefinidos.', menuTarget: 'control_nutricional' },
+        { target: '#nav-tactica-grupo', content: 'Táctica y Partidos: El centro estratégico del equipo.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-pizarra', content: 'Pizarra Táctica: Mueve las fichas libremente y usa el lápiz para dibujar tus estrategias.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-animacion', content: 'Playbook: Todo lo que guardes aparecerá aquí para repasarlo con el equipo.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-calendario', content: 'Partidos: Agenda próximos encuentros y lleva el control de resultados.', menuTarget: 'partidos' },
+        { target: '#tour-tactica-live', content: 'Sube reportes tácticos en PDF post-partido para procesarlos automáticamente.', menuTarget: 'partidos' },
+        { target: '#nav-configuracion', content: 'Configuración Club: Ajusta los colores, logos y registra a nuevos miembros.', menuTarget: 'configuracion' }
       ];
     } else if (rolUsuario === 'entrenador') {
       steps = [
-        { target: '#nav-dashboard', content: '¡Bienvenido Entrenador! Revisa rápidamente el estado y rendimiento de tu equipo.', disableBeacon: true },
-        { target: '#nav-ia', content: 'Sube reportes de entrenamiento y deja que la IA mida la carga cognitiva y física de tus jugadores.' },
-        { target: '#nav-jugadores', content: 'Revisa los perfiles individuales de tus jugadores, historial de lesiones e información médica.' },
-        { target: '#nav-tactica-grupo', content: 'Diseña jugadas en la Pizarra Táctica y planifica estrategias para los próximos Partidos.' }
+        { target: '#nav-dashboard', content: 'Rendimiento Global: En esta sección tendrás una visión panorámica de cómo va el equipo.', menuTarget: 'dashboard' },
+        { target: '#tour-dashboard-header', content: 'Desde esta cabecera puedes generar reportes ejecutivos en PDF al instante.', menuTarget: 'dashboard' },
+        { target: '#tour-dashboard-kpis', content: 'Aquí verás los KPIs generales: victorias, empates y alertas médicas críticas.', menuTarget: 'dashboard' },
+        { target: '#nav-ia', content: 'Control Entrenamiento: Esta sección usa Inteligencia Artificial para cuidar a tus jugadores.', menuTarget: 'ia' },
+        { target: '#tour-ia-form', content: 'Sube los reportes de sesión aquí. La IA medirá la carga cognitiva y te alertará sobre riesgos de lesión.', menuTarget: 'ia' },
+        { target: '#nav-jugadores', content: 'Plantilla Activa: Aquí administras los perfiles de todos los jugadores registrados.', menuTarget: 'jugadores' },
+        { target: '#tour-plantilla-busqueda', content: 'Utiliza el buscador para encontrar fichas rápidamente por nombre o posición.', menuTarget: 'jugadores' },
+        { target: '#tour-plantilla-lista', content: 'La lista general muestra las fotos, posiciones y lesiones activas de un solo vistazo.', menuTarget: 'jugadores' },
+        { target: '#nav-tactica-grupo', content: 'Táctica y Partidos: El centro estratégico del equipo.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-pizarra', content: 'Pizarra Táctica: Mueve las fichas libremente y usa el lápiz para dibujar tus estrategias.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-animacion', content: 'Playbook: Todo lo que guardes aparecerá aquí para repasarlo con el equipo.', menuTarget: 'pizarra_tactica' },
+        { target: '#tour-tactica-calendario', content: 'Partidos: Agenda próximos encuentros y lleva el control de resultados.', menuTarget: 'partidos' },
+        { target: '#tour-tactica-live', content: 'Sube reportes tácticos en PDF post-partido para procesarlos automáticamente.', menuTarget: 'partidos' }
       ];
     } else if (rolUsuario === 'nutricionista') {
-      steps = [
-        { target: '#nav-dashboard', content: '¡Bienvenida/o! Observa métricas globales de la plantilla para tener un panorama general.', disableBeacon: true },
-        { target: '#nav-jugadores', content: 'Accede a la lista de atletas para consultar sus expedientes individuales.' },
-        { target: '#nav-control_nutricional', content: 'El núcleo de tu trabajo: crea planes dietéticos y haz seguimiento a biometría y hábitos de cada atleta.' }
+       steps = [
+        { target: '#nav-dashboard', content: 'Rendimiento Global: Monitoriza el estado general de toda la plantilla.', menuTarget: 'dashboard' },
+        { target: '#tour-dashboard-kpis', content: 'Revisa rápidamente los atletas en estado de alerta.', menuTarget: 'dashboard' },
+        { target: '#nav-jugadores', content: 'Plantilla Activa: Accede a las fichas completas.', menuTarget: 'jugadores' },
+        { target: '#tour-plantilla-lista', content: 'La lista muestra lesiones y alertas médicas resumidas.', menuTarget: 'jugadores' },
+        { target: '#nav-control_nutricional', content: 'Control Nutricional: Tu área de trabajo principal.', menuTarget: 'control_nutricional' },
+        { target: '#tour-nutricion-lista', content: 'Selecciona a un jugador para analizar sus hábitos y biometría.', menuTarget: 'control_nutricional' },
+        { target: '#tour-nutricion-asignar', content: 'Asigna rápidamente los planes alimenticios a los atletas.', menuTarget: 'control_nutricional' }
       ];
     } else if (rolUsuario === 'atleta') {
       steps = [
-        { target: '#nav-mi_perfil', content: '¡Bienvenido Atleta! En tu Ficha Deportiva debes registrar TODOS LOS DÍAS tus hábitos: litros de agua, horas de sueño y suplementación.', disableBeacon: true },
-        { target: '#nav-mis_partidos', content: 'Aquí podrás ver el calendario de encuentros, convocatorias y detalles de tus próximos juegos.' },
-        { target: '#nav-administrar_perfil', content: 'Si necesitas cambiar tus datos personales, foto de perfil o tu contraseña temporal, entra aquí.' }
+        { target: '#nav-mi_perfil', content: 'Ficha Deportiva: Aquí accedes a tus registros de salud diarios.', menuTarget: 'mi_perfil' },
+        { target: '#tour-atleta-habitos', content: '¡Muy importante! Registra diariamente tus litros de agua y horas de sueño aquí.', menuTarget: 'mi_perfil' },
+        { target: '#tour-atleta-metricas', content: 'Revisa tu nivel de hidratación, descanso y predicciones de fatiga.', menuTarget: 'mi_perfil' },
+        { target: '#nav-mis_partidos', content: 'Mis Partidos: Consulta tus próximos encuentros.', menuTarget: 'mis_partidos' },
+        { target: '#nav-administrar_perfil', content: 'Mi Perfil: Configura tu cuenta personal.', menuTarget: 'administrar_perfil' },
+        { target: '#tour-perfil-detalles', content: 'Aquí puedes cambiar tu información personal y foto de perfil.', menuTarget: 'administrar_perfil' }
       ];
     }
     
-    return steps.map(step => ({ ...step, disableBeacon: true }));
+    return steps;
   }, [rolUsuario]);
+
+  const handleStepChange = useCallback((stepIndex) => {
+    const step = tourSteps[stepIndex];
+    if (step && step.menuTarget) {
+      if (step.menuTarget === 'pizarra_tactica' || step.menuTarget === 'partidos') {
+        setTacticaMenuAbierto(true);
+      }
+      setMenuActivo(step.menuTarget);
+    }
+  }, [tourSteps]);
 
   // Estados globales de alertas y carga de reportes
   const [toasts, setToasts] = useState([]);
@@ -514,6 +551,7 @@ export default function App() {
         run={runTour}
         onFinish={() => setRunTour(false)}
         onOpenMenu={setMenuAbierto}
+        onStepChange={handleStepChange}
       />
 
       {/* Overlay oscuro para móvil cuando el menú está abierto */}

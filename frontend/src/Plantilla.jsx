@@ -209,7 +209,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                         </button>
                     </div>
                 </div>
-                <div className="relative w-full lg:w-72 shrink-0">
+                <div id="tour-plantilla-busqueda" className="relative w-full lg:w-72 shrink-0">
                     <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
                     <input
                         type="text"
@@ -233,7 +233,7 @@ export default function Plantilla({ crearNotificacion = null, rolUsuario = '' })
                     <p className="text-xs font-semibold">Sincronizando plantilla...</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <div id="tour-plantilla-lista" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     {jugadoresFiltrados.map((jugador, index) => {
                         const nombreReal = jugador.usuario?.nombre || jugador.nombre || 'Jugador';
                         const apellidoReal = jugador.usuario?.apellido || jugador.apellido || 'Desconocido';

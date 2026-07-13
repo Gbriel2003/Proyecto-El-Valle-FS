@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ChevronRight, ChevronLeft, X, SkipForward } from 'lucide-react';
 
-export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
+export default function TourGuiado({ steps, run, onFinish, onOpenMenu, onStepChange }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [spotlightStyle, setSpotlightStyle] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' });
@@ -10,35 +10,9 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
   const step = steps[currentStep];
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-  const positionElements = useCallback(() => {
-    if (!step) return;
-    const target = document.querySelector(step.target);
-
-    if (!target || target.offsetParent === null) {
-      // Target not visible — open sidebar on mobile and retry
-      if (isMobile && onOpenMenu) {
-        onOpenMenu(true);
-        // Retry after sidebar animation
-        setTimeout(() => {
-          const retryTarget = document.querySelector(step.target);
-          if (retryTarget && retryTarget.offsetParent !== null) {
-            placeElements(retryTarget);
-          } else {
-            centerTooltip();
-          }
-        }, 350);
-        return;
-      }
-      centerTooltip();
-      return;
-    }
-
-    placeElements(target);
-  }, [step, isMobile, onOpenMenu]);
-
   const centerTooltip = () => {
     setSpotlightStyle(null);
-    const w = Math.min(300, window.innerWidth - 32);
+    const w = Math.min(420, window.innerWidth - 32);
     setTooltipPos({
       position: 'fixed',
       top: '50%',
@@ -60,8 +34,8 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
     });
 
     const mobile = window.innerWidth < 768;
-    const tooltipW = mobile ? Math.min(280, window.innerWidth - 32) : 310;
-    const tooltipH = 170;
+    const tooltipW = mobile ? Math.min(350, window.innerWidth - 32) : 420;
+    const tooltipH = 190;
 
     const spaceRight = window.innerWidth - rect.right;
     const spaceLeft = rect.left;
@@ -83,7 +57,6 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
       style.top = rect.top - tooltipH - 12;
       style.left = Math.max(16, Math.min(rect.left + rect.width / 2 - tooltipW / 2, window.innerWidth - tooltipW - 16));
     } else {
-      // Fallback: place below the sidebar item but ensure visibility
       style.top = Math.min(rect.bottom + 8, window.innerHeight - tooltipH - 16);
       style.left = Math.max(16, Math.min(rect.right + 8, window.innerWidth - tooltipW - 16));
     }
@@ -94,7 +67,7 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
   useEffect(() => {
     if (run) {
       setCurrentStep(0);
-      // On mobile, open sidebar when tour starts
+      if (onStepChange) onStepChange(0);
       if (isMobile && onOpenMenu) {
         onOpenMenu(true);
       }
@@ -104,20 +77,47 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
   useEffect(() => {
     if (!run || !step) return;
 
-    const timer = setTimeout(positionElements, isMobile ? 400 : 80);
-    const handleResize = () => positionElements();
+    let attempts = 0;
+    const maxAttempts = 25; // 25 * 20ms = 500ms max wait
+    let timeoutId;
+
+    const attemptPositioning = () => {
+      const target = document.querySelector(step.target);
+      if (target && target.offsetParent !== null) {
+        placeElements(target);
+      } else {
+        if (isMobile && onOpenMenu) onOpenMenu(true);
+        if (attempts < maxAttempts) {
+          attempts++;
+          timeoutId = setTimeout(attemptPositioning, 20);
+        } else {
+          centerTooltip();
+        }
+      }
+    };
+
+    attemptPositioning();
+
+    const handleResize = () => {
+      const t = document.querySelector(step.target);
+      if (t && t.offsetParent !== null) placeElements(t);
+      else centerTooltip();
+    };
+
     window.addEventListener('resize', handleResize);
     return () => {
-      clearTimeout(timer);
+      clearTimeout(timeoutId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [run, currentStep, step, positionElements]);
+  }, [run, currentStep, step, isMobile, onOpenMenu]);
 
   if (!run || !step || steps.length === 0) return null;
 
   const handleNext = () => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(s => s + 1);
+      const nextIdx = currentStep + 1;
+      if (onStepChange) onStepChange(nextIdx);
+      setCurrentStep(nextIdx);
       if (isMobile && onOpenMenu) onOpenMenu(true);
     } else {
       if (isMobile && onOpenMenu) onOpenMenu(false);
@@ -127,7 +127,9 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
 
   const handleBack = () => {
     if (currentStep > 0) {
-      setCurrentStep(s => s - 1);
+      const prevIdx = currentStep - 1;
+      if (onStepChange) onStepChange(prevIdx);
+      setCurrentStep(prevIdx);
       if (isMobile && onOpenMenu) onOpenMenu(true);
     }
   };
@@ -188,7 +190,7 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
         <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: '0 16px 40px -8px rgba(0,0,0,0.25)' }}>
           {/* Header */}
           <div className="bg-valle-green px-4 py-2.5 flex items-center justify-between">
-            <span className="text-white font-bold text-xs tracking-wide">
+            <span className="text-white font-bold text-sm tracking-wide">
               Paso {currentStep + 1} de {steps.length}
             </span>
             <button
@@ -208,8 +210,8 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
           </div>
 
           {/* Content */}
-          <div className="px-4 py-3.5">
-            <p className="text-slate-600 text-[13px] leading-relaxed">
+          <div className="px-6 py-5">
+            <p className="text-slate-800 text-[15.5px] leading-relaxed font-semibold">
               {step.content}
             </p>
           </div>
@@ -228,18 +230,18 @@ export default function TourGuiado({ steps, run, onFinish, onOpenMenu }) {
               {!isFirst && (
                 <button
                   onClick={handleBack}
-                  className="flex items-center gap-0.5 px-3 py-1.5 text-valle-green font-semibold text-[12px] rounded-lg hover:bg-valle-green/10 transition cursor-pointer"
+                  className="flex items-center gap-0.5 px-3 py-1.5 text-valle-green font-bold text-[13px] rounded-lg hover:bg-valle-green/10 transition cursor-pointer"
                 >
-                  <ChevronLeft size={13} />
+                  <ChevronLeft size={14} />
                   Atrás
                 </button>
               )}
               <button
                 onClick={handleNext}
-                className="flex items-center gap-0.5 px-4 py-1.5 bg-valle-green text-white font-semibold text-[12px] rounded-lg hover:bg-valle-green-dark transition cursor-pointer"
+                className="flex items-center gap-0.5 px-4 py-1.5 bg-valle-green text-white font-bold text-[13px] rounded-lg hover:bg-valle-green-dark transition cursor-pointer"
               >
                 {isLast ? 'Finalizar' : 'Siguiente'}
-                {!isLast && <ChevronRight size={13} />}
+                {!isLast && <ChevronRight size={14} />}
               </button>
             </div>
           </div>

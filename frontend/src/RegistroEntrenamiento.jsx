@@ -340,7 +340,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
 
             {/* VISTA 1: LISTA HISTÓRICA */}
             {vista === 'lista' && (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div id="tour-ia-history" className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-4 md:p-6 border-b border-slate-200 flex flex-col md:flex-row md:justify-between md:items-center bg-slate-50 gap-4">
                         <div>
                             <h2 className="text-lg font-bold text-valle-black flex items-center">
@@ -364,6 +364,7 @@ export default function RegistroEntrenamiento({ crearNotificacion = null }) {
                                 <Activity size={14} className="mr-1.5 shrink-0" /> Análisis I.A.
                             </button>
                             <button 
+                                id="tour-ia-form"
                                 onClick={() => { setSesionForm({ tipo_sesion: 'Físico', descripcion: '', duracion_min: 90 }); setVista('crear'); }}
                                 className="px-3 py-1.5 bg-valle-green hover:bg-valle-green-dark text-white rounded-lg text-xs font-bold flex items-center transition justify-center shadow-md cursor-pointer whitespace-nowrap"
                             >

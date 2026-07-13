@@ -416,6 +416,7 @@ Reporte filtrado por fecha y/o suplementos.`;
           )}
           {!esCuerpoTecnico ? (
             <button
+              id="tour-atleta-habitos"
               onClick={() => setMostrarHabitoModal(true)}
               className={`w-full md:w-auto px-4 py-2.5 rounded-lg text-xs font-black transition flex items-center justify-center shadow-sm cursor-pointer ${habitosDeHoyRegistrados
                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -484,7 +485,7 @@ Reporte filtrado por fecha y/o suplementos.`;
       )}
 
       {/* Métricas Principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div id="tour-atleta-metricas" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-xl shadow-sm border border-indigo-100/50 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
           <div>
             <p className="text-xs font-bold text-indigo-500 uppercase tracking-wider">Peso / IMC Actual</p>

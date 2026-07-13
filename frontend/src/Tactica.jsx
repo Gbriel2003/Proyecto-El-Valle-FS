@@ -645,7 +645,7 @@ export default function Tactica({
     return (
         <div className="space-y-6 w-full mx-auto px-2 sm:px-4 lg:px-6">
             {/* Cabecera y Tabs */}
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div id={subVista === 'calendario' ? 'tour-tactica-calendario' : undefined} className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div className="text-left">
                     <h2 className="text-xl font-bold text-valle-black flex items-center">
                         <headerConfig.Icon className="text-valle-green mr-2.5" size={24} />
@@ -726,7 +726,7 @@ export default function Tactica({
             {/* ================= VISTA 2: PIZARRA TÁCTICA INTERACTIVA ================= */}
             {subVista === 'pizarra' && (
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                    <div className="xl:col-span-3">
+                    <div id="tour-tactica-pizarra" className="xl:col-span-3">
                         <TacticalCanvas
                             boardRef={boardRef}
                             canvasRef={canvasRef}
@@ -748,7 +748,7 @@ export default function Tactica({
                             cargarJugadaTactica={cargarJugadaTactica}
                         />
                     </div>
-                    <div className="xl:col-span-1">
+                    <div id="tour-tactica-animacion" className="xl:col-span-1">
                         <PlaybookManager
                             cargandoJugadas={cargandoJugadas}
                             jugadas={jugadas}
