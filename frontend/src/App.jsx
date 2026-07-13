@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import api from './api';
 import Login from './Login';
 import AtletaDashboard from './AtletaDashboard';
@@ -38,8 +38,10 @@ import {
   ShieldAlert,
   Lock,
   Award,
-  Trophy
+  Trophy,
+  HelpCircle
 } from 'lucide-react';
+import TourGuiado from './components/TourGuiado';
 
 
 const titulosPaginas = {
@@ -57,14 +59,62 @@ const titulosPaginas = {
 };
 
 export default function App() {
-  const [autenticado, setAutenticado] = useState(false);
-  const [rolUsuario, setRolUsuario] = useState('');
-  const [menuActivo, setMenuActivo] = useState('');
+  const [autenticado, setAutenticado] = useState(() => !!localStorage.getItem('token_valle'));
+  const [rolUsuario, setRolUsuario] = useState(() => (localStorage.getItem('rol_usuario') || '').toLowerCase());
+  const [debeCambiarPassword, setDebeCambiarPassword] = useState(() => localStorage.getItem('debe_cambiar_password') === 'true');
+  const [menuActivo, setMenuActivo] = useState(() => {
+    const rol = localStorage.getItem('rol_usuario');
+    const debeCambiar = localStorage.getItem('debe_cambiar_password') === 'true';
+    if (!rol) return '';
+    if (debeCambiar) return 'cambiar_contrasena';
+    if (rol.toLowerCase() === 'atleta') return 'mi_perfil';
+    return 'dashboard';
+  });
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tacticaMenuAbierto, setTacticaMenuAbierto] = useState(false);
-  const [debeCambiarPassword, setDebeCambiarPassword] = useState(false);
   const [tokenRestablecer, setTokenRestablecer] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
+
+  // Tour Guiado
+  const [runTour, setRunTour] = useState(false);
+  
+  const tourSteps = useMemo(() => {
+    if (!rolUsuario) return [];
+    
+    let steps = [];
+    if (rolUsuario === 'admin') {
+      steps = [
+        { target: '#nav-dashboard', content: '¡Bienvenido! Aquí verás un resumen general del rendimiento y estadísticas del club.', disableBeacon: true },
+        { target: '#nav-ia', content: 'Utiliza nuestra IA para analizar sesiones de entrenamiento y medir el esfuerzo de la plantilla.' },
+        { target: '#nav-jugadores', content: 'Gestiona la plantilla activa, da de alta a jugadores y revisa sus estados físicos y lesiones.' },
+        { target: '#nav-control_nutricional', content: 'Supervisa la nutrición, biometría y dietas asignadas de los atletas.' },
+        { target: '#nav-tactica-grupo', content: 'Despliega este menú para acceder a la Pizarra Táctica interactiva y al calendario de Partidos.' },
+        { target: '#nav-configuracion', content: 'Administra cuentas de usuario, crea personal técnico y configura el club.' },
+        { target: '#nav-administrar_perfil', content: 'Aquí puedes configurar tu información y credenciales de acceso.' }
+      ];
+    } else if (rolUsuario === 'entrenador') {
+      steps = [
+        { target: '#nav-dashboard', content: '¡Bienvenido Entrenador! Revisa rápidamente el estado y rendimiento de tu equipo.', disableBeacon: true },
+        { target: '#nav-ia', content: 'Sube reportes de entrenamiento y deja que la IA mida la carga cognitiva y física de tus jugadores.' },
+        { target: '#nav-jugadores', content: 'Revisa los perfiles individuales de tus jugadores, historial de lesiones e información médica.' },
+        { target: '#nav-tactica-grupo', content: 'Diseña jugadas en la Pizarra Táctica y planifica estrategias para los próximos Partidos.' }
+      ];
+    } else if (rolUsuario === 'nutricionista') {
+      steps = [
+        { target: '#nav-dashboard', content: '¡Bienvenida/o! Observa métricas globales de la plantilla para tener un panorama general.', disableBeacon: true },
+        { target: '#nav-jugadores', content: 'Accede a la lista de atletas para consultar sus expedientes individuales.' },
+        { target: '#nav-control_nutricional', content: 'El núcleo de tu trabajo: crea planes dietéticos y haz seguimiento a biometría y hábitos de cada atleta.' }
+      ];
+    } else if (rolUsuario === 'atleta') {
+      steps = [
+        { target: '#nav-mi_perfil', content: '¡Bienvenido Atleta! En tu Ficha Deportiva debes registrar TODOS LOS DÍAS tus hábitos: litros de agua, horas de sueño y suplementación.', disableBeacon: true },
+        { target: '#nav-mis_partidos', content: 'Aquí podrás ver el calendario de encuentros, convocatorias y detalles de tus próximos juegos.' },
+        { target: '#nav-administrar_perfil', content: 'Si necesitas cambiar tus datos personales, foto de perfil o tu contraseña temporal, entra aquí.' }
+      ];
+    }
+    
+    return steps.map(step => ({ ...step, disableBeacon: true }));
+  }, [rolUsuario]);
 
   // Estados globales de alertas y carga de reportes
   const [toasts, setToasts] = useState([]);
@@ -377,26 +427,6 @@ export default function App() {
         setTokenRestablecer(token);
       }
     }
-
-    const token = localStorage.getItem('token_valle');
-    const rol = localStorage.getItem('rol_usuario') || 'atleta';
-    const debeCambiar = localStorage.getItem('debe_cambiar_password') === 'true';
-
-    if (token) {
-      setTimeout(() => {
-        setAutenticado(true);
-        setRolUsuario(rol.toLowerCase());
-        setDebeCambiarPassword(debeCambiar);
-
-        if (debeCambiar) {
-          setMenuActivo('cambiar_contrasena');
-        } else if (rol.toLowerCase() === 'atleta') {
-          setMenuActivo('mi_perfil');
-        } else {
-          setMenuActivo('dashboard');
-        }
-      }, 0);
-    }
   }, []);
 
   useEffect(() => {
@@ -444,7 +474,7 @@ export default function App() {
   }
 
   if (!autenticado) {
-    return <Login onLoginSuccess={() => window.location.reload()} />;
+    return <Login key="login-view" onLoginSuccess={() => window.location.reload()} />;
   }
 
   // Clases CSS reutilizables para el menú con colores de marca y diseño premium
@@ -478,7 +508,13 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+    <div key="dashboard-view" className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+      <TourGuiado
+        steps={tourSteps}
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        onOpenMenu={setMenuAbierto}
+      />
 
       {/* Overlay oscuro para móvil cuando el menú está abierto */}
       {menuAbierto && (
@@ -521,7 +557,7 @@ export default function App() {
             <>
               {/* Rendimiento Global (Admin, Entrenador, Nutricionista) */}
               {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
-                <button onClick={() => handleNavClick('dashboard')} className={navItemClass('dashboard')}>
+                <button id="nav-dashboard" onClick={() => handleNavClick('dashboard')} className={navItemClass('dashboard')}>
                   <BarChart2 size={18} className="mr-3" />
                   <span>Rendimiento Global</span>
                 </button>
@@ -529,7 +565,7 @@ export default function App() {
 
               {/* Control de Entrenamiento (Admin, Entrenador) */}
               {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
-                <button onClick={() => handleNavClick('ia')} className={navItemClass('ia')}>
+                <button id="nav-ia" onClick={() => handleNavClick('ia')} className={navItemClass('ia')}>
                   <Activity size={18} className="mr-3" />
                   <span>Control Entrenamiento</span>
                 </button>
@@ -537,7 +573,7 @@ export default function App() {
 
               {/* Plantilla Activa (Admin, Entrenador, Nutricionista) */}
               {(rolUsuario === 'admin' || rolUsuario === 'entrenador' || rolUsuario === 'nutricionista') && (
-                <button onClick={() => handleNavClick('jugadores')} className={navItemClass('jugadores')}>
+                <button id="nav-jugadores" onClick={() => handleNavClick('jugadores')} className={navItemClass('jugadores')}>
                   <Users size={18} className="mr-3" />
                   <span>Plantilla Activa</span>
                 </button>
@@ -545,7 +581,7 @@ export default function App() {
 
               {/* Control Nutricional (Nutricionista, Admin) */}
               {(rolUsuario === 'nutricionista' || rolUsuario === 'admin') && (
-                <button onClick={() => handleNavClick('control_nutricional')} className={navItemClass('control_nutricional')}>
+                <button id="nav-control_nutricional" onClick={() => handleNavClick('control_nutricional')} className={navItemClass('control_nutricional')}>
                   <Apple size={18} className="mr-3" />
                   <span>Control Nutricional</span>
                 </button>
@@ -553,7 +589,7 @@ export default function App() {
 
               {/* Grupo Colapsable: Táctica y Partidos (Admin, Entrenador) */}
               {(rolUsuario === 'admin' || rolUsuario === 'entrenador') && (
-                <div className="space-y-1">
+                <div id="nav-tactica-grupo" className="space-y-1">
                   <button 
                     onClick={() => setTacticaMenuAbierto(!tacticaMenuAbierto)} 
                     className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 font-semibold text-sm mb-1 group cursor-pointer focus:outline-none ${
@@ -596,7 +632,7 @@ export default function App() {
 
               {/* VISTAS EXCLUSIVAS DEL ADMINISTRADOR */}
               {rolUsuario === 'admin' && (
-                <button onClick={() => handleNavClick('configuracion')} className={navItemClass('configuracion')}>
+                <button id="nav-configuracion" onClick={() => handleNavClick('configuracion')} className={navItemClass('configuracion')}>
                   <Settings size={18} className="mr-3" />
                   <span>Configuración Club</span>
                 </button>
@@ -605,11 +641,11 @@ export default function App() {
               {/* Ficha Deportiva (Solo Atletas) */}
               {rolUsuario === 'atleta' && (
                 <>
-                  <button onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
+                  <button id="nav-mi_perfil" onClick={() => handleNavClick('mi_perfil')} className={navItemClass('mi_perfil')}>
                     <Award size={18} className="mr-3" />
                     <span>Ficha Deportiva</span>
                   </button>
-                  <button onClick={() => handleNavClick('mis_partidos')} className={navItemClass('mis_partidos')}>
+                  <button id="nav-mis_partidos" onClick={() => handleNavClick('mis_partidos')} className={navItemClass('mis_partidos')}>
                     <Trophy size={18} className="mr-3" />
                     <span>Mis Partidos</span>
                   </button>
@@ -617,7 +653,7 @@ export default function App() {
               )}
 
               {/* Mi Perfil (Todos) */}
-              <button onClick={() => handleNavClick('administrar_perfil')} className={navItemClass('administrar_perfil')}>
+              <button id="nav-administrar_perfil" onClick={() => handleNavClick('administrar_perfil')} className={navItemClass('administrar_perfil')}>
                 <UserIcon size={18} className="mr-3" />
                 <span>Mi Perfil</span>
               </button>
@@ -665,6 +701,16 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Botón Cómo usar */}
+            <button
+              id="btn-como-usar"
+              onClick={() => setRunTour(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-valle-green/10 text-valle-green hover:bg-valle-green hover:text-white rounded-xl transition text-xs font-bold cursor-pointer border border-valle-green/20"
+            >
+              <HelpCircle size={16} />
+              <span className="hidden sm:inline">Cómo usar</span>
+            </button>
+
             {/* Campana de Notificaciones */}
             <div className="relative notification-container">
               <button

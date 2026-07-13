@@ -242,7 +242,7 @@ export default function AdministrarPerfil({ rolUsuario, crearNotificacion, debeC
             Detalles del Perfil
           </h3>
           
-          <div className="space-y-5 max-w-2xl">
+          <div className="space-y-5 w-full">
             {/* Nombre y Apellido */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
